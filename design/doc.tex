@@ -10,6 +10,9 @@
 %Concentrated lists
 \usepackage{mdwlist}
 
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows}
+
 
 %opening
 \title{Grafritande Räknare - Designskiss}
@@ -23,6 +26,36 @@
 \section{}
 Vi ska implementera en generell dator av mikroprogrammerad, ej pipelinead typ. Mjukvaran skrivs i assembler. Vi har en VGA-motor, en tangentbordsavkodare och möjligtvis touchavkodare samt motor för dess skärm. 
 
+\tikzstyle{block} = [draw, fill=blue!20, rectangle, 
+minimum height=3em, minimum width=6em]
+\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+\begin{center}
+
+\begin{tikzpicture}[auto, node distance=2cm,>=latex']
+
+
+
+\node [block, node distance=2cm] (vga) {Skärm};
+\node [block, right of=vga, node distance=3cm] (cpu) {CPU};
+\node [block, below of=cpu, node distance=2cm] (memory) {Minne};
+\node [output, right of=cpu] (foo) {};
+
+
+\draw [<->] (cpu) -- node[near start]{} (memory);
+\node [block, right of=cpu, node distance=3.5cm] (keyboard) {Tangentbord};
+\node [block, below of=keyboard] (keyboarddriver) {Tangentbordsmotor};
+
+\draw [->] (keyboarddriver) -- node {} (memory);
+\draw [->] (keyboard) -- node {} (keyboarddriver);
+
+\node [block, node distance=3cm, left of=memory] (driver) {VGA-motor};
+\draw [->] (memory) -- node {} (driver);
+\draw [->] (driver) -- node {} (vga);
+\end{tikzpicture}
+\end{center}
 \subsection{CPU}
 Vår processor är mikroprogrammerad, med delat data och programminne. Vi använder 32-bitars ordbredd. CPU använder distributed RAM, och bildminnet på blockram. 
 
