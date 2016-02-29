@@ -1,0 +1,93 @@
+\documentclass[]{article}
+
+%Font encoding for swedish
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+
+%Swedish
+\usepackage[swedish]{babel}
+
+%Concentrated lists
+\usepackage{mdwlist}
+
+
+%opening
+\title{Grafritande Räknare - Designskiss}
+\author{Hannes Haglund hanha265\\Felix Härnström felha423\\Silas Lenz sille914}
+
+\begin{document}
+
+\maketitle
+\newpage
+
+\section{}
+Vi ska implementera en generell dator av mikroprogrammerad, ej pipelinead typ. Mjukvaran skrivs i assembler. Vi har en VGA-motor, en tangentbordsavkodare och möjligtvis touchavkodare samt motor för dess skärm. 
+
+\subsection{CPU}
+Vår processor är mikroprogrammerad, med delat data och programminne. Vi använder 32-bitars ordbredd. CPU använder distributed RAM, och bildminnet på blockram. 
+
+Processor laddas alltid med samma program vid start. 
+
+Processorn används för beräkningar, historik, parsing av input, beräkning av graf, ...
+
+\subsubsection{Instruktioner}
+Vi har följande adresseringsmoder:
+\begin{itemize*}
+\item Direkt
+\item Omedelbar
+\item Indirekt 
+\end{itemize*}
+Följande instruktionsmängd:
+\begin{itemize*}
+\item LOAD
+\item STORE
+\item ADD
+\item SUB
+\item ADDF (add floats)
+\item SUBF
+\item MULTF
+\item DIVF
+\item AND
+\item ASR
+\item ASL
+\item BRA
+\item BNE
+\item BMI
+\item BEQ
+\item BRF (branch overflow)
+\item HALT	
+\end{itemize*}
+
+\subsection{Grafik} 
+Vi delar upp vår display i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap i svartvitt. Räknaren (text) använder sidan med tiles, och grafen använder bitmapsidan.
+
+Upplösning 640x480. Både tiles och bitmap i svartvitt.
+
+Processorn skriver tilenummer samt bitmapen direkt till bildminnet, utan att synkronisera med bilduppritningen.
+
+\subsection{I/O}
+Input via PS/2 med en avkodare i vhdl. Avkodaren skriver till en förutbestämd minnesadress i dataminnet.
+
+\subsection{Minne}
+Vi har följande minnen:
+\begin{itemize*}
+\item PC (rw)
+\item ASR (rw)
+\item IR (rw)
+\item $\mu$PC (rw)
+\item $\mu$Minne (rw)
+\item Programminne (rw)
+\item 6 generella dataregister (rw)
+\item Statusregister (r)
+\item Bildmine
+\end{itemize*}
+Alla har storlek 32-bit.
+
+TODO: Räcker minnet?
+
+\subsection{Programmering}
+Vi skriver en assembler, med lite syntaktiskt socker för loopar och if-satser. 
+
+\subsection{Milstolpe}
+En fungerande processor som kan rita ut flyttal från en adress i minnet med hjälp av VGA-motor.
+\end{document}
