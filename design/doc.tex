@@ -45,10 +45,10 @@ minimum height=3em, minimum width=6em]
 
 
 \draw [<->] (cpu) -- node[near start]{} (memory);
-\node [block, right of=cpu, node distance=3.5cm] (keyboard) {Tangentbord};
-\node [block, below of=keyboard] (keyboarddriver) {Tangentbordsmotor};
+\node [block, right of=cpu, node distance=3.5cm] (keyboarddriver) {Tangentbordsmotor};
+\node [block, below of=keyboarddriver] (keyboard) {Tangentbord};
 
-\draw [->] (keyboarddriver) -- node {} (memory);
+\draw [>->] (keyboarddriver) -- node {} (cpu);
 \draw [->] (keyboard) -- node {} (keyboarddriver);
 
 \node [block, node distance=3cm, left of=memory] (driver) {VGA-motor};
