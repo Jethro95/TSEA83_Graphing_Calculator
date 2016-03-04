@@ -35,6 +35,11 @@ WORD_WIDTH = 4 #Bytes
 INSTRUCTION_WIDTH = 1 #Bytes 
 ARGUMENT_WIDTH = WORD_WIDTH - INSTRUCTION_WIDTH
 
+KEYWORD_IF = "if"
+KEYWORD_END = "end"
+KEYWORD_COMMENT = "#"
+assert len(KEYWORD_COMMENT) == 1
+
 INSTR_BRA = 0
 INSTR_BRA_S = "bra"
 
@@ -65,7 +70,7 @@ def lineToCompleteInstruction(line, instruction, instructionString):
 #Parsing of "end" is handled separetly
 #Returns None if an illegal instruction was given
 def parseLine(line):
-    if line.startswith("if"):
+    if line.startswith(KEYWORD_IF):
         #TODO: Find and use proper GOTO
         #Note that we should jump on !<given expression>
         return placeholderInstruction(INSTR_BRA)
@@ -82,7 +87,7 @@ def withoutComment(line):
         return ""
     result = ""
     for char in line:
-        if char == "#":
+        if char == KEYWORD_COMMENT:
             break
         else:
             result += char
@@ -105,7 +110,7 @@ def main():
                 continue
             line = line.replace("\n", "") #Remove trailing \n
             
-            if not line.startswith("end"): #If instruction can be parsed by parseLine()...
+            if not line.startswith(KEYWORD_END): #If instruction can be parsed by parseLine()...
                 instruction = parseLine(line)
                 if instruction is None:
                     print("Error: Illegal instruction '", line, "'.")
@@ -116,7 +121,7 @@ def main():
             else:
                 #We've got an "end". Append next line as argument for placeholder instruction on stack.
                 if len(placeHolderIndexStack) == 0:
-                    print('Error: Trailing "end"')
+                    print('Error: Trailing "', KEYWORD_END, '"')
                     return
                 index = placeHolderIndexStack.pop()
                 result[index] += hexify(len(result), ARGUMENT_WIDTH) #Append next line as argument (to jump to) 
