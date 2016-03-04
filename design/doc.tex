@@ -56,12 +56,13 @@ minimum height=3em, minimum width=6em]
 \draw [->] (driver) -- node {} (vga);
 \end{tikzpicture}
 \end{center}
+
 \subsection{CPU}
 Vår processor är mikroprogrammerad, med delat data och programminne. Vi använder 32-bitars ordbredd. CPU använder distributed RAM, och bildminnet på blockram. 
 
 Processor laddas alltid med samma program vid start. 
 
-Processorn används för beräkningar, historik, parsing av input, beräkning av graf, ...
+Nästan allt arbete utförs av processorn, då förutom tangentbordläsning (dock parsing), och utritning av bildminnets innehåll. Dessa uppgifter inkluderar: beräkningar, historik, parsing av input, beräkning av graf, och så vidare.
 
 \subsubsection{Instruktioner}
 Vi har följande adresseringsmoder:
@@ -123,7 +124,7 @@ Alla har storlek 32-bit.
 TODO: Räcker minnet?
 
 \subsection{Programmering}
-Vi skriver en assembler, med lite syntaktiskt socker för loopar och if-satser. 
+Vi skriver en assembler, med lite syntaktiskt socker för loopar och if-satser.
 
 \subsection{Milstolpe}
 En fungerande processor som kan rita ut flyttal från en adress i minnet med hjälp av VGA-motor.
