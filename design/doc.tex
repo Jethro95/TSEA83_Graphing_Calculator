@@ -24,7 +24,7 @@
 \newpage
 
 \section{}
-Vi ska implementera en generell dator av mikroprogrammerad, ej pipelinead typ. Mjukvaran skrivs i assembler. Vi har en VGA-motor, en tangentbordsavkodare och möjligtvis touchavkodare samt motor för dess skärm. 
+Vi ska implementera en generell dator av mikroprogrammerad, ej pipelinead typ. Mjukvaran skrivs i assembler. Vi har en VGA-motor, en tangentbordsavkodare och möjligtvis touchavkodare samt motor för dess skärm (utökningsmål). 
 
 \tikzstyle{block} = [draw, fill=blue!20, rectangle, 
 minimum height=3em, minimum width=6em]
@@ -33,6 +33,8 @@ minimum height=3em, minimum width=6em]
 \tikzstyle{output} = [coordinate]
 \tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
 \begin{center}
+
+%TODO: Visa vilka delar i bilden nedan som tillhör fpgan
 
 \begin{tikzpicture}[auto, node distance=2cm,>=latex']
 
@@ -58,11 +60,11 @@ minimum height=3em, minimum width=6em]
 \end{center}
 
 \subsection{CPU}
-Vår processor är mikroprogrammerad, med delat data och programminne. Vi använder 32-bitars ordbredd. CPU använder distributed RAM, och bildminnet på blockram. 
+Vår processor är mikroprogrammerad, med delat data och programminne. Vi använder 32-bitars ordbredd. Endast blockram används.
 
 Processor laddas alltid med samma program vid start. 
 
-Nästan allt arbete utförs av processorn, förutom tangentbordläsning (dock parsing), och utritning av bildminnets innehåll. Dessa uppgifter inkluderar: beräkningar, historik, parsing av input, beräkning av graf, och så vidare.
+Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utritning av bildminnets innehåll. Dessa uppgifter inkluderar: beräkningar, historik, parsing av input, beräkning av graf, och så vidare.
 
 \subsubsection{Instruktioner}
 Vi har följande adresseringsmoder:
@@ -72,6 +74,7 @@ Vi har följande adresseringsmoder:
 \item Indirekt 
 \end{itemize*}
 Följande instruktionsmängd:
+%TODO: I table. Beskriv vad varje gör.
 \begin{itemize*}
 \item LOAD
 \item STORE
@@ -95,16 +98,20 @@ Följande instruktionsmängd:
 \subsection{Grafik} 
 Vi delar upp vår display i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap i svartvitt. Räknaren (text) använder sidan med tiles, och grafen använder bitmapsidan.
 
-Upplösning 640x480. Både tiles och bitmap i svartvitt.
+Upplösning 640x480. Både tiles och bitmap i svartvitt. Uppdateringsfrekvens 60Hz.
 
 Processorn skriver tilenummer samt bitmapen direkt till bildminnet, utan att synkronisera med bilduppritningen.
+
+%TODO: Blockschema VGA_MOTOR
 
 \subsection{I/O}
 Input via PS/2 med en avkodare i \textsc{vhdl}. Avkodaren skriver ett tecken till en egen minnesplats som kan läsas av processorn via STORE. Vi låter instruktionen ta en virtuell adress som argument, och en viss adress som överskrider processorns minnesstorlek får referera till avkodarens minnescell.
 
 Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs och avkodaren påbörjar läsning av nästa tecken.
 
-Hämtad input ritas ut i ett konsolfönster på skärmen, och interpreteras vid nedslag av returknappen.
+Hämtad input ritas ut i ett konsolfönster på skärmen, och interpreteras vid nedslag av returknappen. Tal matas in i form av flyttal (separerad med punk), och uttryck skrivs i reverse-polish-notation.
+
+%TODO: Blockschema tangentbordsmotor
 
 \subsection{Minne}
 Vi har följande minnen:
@@ -117,11 +124,9 @@ Vi har följande minnen:
 \item Programminne (rw)
 \item 6 generella dataregister (rw)
 \item Statusregister (r)
-\item Bildmine
+\item Bildminne
 \end{itemize*}
-Alla har storlek 32-bit.
-
-TODO: Räcker minnet?
+Med ordbredden 32 bitar.
 
 \subsection{Programmering}
 Vi skriver en assembler, med lite syntaktiskt socker för loopar och if-satser.
