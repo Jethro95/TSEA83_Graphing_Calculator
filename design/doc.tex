@@ -11,7 +11,7 @@
 \usepackage{mdwlist}
 
 \usepackage{tikz}
-\usetikzlibrary{shapes,arrows}
+\usetikzlibrary{shapes,arrows,calc}
 
 
 %opening
@@ -34,28 +34,28 @@ minimum height=3em, minimum width=6em]
 \tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
 \begin{center}
 
-%TODO: Visa vilka delar i bilden nedan som tillhör fpgan
 
 \begin{tikzpicture}[auto, node distance=2cm,>=latex']
 
 
 
-\node [block, node distance=2cm] (vga) {Skärm};
-\node [block, right of=vga, node distance=3cm] (cpu) {CPU};
+\node [block, node distance=3cm] (cpu) {CPU};
 \node [block, below of=cpu, node distance=2cm] (memory) {Minne};
 \node [output, right of=cpu] (foo) {};
 
 
 \draw [<->] (cpu) -- node[near start]{} (memory);
-\node [block, right of=cpu, node distance=3.5cm] (keyboarddriver) {Tangentbordsmotor};
-\node [block, below of=keyboarddriver] (keyboard) {Tangentbord};
+\node [block, above of=cpu] (keyboarddriver) {Tangentbordsmotor};
+\node [block, node distance=3.5cm, left of=keyboarddriver] (keyboard) {Tangentbord};
 
-\draw [>->] (keyboarddriver) -- node {} (cpu);
+\draw [<->] (keyboarddriver) -- node {} (cpu);
 \draw [->] (keyboard) -- node {} (keyboarddriver);
 
-\node [block, node distance=3cm, left of=memory] (driver) {VGA-motor};
+\node [block, node distance=2cm, below of=memory] (driver) {VGA-motor};
+\node [block, right of=driver, node distance=3.5cm] (vga) {Skärm};
 \draw [->] (memory) -- node {} (driver);
 \draw [->] (driver) -- node {} (vga);
+\draw[thick,dotted] ($(keyboarddriver.north west)+(-0.3,0.3)$)  rectangle ($(driver.south east)+(1,-0.3)$) node[pos=0] {FPGA};
 \end{tikzpicture}
 \end{center}
 
