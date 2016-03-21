@@ -12,6 +12,8 @@
 %Concentrated lists
 \usepackage{mdwlist}
 
+\usepackage{multicol}
+
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,calc}
 
@@ -71,6 +73,8 @@ Processor laddas alltid med samma program vid start.
 
 Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utritning av bildminnets innehåll. Dessa uppgifter inkluderar: beräkningar, historik, parsing av input, beräkning av graf, och så vidare.
 
+\newpage
+
 \subsubsection{Instruktioner}
 Vi har följande adresseringsmoder:
 \begin{itemize*}
@@ -79,10 +83,15 @@ Vi har följande adresseringsmoder:
 \item Indirekt 
 \end{itemize*}
 Följande instruktionsmängd:
-%TODO: I table. Beskriv vad varje gör.
+
+\begin{multicols}{5}
 \begin{itemize*}
 \item ADD
-\item ADDF (add floats)
+\item ADDF
+\item SUB
+\item SUBF
+\item MULTF
+\item DIVF
 \item AND
 \item ASL
 \item ASR
@@ -90,15 +99,15 @@ Följande instruktionsmängd:
 \item BMI
 \item BNE
 \item BRA
-\item BRF (branch overflow)
-\item DIVF
-\item HALT
+\item BRF
 \item LOAD
-\item MULTF
 \item STORE
-\item SUB
-\item SUBF
+\item HALT
 \end{itemize*}
+\end{multicols}
+
+\noindent
+En utförlig förklaring till varje instruktions argument, resultat, adresseringsmoder, och påverkade flaggor finns tillgängligt som bilaga, på engelska.
 
 \subsection{Grafik} 
 Vi delar upp vår display i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap i svartvitt. Räknaren (text) använder sidan med tiles, och grafen använder bitmapsidan.
@@ -115,6 +124,8 @@ Input via PS/2 med en avkodare i \textsc{vhdl}. Avkodaren skriver ett tecken til
 Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs och avkodaren påbörjar läsning av nästa tecken.
 
 Hämtad input ritas ut i ett konsolfönster på skärmen, och interpreteras vid nedslag av returknappen. Tal matas in i form av flyttal (separerad med punk), och uttryck skrivs i reverse-polish-notation.
+
+\newpage
 
 %TODO: Blockschema tangentbordsmotor
 
