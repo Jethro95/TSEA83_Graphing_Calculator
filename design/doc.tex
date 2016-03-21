@@ -262,7 +262,7 @@ are undefined). The C-bit is always cleared.\\
   \textbf{Syntax:}  		& \texttt{AND <ea>,Dn}\newline\texttt{AND Dn,<ea>}\\
   \textbf{Description:}  	& AND the source operand to the destination operand and store the
 result in the destination location.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * 0 0}\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * 0 0}\newline\newline The N-bit is set to the most significant bit of the result. The Z-bit is set if the result is equal to zero.\\
 \end{tabularx}
 \newline
 
@@ -310,13 +310,13 @@ the number.\\
 \newpage
 
 %%%%%
-% BEQ
+% Bcc
 %%%%%
 \noindent\rule{10cm}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{BEQ}} 	& {\Large \textbf{Branch on condition cc}}\\
+  {\Large \textbf{Bcc}} 	& {\Large \textbf{Branch on condition cc}}\\
   \textbf{Operation:} 		& \texttt{If cc = 1 THEN [PC] $\leftarrow$ [PC] + d}\\
   \textbf{Syntax:}  		& \texttt{Bcc <label>}\\
   \textbf{Description:}  	& If the specified logical condition is met, program execution
