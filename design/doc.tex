@@ -149,12 +149,12 @@ En fungerande processor som kan rita ut flyttal frÃ¥n en adress i minnet med hjÃ
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{ADD}} 	& {\Large \textbf{ADD binary}}\\
+  {\Large \textbf{ADD}} 	& {\Large \textbf{Add signed integers}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
   \textbf{Syntax:}  		& \texttt{ADD <ea>,Dn}\newline\texttt{ADD Dn,<ea>}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
 result in the destination location.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the sum is negative. The Z-bit is set if the sum is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
 \end{tabularx}
 \newline
 
@@ -165,14 +165,90 @@ result in the destination location.\\
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{ADDF}} 	& {\Large \textbf{ADD float}}\\
+  {\Large \textbf{ADDF}} 	& {\Large \textbf{Add signed floating-point numbers}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
   \textbf{Syntax:}  		& \texttt{ADDF <ea>,Dn}\newline\texttt{ADDF Dn,<ea>}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
-result in the destination location.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\\
+result in the destination location, interpreting operands and sum as signed floating-point numbers.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the sum is negative. The Z-bit is set if the sum is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
 \end{tabularx}
 \newline
+
+\newpage
+
+%%%%%
+% SUB
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{SUB}} 	& {\Large \textbf{Subtract signed integers}}\\
+  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
+  \textbf{Syntax:}  		& \texttt{SUB <ea>,Dn}\newline\texttt{SUB Dn,<ea>}\\
+  \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
+result in the destination location.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the difference is negative. The Z-bit is set if the difference is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
+\end{tabularx}
+\newline
+
+%%%%%
+% SUBF
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{SUBF}} 	& {\Large \textbf{Subtract signed floating-point numbers}}\\
+  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
+  \textbf{Syntax:}  		& \texttt{SUBF <ea>,Dn}\newline\texttt{SUBF Dn,<ea>}\\
+  \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
+result in the destination location, interpreting operands and difference as signed floating-point numbers.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the difference is negative. The Z-bit is set if the difference is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
+\end{tabularx}
+\newline
+
+\newpage
+
+%%%%%
+% DIVF
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{DIVF}} 	& {\Large \textbf{Signed floating-point divide}}\\
+  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]/[source]}\\
+  \textbf{Syntax:}  		& \texttt{DIVF <ea>,Dn}\\
+  \textbf{Description:}  	& Divide the destination operand by the source operand and store
+the result in the destination, interpreting operands and result as signed floating-point numbers.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a division. The N-bit is set if the
+quotient is negative. The Z-bit is set if the quotient is zero. The Vbit
+is set if division overflow occurs (in which case the Z- and Nbits
+are undefined). The C-bit is always cleared.\\
+\end{tabularx}
+\newline
+
+%%%%%
+% MULTF
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{MULTF}} 	& {\Large \textbf{Signed floating-point multiply}}\\
+  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]$\times$[source]}\\
+  \textbf{Syntax:}  		& \texttt{MULTF <ea>,Dn}\\
+  \textbf{Description:}  	& Multiply the destination operand by the source operand and store
+the result in the destination, interpreting operands and result as signed floating-point numbers.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a multiplication. The N-bit is set if the 
+product is negative. The Z-bit is set if the product is zero. The V-bit
+is set if division overflow occurs (in which case the Z-bit and the N-bit
+are undefined). The C-bit is always cleared.\\
+\end{tabularx}
+\newline
+
+\newpage
 
 %%%%%
 % AND
@@ -234,7 +310,7 @@ the number.\\
 \newpage
 
 %%%%%
-% Bcc
+% BEQ
 %%%%%
 \noindent\rule{10cm}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
@@ -269,43 +345,35 @@ continues at location [PC] + displacement, d.\newline\newline
 \end{tabularx}
 \newline
 
-%%%%%
-% DIV
-%%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
-\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
-\setlength\extrarowheight{5pt} %Increase row spacing
-\begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{DIV}} 	& {\Large \textbf{Signed divide}}\\
-  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]/[source]}\\
-  \textbf{Syntax:}  		& \texttt{DIV <ea>,Dn}\\
-  \textbf{Description:}  	& Divide the destination operand by the source operand and store
-the result in the destination.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a division. The N-bit is set if the
-quotient is negative. The Z-bit is set if the quotient is zero. The Vbit
-is set if division overflow occurs (in which case the Z- and Nbits
-are undefined). The C-bit is always cleared.\\
-\end{tabularx}
-\newline
-
 \newpage
 
 %%%%%
-% DIVF
+% LOAD
 %%%%%
 \noindent\rule{10cm}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{DIVF}} 	& {\Large \textbf{Signed floating-point divide}}\\
-  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]/[source]}\\
-  \textbf{Syntax:}  		& \texttt{DIV <ea>,Dn}\\
-  \textbf{Description:}  	& Divide the destination operand by the source operand and store
-the result in the destination.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a division. The N-bit is set if the
-quotient is negative. The Z-bit is set if the quotient is zero. The Vbit
-is set if division overflow occurs (in which case the Z- and Nbits
-are undefined). The C-bit is always cleared.\\
+  {\Large \textbf{LOAD}} 	& {\Large \textbf{Load value}}\\
+  \textbf{Operation:} 		& \texttt{[data register] $\leftarrow$ <data>}\\
+  \textbf{Syntax:}  		& \texttt{LOAD <ea>,Dn}\newline\texttt{LOAD \#<data>,Dn}\\
+  \textbf{Description:}  	& Write to data register, where the data depends on the adressing mode. With direct adressing, it is the memory contents at the given address. With immediate, the given literal.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
+\end{tabularx}
+\newline
+
+%%%%%
+% STORE
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{STORE}} 	& {\Large \textbf{Store value}}\\
+  \textbf{Operation:} 		& \texttt{[memory] $\leftarrow$ <data>}\\
+  \textbf{Syntax:}  		& \texttt{STORE Dn,<ea>}\newline\texttt{STORE \#<data>,<ea>}\\
+  \textbf{Description:}  	& Write to main memory. If a data register is given, its contents are written. If immediate addressing is used, a given literal is written.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
 \end{tabularx}
 \newline
 
