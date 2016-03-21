@@ -162,9 +162,9 @@ En fungerande processor som kan rita ut flyttal fr√•n en adress i minnet med hj√
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{ADD}} 	& {\Large \textbf{Add signed integers}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
-  \textbf{Syntax:}  		& \texttt{ADD <ea>,Dn}\newline\texttt{ADD Dn,<ea>}\\
+  \textbf{Syntax:}  		& \texttt{ADD <ea>,Dn}\newline\texttt{ADD Dn,<ea>}\newline\texttt{ADD \#<value>,Dn}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
-result in the destination location.\\
+result in the destination location. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the sum is negative. The Z-bit is set if the sum is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
 \end{tabularx}
 \newline
@@ -178,9 +178,9 @@ result in the destination location.\\
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{ADDF}} 	& {\Large \textbf{Add signed floating-point numbers}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
-  \textbf{Syntax:}  		& \texttt{ADDF <ea>,Dn}\newline\texttt{ADDF Dn,<ea>}\\
+  \textbf{Syntax:}  		& \texttt{ADDF <ea>,Dn}\newline\texttt{ADDF Dn,<ea>}\newline\texttt{ADDF \#<value>,Dn}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
-result in the destination location, interpreting operands and sum as signed floating-point numbers.\\
+result in the destination location, interpreting operands and sum as signed floating-point numbers. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the sum is negative. The Z-bit is set if the sum is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
 \end{tabularx}
 \newline
@@ -196,9 +196,9 @@ result in the destination location, interpreting operands and sum as signed floa
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{SUB}} 	& {\Large \textbf{Subtract signed integers}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
-  \textbf{Syntax:}  		& \texttt{SUB <ea>,Dn}\newline\texttt{SUB Dn,<ea>}\\
+  \textbf{Syntax:}  		& \texttt{SUB <ea>,Dn}\newline\texttt{SUB Dn,<ea>}\newline\texttt{SUB \#<value>,Dn}\\
   \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
-result in the destination location.\\
+result in the destination location. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the difference is negative. The Z-bit is set if the difference is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
 \end{tabularx}
 \newline
@@ -212,9 +212,9 @@ result in the destination location.\\
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{SUBF}} 	& {\Large \textbf{Subtract signed floating-point numbers}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
-  \textbf{Syntax:}  		& \texttt{SUBF <ea>,Dn}\newline\texttt{SUBF Dn,<ea>}\\
+  \textbf{Syntax:}  		& \texttt{SUBF <ea>,Dn}\newline\texttt{SUBF Dn,<ea>}\newline\texttt{SUBF \#<value>,Dn}\\
   \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
-result in the destination location, interpreting operands and difference as signed floating-point numbers.\\
+result in the destination location, interpreting operands and difference as signed floating-point numbers. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the difference is negative. The Z-bit is set if the difference is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
 \end{tabularx}
 \newline
@@ -230,7 +230,7 @@ result in the destination location, interpreting operands and difference as sign
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{DIVF}} 	& {\Large \textbf{Signed floating-point divide}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]/[source]}\\
-  \textbf{Syntax:}  		& \texttt{DIVF <ea>,Dn}\\
+  \textbf{Syntax:}  		& \texttt{DIVF <ea>,Dn}\newline\texttt{DIVF \#<value>,Dn}\\
   \textbf{Description:}  	& Divide the destination operand by the source operand and store
 the result in the destination, interpreting operands and result as signed floating-point numbers.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a division. The N-bit is set if the
@@ -249,9 +249,9 @@ are undefined). The C-bit is always cleared.\\
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{MULTF}} 	& {\Large \textbf{Signed floating-point multiply}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]$\times$[source]}\\
-  \textbf{Syntax:}  		& \texttt{MULTF <ea>,Dn}\\
+  \textbf{Syntax:}  		& \texttt{MULTF <ea>,Dn}\newline\texttt{MULTF \#<value>,Dn}\\
   \textbf{Description:}  	& Multiply the destination operand by the source operand and store
-the result in the destination, interpreting operands and result as signed floating-point numbers.\\
+the result in the destination, interpreting operands and result as signed floating-point numbers. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a multiplication. The N-bit is set if the 
 product is negative. The Z-bit is set if the product is zero. The V-bit
 is set if division overflow occurs (in which case the Z-bit and the N-bit
@@ -270,9 +270,9 @@ are undefined). The C-bit is always cleared.\\
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{AND}} 	& {\Large \textbf{AND logical}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source].[destination]}\\
-  \textbf{Syntax:}  		& \texttt{AND <ea>,Dn}\newline\texttt{AND Dn,<ea>}\\
+  \textbf{Syntax:}  		& \texttt{AND <ea>,Dn}\newline\texttt{AND Dn,<ea>}\newline\texttt{AND \#<value>,Dn}\\
   \textbf{Description:}  	& AND the source operand to the destination operand and store the
-result in the destination location.\\
+result in the destination location. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * 0 0}\newline\newline The N-bit is set to the most significant bit of the result. The Z-bit is set if the result is equal to zero.\\
 \end{tabularx}
 \newline
