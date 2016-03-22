@@ -160,7 +160,7 @@ En fungerande processor som kan rita ut flyttal frÃ¥n en adress i minnet med hjÃ
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{ADD}} 	& {\Large \textbf{Add signed integers}}\\
+  {\Large \textbf{ADD}} 	& {\Large \textbf{Signed integer add}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
   \textbf{Syntax:}  		& \texttt{ADD <ea>,Dn}\newline\texttt{ADD Dn,<ea>}\newline\texttt{ADD \#<value>,Dn}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
@@ -176,7 +176,7 @@ result in the destination location. The source can be given as a literal using i
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{ADDF}} 	& {\Large \textbf{Add signed floating-point numbers}}\\
+  {\Large \textbf{ADDF}} 	& {\Large \textbf{Signed floating-point add}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
   \textbf{Syntax:}  		& \texttt{ADDF <ea>,Dn}\newline\texttt{ADDF Dn,<ea>}\newline\texttt{ADDF \#<value>,Dn}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
@@ -194,7 +194,7 @@ result in the destination location, interpreting operands and sum as signed floa
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{SUB}} 	& {\Large \textbf{Subtract signed integers}}\\
+  {\Large \textbf{SUB}} 	& {\Large \textbf{Signed integer subtract}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
   \textbf{Syntax:}  		& \texttt{SUB <ea>,Dn}\newline\texttt{SUB Dn,<ea>}\newline\texttt{SUB \#<value>,Dn}\\
   \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
@@ -210,7 +210,7 @@ result in the destination location. The source can be given as a literal using i
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{SUBF}} 	& {\Large \textbf{Subtract signed floating-point numbers}}\\
+  {\Large \textbf{SUBF}} 	& {\Large \textbf{Signed floating-point subtract}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
   \textbf{Syntax:}  		& \texttt{SUBF <ea>,Dn}\newline\texttt{SUBF Dn,<ea>}\newline\texttt{SUBF \#<value>,Dn}\\
   \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
@@ -268,7 +268,7 @@ are undefined). The C-bit is always cleared.\\
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{AND}} 	& {\Large \textbf{AND logical}}\\
+  {\Large \textbf{AND}} 	& {\Large \textbf{Logical AND}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source].[destination]}\\
   \textbf{Syntax:}  		& \texttt{AND <ea>,Dn}\newline\texttt{AND Dn,<ea>}\newline\texttt{AND \#<value>,Dn}\\
   \textbf{Description:}  	& AND the source operand to the destination operand and store the
@@ -373,7 +373,7 @@ continues at location [PC] + displacement, d.\newline\newline
 \end{tabularx}
 \newline
 
-%%%%%
+vi ha%%%%%
 % STORE
 %%%%%
 \noindent\rule{10cm}{1pt}\newline %Horizontal line
