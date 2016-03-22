@@ -132,7 +132,7 @@ Om vi nu exempelvis skulle vilja subtrahera 48672 från värdet i register 5 sku
 \bigskip
 \begin{tabular}{llll}
 SUB & Register 5 & Omedelbar & Värdet 48572 \\
-\texttt{0001} & \texttt{101} & \texttt{01} &  \texttt{0000001011110110111100}
+\texttt{01010} & \texttt{101} & \texttt{01} &  \texttt{0000001011110110111100}
 \end{tabular}
 
 \subsection{Grafik} 
@@ -180,6 +180,96 @@ En fungerande processor som kan rita ut flyttal från en adress i minnet med hj�
 \begin{appendices}
 \section{Instruktionsuppsättning}
 %%%%%
+% HALT
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{HALT}} 	& {\Large \textbf{Halt execution}}\\
+  \textbf{Operation:} 		& \texttt{HALT}\\
+  \textbf{Syntax:}  		& \texttt{HALT}\\
+  \textbf{Binary code:} 	& \texttt{00000}\\
+  \textbf{Description:}  	& Processor suspends all processing.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline 0 0 0 0 0}\\
+\end{tabularx}
+\newline
+
+%%%%%
+% LOAD
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{LOAD}} 	& {\Large \textbf{Load value}}\\
+  \textbf{Operation:} 		& \texttt{[data register] $\leftarrow$ <data>}\\
+  \textbf{Syntax:}  		& \texttt{LOAD <ea>,Dn}\newline\texttt{LOAD \#<data>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{00001}\\
+  \textbf{Description:}  	& Write to data register, where the data depends on the adressing mode. With direct adressing, it is the memory contents at the given address. With immediate, the given literal.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
+\end{tabularx}
+\newline
+
+%%%%%
+% STORE
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{STORE}} 	& {\Large \textbf{Store value}}\\
+  \textbf{Operation:} 		& \texttt{[memory] $\leftarrow$ <data>}\\
+  \textbf{Syntax:}  		& \texttt{STORE Dn,<ea>}\newline\texttt{STORE \#<data>,<ea>}\\
+    \textbf{Binary code:} 	& \texttt{00010}\\
+  \textbf{Description:}  	& Write to main memory. If a data register is given, its contents are written. If immediate addressing is used, a given literal is written.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
+\end{tabularx}
+\newline
+
+\newpage
+
+%%%%%
+% BRA
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{BRA}} 	& {\Large \textbf{Branch always}}\\
+  \textbf{Operation:} 		& \texttt{[PC] $\leftarrow$ [PC] + d}\\
+  \textbf{Syntax:}  		& \texttt{BRA <label>}\newline\texttt{BRA <literal>}\\
+  \textbf{Binary code:} 	& \texttt{00011}\\
+  \textbf{Description:}  	& Program execution continues at location [PC] + d.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
+\end{tabularx}
+\newline
+
+%%%%%
+% Bcc
+%%%%%
+\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{Bcc}} 	& {\Large \textbf{Branch on condition cc}}\\
+  \textbf{Operation:} 		& \texttt{If cc = 1 THEN [PC] $\leftarrow$ [PC] + d}\\
+  \textbf{Syntax:}  		& \texttt{Bcc <label>}\\
+  \textbf{Description:}  	& If the specified logical condition is met, program execution
+continues at location [PC] + displacement, d.\newline
+
+\texttt{BEQ} (\texttt{00100}) {} {} branch on equal\hfill \texttt{Z}\newline
+\texttt{BMI} (\texttt{00101}) {} {} branch on minus\hfill \texttt{N}\newline
+\texttt{BMI} (\texttt{00110}) {} {} branch on not equal\hfill \texttt{\textoverline{Z}}\newline
+\texttt{BRF} (\texttt{00111}) {} {} branch on overflow set\hfill \texttt{V}\newline
+							  \\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
+\end{tabularx}
+\newline
+
+\newpage
+
+%%%%%
 % ADD
 %%%%%
 \noindent\rule{10cm}{1pt}\newline %Horizontal line
@@ -189,6 +279,7 @@ En fungerande processor som kan rita ut flyttal från en adress i minnet med hj�
   {\Large \textbf{ADD}} 	& {\Large \textbf{Signed integer add}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
   \textbf{Syntax:}  		& \texttt{ADD <ea>,Dn}\newline\texttt{ADD Dn,<ea>}\newline\texttt{ADD \#<value>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{01000}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
 result in the destination location. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the sum is negative. The Z-bit is set if the sum is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
@@ -205,6 +296,7 @@ result in the destination location. The source can be given as a literal using i
   {\Large \textbf{ADDF}} 	& {\Large \textbf{Signed floating-point add}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] + [destination]}\\
   \textbf{Syntax:}  		& \texttt{ADDF <ea>,Dn}\newline\texttt{ADDF Dn,<ea>}\newline\texttt{ADDF \#<value>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{01001}\\
   \textbf{Description:}  	& Add the source operand to the destination operand and store the
 result in the destination location, interpreting operands and sum as signed floating-point numbers. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the sum is negative. The Z-bit is set if the sum is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
@@ -223,6 +315,7 @@ result in the destination location, interpreting operands and sum as signed floa
   {\Large \textbf{SUB}} 	& {\Large \textbf{Signed integer subtract}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
   \textbf{Syntax:}  		& \texttt{SUB <ea>,Dn}\newline\texttt{SUB Dn,<ea>}\newline\texttt{SUB \#<value>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{01010}\\
   \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
 result in the destination location. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the difference is negative. The Z-bit is set if the difference is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
@@ -239,6 +332,7 @@ result in the destination location. The source can be given as a literal using i
   {\Large \textbf{SUBF}} 	& {\Large \textbf{Signed floating-point subtract}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source] - [destination]}\\
   \textbf{Syntax:}  		& \texttt{SUBF <ea>,Dn}\newline\texttt{SUBF Dn,<ea>}\newline\texttt{SUBF \#<value>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{01011}\\
   \textbf{Description:}  	& Subtract the destination operand from the source operand and store the
 result in the destination location, interpreting operands and difference as signed floating-point numbers. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline\newline The X-bit and C-bit are both set if carry is generated. The N-bit is set if the difference is negative. The Z-bit is set if the difference is zero. The V-bit is set if overflow occurs (in which case the Z-bit and the N-bit are undefined).\\
@@ -257,6 +351,7 @@ result in the destination location, interpreting operands and difference as sign
   {\Large \textbf{DIVF}} 	& {\Large \textbf{Signed floating-point divide}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]/[source]}\\
   \textbf{Syntax:}  		& \texttt{DIVF <ea>,Dn}\newline\texttt{DIVF \#<value>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{01100}\\
   \textbf{Description:}  	& Divide the destination operand by the source operand and store
 the result in the destination, interpreting operands and result as signed floating-point numbers.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a division. The N-bit is set if the
@@ -276,6 +371,7 @@ are undefined). The C-bit is always cleared.\\
   {\Large \textbf{MULTF}} 	& {\Large \textbf{Signed floating-point multiply}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]$\times$[source]}\\
   \textbf{Syntax:}  		& \texttt{MULTF <ea>,Dn}\newline\texttt{MULTF \#<value>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{01101}\\
   \textbf{Description:}  	& Multiply the destination operand by the source operand and store
 the result in the destination, interpreting operands and result as signed floating-point numbers. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * * 0}\newline\newline The X-bit is not affected by a multiplication. The N-bit is set if the 
@@ -297,6 +393,7 @@ are undefined). The C-bit is always cleared.\\
   {\Large \textbf{AND}} 	& {\Large \textbf{Logical AND}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [source].[destination]}\\
   \textbf{Syntax:}  		& \texttt{AND <ea>,Dn}\newline\texttt{AND Dn,<ea>}\newline\texttt{AND \#<value>,Dn}\\
+  \textbf{Binary code:} 	& \texttt{01110}\\
   \textbf{Description:}  	& AND the source operand to the destination operand and store the
 result in the destination location. The source can be given as a literal using immediate addressing.\\
   \textbf{Condition codes:} & \texttt{X N Z V C\newline - * * 0 0}\newline\newline The N-bit is set to the most significant bit of the result. The Z-bit is set if the result is equal to zero.\\
@@ -321,6 +418,7 @@ result in the destination location. The source can be given as a literal using i
  							  \texttt{ASL <ea>}\newline
  							  \texttt{ASR <ea>}\newline 							  
  							  \\
+  \textbf{Binary code:} 	& ASR: \texttt{01111}, ASL: \texttt{10000}\\
   \textbf{Description:}  	& Arithmetically shift the bits of the operand in the specified direction
 (i.e., left or right). The shift count may be specified in one of
 three ways. The count may be a literal, the contents of a data
@@ -344,90 +442,10 @@ the number.\\
 \end{tabularx}
 \newline
 
-\newpage
-
-%%%%%
-% Bcc
-%%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
-\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
-\setlength\extrarowheight{5pt} %Increase row spacing
-\begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{Bcc}} 	& {\Large \textbf{Branch on condition cc}}\\
-  \textbf{Operation:} 		& \texttt{If cc = 1 THEN [PC] $\leftarrow$ [PC] + d}\\
-  \textbf{Syntax:}  		& \texttt{Bcc <label>}\\
-  \textbf{Description:}  	& If the specified logical condition is met, program execution
-continues at location [PC] + displacement, d.\newline\newline
-							  \texttt{BEQ} {} {} {} branch on equal\hfill \texttt{Z}\newline
-							  \texttt{BMI} {} {} {} branch on minus\hfill \texttt{N}\newline
-							  \texttt{BMI} {} {} {} branch on not equal\hfill \texttt{\textoverline{Z}}\newline
-							  \texttt{BRF} {} {} {} branch on overflow set\hfill \texttt{V}\newline
-							  \\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
-\end{tabularx}
-\newline
-
-%%%%%
-% BRA
-%%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
-\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
-\setlength\extrarowheight{5pt} %Increase row spacing
-\begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{BRA}} 	& {\Large \textbf{Branch always}}\\
-  \textbf{Operation:} 		& \texttt{[PC] $\leftarrow$ [PC] + d}\\
-  \textbf{Syntax:}  		& \texttt{BRA <label>}\newline\texttt{BRA <literal>}\\
-  \textbf{Description:}  	& Program execution continues at location [PC] + d.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
-\end{tabularx}
-\newline
 
 \newpage
 
-%%%%%
-% LOAD
-%%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
-\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
-\setlength\extrarowheight{5pt} %Increase row spacing
-\begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{LOAD}} 	& {\Large \textbf{Load value}}\\
-  \textbf{Operation:} 		& \texttt{[data register] $\leftarrow$ <data>}\\
-  \textbf{Syntax:}  		& \texttt{LOAD <ea>,Dn}\newline\texttt{LOAD \#<data>,Dn}\\
-  \textbf{Description:}  	& Write to data register, where the data depends on the adressing mode. With direct adressing, it is the memory contents at the given address. With immediate, the given literal.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
-\end{tabularx}
-\newline
 
-vi ha%%%%%
-% STORE
-%%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
-\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
-\setlength\extrarowheight{5pt} %Increase row spacing
-\begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{STORE}} 	& {\Large \textbf{Store value}}\\
-  \textbf{Operation:} 		& \texttt{[memory] $\leftarrow$ <data>}\\
-  \textbf{Syntax:}  		& \texttt{STORE Dn,<ea>}\newline\texttt{STORE \#<data>,<ea>}\\
-  \textbf{Description:}  	& Write to main memory. If a data register is given, its contents are written. If immediate addressing is used, a given literal is written.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
-\end{tabularx}
-\newline
-
-%%%%%
-% HALT
-%%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
-\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
-\setlength\extrarowheight{5pt} %Increase row spacing
-\begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{HALT}} 	& {\Large \textbf{Halt execution}}\\
-  \textbf{Operation:} 		& \texttt{HALT}\\
-  \textbf{Syntax:}  		& \texttt{HALT}\\
-  \textbf{Description:}  	& Processor suspends all processing.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline 0 0 0 0 0}\\
-\end{tabularx}
-\newline
 
 \end{appendices}
 \end{document}
