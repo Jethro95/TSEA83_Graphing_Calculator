@@ -77,11 +77,17 @@ Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utr
 
 \subsubsection{Instruktioner}
 Vi har följande adresseringsmoder:
-\begin{itemize*}
-\item Direkt
-\item Omedelbar
-\item Indirekt 
-\end{itemize*}
+
+%Hack to get a '2-column itemize'
+\bigskip
+\begin{tabular}{@{\textbullet\hspace*{\labelsep}}ll}
+Direkt & (Binärkod \texttt{00}) \\
+Omedelbar & (Binärkod \texttt{01}) \\
+Indirekt & (Binärkod \texttt{10}) 
+\end{tabular}
+\bigskip
+
+\noindent
 Följande instruktionsmängd:
 
 \begin{multicols}{5}
@@ -109,6 +115,26 @@ Följande instruktionsmängd:
 \noindent
 En utförlig förklaring till varje instruktions argument, resultat, adresseringsmoder, och påverkade flaggor finns tillgängligt som bilaga, på engelska.
 
+I programminnet ges en instruktion på följande format:
+
+\bigskip
+\begin{tabular}{l|llll}
+\textbf{Beskrivning} & Instruktion & Dataregister & Mod & Adress/literal \\
+\textbf{Storlek} & 5 bitar & 3 bitar & 2 bitar & 22 bitar \\
+%Exempel & \texttt{0001} & \texttt{101} & \texttt{01} &  \texttt{0000001011110110111100} \\
+%Innebörd & SUB & Register 5 & Omedelbar & Värdet 48572 
+\end{tabular}
+\bigskip
+
+\noindent
+Om vi nu exempelvis skulle vilja subtrahera 48672 från värdet i register 5 skulle vi skriva följande i minnet:
+
+\bigskip
+\begin{tabular}{llll}
+SUB & Register 5 & Omedelbar & Värdet 48572 \\
+\texttt{0001} & \texttt{101} & \texttt{01} &  \texttt{0000001011110110111100}
+\end{tabular}
+
 \subsection{Grafik} 
 Vi delar upp vår display i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap i svartvitt. Räknaren (text) använder sidan med tiles, och grafen använder bitmapsidan.
 
@@ -118,14 +144,14 @@ Processorn skriver tilenummer samt bitmapen direkt till bildminnet, utan att syn
 
 %TODO: Blockschema VGA_MOTOR
 
+\newpage
+
 \subsection{I/O}
 Input via PS/2 med en avkodare i \textsc{vhdl}. Avkodaren skriver ett tecken till en egen minnesplats som kan läsas av processorn via STORE. Vi låter instruktionen ta en virtuell adress som argument, och en viss adress som överskrider processorns minnesstorlek får referera till avkodarens minnescell.
 
 Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs och avkodaren påbörjar läsning av nästa tecken.
 
 Hämtad input ritas ut i ett konsolfönster på skärmen, och interpreteras vid nedslag av returknappen. Tal matas in i form av flyttal (separerad med punk), och uttryck skrivs i reverse-polish-notation.
-
-\newpage
 
 %TODO: Blockschema tangentbordsmotor
 
