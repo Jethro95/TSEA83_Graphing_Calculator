@@ -15,7 +15,7 @@
 \usepackage{multicol}
 
 \usepackage{tocloft}
-
+\usepackage{svg}
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,calc}
 
@@ -147,6 +147,17 @@ Om vi nu exempelvis skulle vilja subtrahera 48672 från värdet i register 5 sku
 SUB & Register 5 & Omedelbar & Värdet 48572 \\
 \texttt{01010} & \texttt{101} & \texttt{01} &  \texttt{0000001011110110111100}
 \end{tabular}
+\bigskip
+
+\noindent
+För mikrokodsinstruktionerna används följande format:
+
+\bigskip
+\begin{tabular}{l|llllll}
+	\textbf{Beskrivning} & ALU     & Till buss & Från buss & PC    & SEQ & $\mu ADR $ \\
+	\textbf{Storlek}     & 5 bitar & 4 bitar   & 4 bitar   & 1 bit & 4 bitar & 14 bitar
+\end{tabular}
+\bigskip
 
 \section{Grafik} 
 Vi delar upp vår display i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap i svartvitt. Räknaren (text) använder sidan med tiles, och grafen använder bitmapsidan.
@@ -155,7 +166,11 @@ Upplösning 640x480. Både tiles och bitmap i svartvitt. Uppdateringsfrekvens 60
 
 Processorn skriver tilenummer samt bitmapen direkt till bildminnet, utan att synkronisera med bilduppritningen.
 
-%TODO: Blockschema VGA_MOTOR
+\begin{figure}[h]
+	\makebox[\textwidth][c]{\includegraphics[width=1.2\textwidth]{vgamotor.png}}
+	\caption{Blockschema över VGA-motor}
+\end{figure}
+
 
 \newpage
 
