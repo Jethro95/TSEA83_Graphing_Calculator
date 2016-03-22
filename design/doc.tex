@@ -14,6 +14,8 @@
 
 \usepackage{multicol}
 
+\usepackage{tocloft}
+
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,calc}
 
@@ -25,12 +27,23 @@
 \title{Grafritande Räknare - Designskiss}
 \author{Hannes Haglund hanha265\\Felix Härnström felha423\\Silas Lenz sille914}
 
+%Modifies toc spacing. Source: http://www.latex-community.org/forum/viewtopic.php?f=5&t=7701
+\setlength\cftparskip{1pt}
+\setlength\cftbeforesecskip{1pt}
+\setlength\cftaftertoctitleskip{2pt}
+
 \begin{document}
 
+\pagenumbering{gobble}
 \maketitle
+%Making hspacing between toc entries smaller
+%\renewcommand{\baselinestretch}{0.25}\normalsize
+\tableofcontents
+%\renewcommand{\baselinestretch}{1.0}\normalsize
 \newpage
+\pagenumbering{arabic}
 
-\section{}
+\section{Översikt}
 Vi ska implementera en generell dator av mikroprogrammerad, ej pipelinead typ. Mjukvaran skrivs i assembler. Vi har en VGA-motor, en tangentbordsavkodare och möjligtvis touchavkodare samt motor för dess skärm (utökningsmål). 
 
 \tikzstyle{block} = [draw, fill=blue!20, rectangle, 
@@ -66,7 +79,7 @@ minimum height=3em, minimum width=6em]
 \end{tikzpicture}
 \end{center}
 
-\subsection{CPU}
+\section{CPU}
 Vår processor är mikroprogrammerad, med delat data och programminne. Vi använder 32-bitars ordbredd. Endast blockram används.
 
 Processor laddas alltid med samma program vid start. 
@@ -75,7 +88,7 @@ Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utr
 
 \newpage
 
-\subsubsection{Instruktioner}
+\section{Instruktioner}
 Vi har följande adresseringsmoder:
 
 %Hack to get a '2-column itemize'
@@ -113,7 +126,7 @@ Följande instruktionsmängd:
 \end{multicols}
 
 \noindent
-En utförlig förklaring till varje instruktions argument, resultat, adresseringsmoder, och påverkade flaggor finns tillgängligt som bilaga, på engelska.
+En utförlig förklaring till varje instruktions argument, resultat, binärkod, adresseringsmoder, och påverkade flaggor finns tillgängligt som bilaga, på engelska.
 
 I programminnet ges en instruktion på följande format:
 
@@ -135,7 +148,7 @@ SUB & Register 5 & Omedelbar & Värdet 48572 \\
 \texttt{01010} & \texttt{101} & \texttt{01} &  \texttt{0000001011110110111100}
 \end{tabular}
 
-\subsection{Grafik} 
+\section{Grafik} 
 Vi delar upp vår display i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap i svartvitt. Räknaren (text) använder sidan med tiles, och grafen använder bitmapsidan.
 
 Upplösning 640x480. Både tiles och bitmap i svartvitt. Uppdateringsfrekvens 60Hz.
@@ -146,7 +159,7 @@ Processorn skriver tilenummer samt bitmapen direkt till bildminnet, utan att syn
 
 \newpage
 
-\subsection{I/O}
+\section{I/O}
 Input via PS/2 med en avkodare i \textsc{vhdl}. Avkodaren skriver ett tecken till en egen minnesplats som kan läsas av processorn via STORE. Vi låter instruktionen ta en virtuell adress som argument, och en viss adress som överskrider processorns minnesstorlek får referera till avkodarens minnescell.
 
 Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs och avkodaren påbörjar läsning av nästa tecken.
@@ -155,7 +168,7 @@ Hämtad input ritas ut i ett konsolfönster på skärmen, och interpreteras vid 
 
 %TODO: Blockschema tangentbordsmotor
 
-\subsection{Minne}
+\section{Minne}
 Vi har följande minnen:
 \begin{itemize*}
 \item PC (rw)
@@ -170,10 +183,10 @@ Vi har följande minnen:
 \end{itemize*}
 Med ordbredden 32 bitar.
 
-\subsection{Programmering}
+\section{Programmering}
 Vi skriver en assembler, med lite syntaktiskt socker för loopar och if-satser.
 
-\subsection{Milstolpe}
+\section{Milstolpe}
 En fungerande processor som kan rita ut flyttal från en adress i minnet med hjälp av VGA-motor.
 
 \clearpage
