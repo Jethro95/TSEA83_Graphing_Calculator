@@ -365,7 +365,7 @@ result in the destination location, interpreting operands and difference as sign
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{DIVF}} 	& {\Large \textbf{Signed floating-point divide}}\\
-  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]/[source]}\\
+  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination] / [source]}\\
   \textbf{Syntax:}  		& \texttt{DIVF <ea>,Dn}\newline\texttt{DIVF \#<value>,Dn}\\
   \textbf{Binary code:} 	& \texttt{01100}\\
   \textbf{Description:}  	& Divide the destination operand by the source operand and store
@@ -385,7 +385,7 @@ are undefined). The C-bit is always cleared.\\
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
   {\Large \textbf{MULTF}} 	& {\Large \textbf{Signed floating-point multiply}}\\
-  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination]$\times$[source]}\\
+  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination] $\times$ [source]}\\
   \textbf{Syntax:}  		& \texttt{MULTF <ea>,Dn}\newline\texttt{MULTF \#<value>,Dn}\\
   \textbf{Binary code:} 	& \texttt{01101}\\
   \textbf{Description:}  	& Multiply the destination operand by the source operand and store
@@ -425,7 +425,7 @@ result in the destination location. The source can be given as a literal using i
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
-  {\Large \textbf{ASR}} 	& {\Large \textbf{Arithmetic shift left/right}}\\
+  {\Large \textbf{ASL/ASR}} 	& {\Large \textbf{Arithmetic shift left/right}}\\
   \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination] shifted by <count>}\\
   \textbf{Syntax:}  		& \texttt{ASL <ea>,Dn}\newline
   							  \texttt{ASR <ea>,Dn}\newline
