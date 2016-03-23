@@ -80,7 +80,7 @@ minimum height=3em, minimum width=6em]
 \end{center}
 
 \section{CPU}
-Vår processor är mikroprogrammerad, med delat data och programminne. Vi använder 32-bitars ordbredd. Endast blockram används.
+Vår processor är mikroprogrammerad, med gemensamt data och programminne. Vi använder 32-bitars ordbredd. Endast blockram används.
 
 Processor laddas alltid med samma program vid start. 
 
@@ -177,7 +177,7 @@ Processorn skriver tilenummer samt bitmapen direkt till bildminnet, utan att syn
 \section{I/O}
 Input via PS/2 med en avkodare i \textsc{vhdl}. Avkodaren skriver ett tecken till en egen minnesplats som kan läsas av processorn via STORE. Vi låter instruktionen ta en virtuell adress som argument, och en viss adress som överskrider processorns minnesstorlek får referera till avkodarens minnescell.
 
-Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs och avkodaren påbörjar läsning av nästa tecken.
+Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs.
 
 Hämtad input ritas ut i ett konsolfönster på skärmen, och interpreteras vid nedslag av returknappen. Tal matas in i form av flyttal (separerad med punk), och uttryck skrivs i reverse-polish-notation.
 
@@ -193,7 +193,7 @@ Vi har följande minnen:
 \item $\mu$Minne (rw)
 \item Programminne (rw)
 \item Dataminne (rw)
-\item 6 generella dataregister (rw)
+\item 8 generella dataregister (rw)
 \item Statusregister (r)
 \item Bildminne
 \item Bitmapminne
