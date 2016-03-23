@@ -177,7 +177,7 @@ Processorn skriver tilenummer samt bitmapen direkt till bildminnet, utan att syn
 \section{I/O}
 Input via PS/2 med en avkodare i \textsc{vhdl}. Avkodaren skriver ett tecken till en egen minnesplats som kan läsas av processorn via STORE. Vi låter instruktionen ta en virtuell adress som argument, och en viss adress som överskrider processorns minnesstorlek får referera till avkodarens minnescell.
 
-Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs och avkodaren påbörjar läsning av nästa tecken.
+Via en synkron \textit{read\_confirm}-signal så berättar processorn för avkodaren att den lyckats läsa ett tecken, varpå värdet på minnesplatsen nollställs.
 
 Hämtad input ritas ut i ett konsolfönster på skärmen, och interpreteras vid nedslag av returknappen. Tal matas in i form av flyttal (separerad med punk), och uttryck skrivs i reverse-polish-notation.
 
