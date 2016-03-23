@@ -1,0 +1,10 @@
+\select@language {swedish}
+\contentsline {section}{\numberline {1}\IeC {\"O}versikt}{1}{section.1}
+\contentsline {section}{\numberline {2}CPU}{1}{section.2}
+\contentsline {section}{\numberline {3}Instruktioner}{2}{section.3}
+\contentsline {section}{\numberline {4}Grafik}{2}{section.4}
+\contentsline {section}{\numberline {5}I/O}{3}{section.5}
+\contentsline {section}{\numberline {6}Minne}{4}{section.6}
+\contentsline {section}{\numberline {7}Programmering}{4}{section.7}
+\contentsline {section}{\numberline {8}Milstolpe}{4}{section.8}
+\contentsline {section}{Bilaga \numberline {A}Instruktionsupps\IeC {\"a}ttning}{5}{Bilaga.1.A}

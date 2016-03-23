@@ -1,0 +1,81 @@
+\documentclass[a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[swedish]{babel}
+\usepackage{multicol}
+\usepackage{tikz}
+\usepackage{mdwlist}
+\usepackage{hyperref}
+\usetikzlibrary{shapes,arrows}
+
+\makeatletter
+\def\@maketitle{%
+  \newpage
+  %\vspace*{-\topskip}      % remove the initial space
+  \begingroup\centering    % instead of \begin{center}
+  \let \footnote \thanks
+  \hrule height \z@        % to avoid the insertion of lineskip glue
+    {\LARGE \@title \par}%
+    \vskip 0.5em 
+    {\large
+      \lineskip .5em 
+      \begin{tabular}[t]{c}%
+        \@author
+      \end{tabular}\par}%
+    \vskip 1em 
+    {\large \@date}%
+  \par\endgroup            % instead of \end{center}
+  \vskip 4em
+}
+\makeatother
+
+\title{Kravspecifikation - Grafisk räknare}
+\author{Felix Härnström - felha423\\Hannes Haglund - hanha265\\Silas Lenz - sille914}
+\begin{document}
+\maketitle
+\begin{multicols}{2}
+
+\section*{Inledning}
+Vi ska konstruera en miniräknare kapabel till att beräkna tal baserat på konsollinput, samt rita envariabelfunktioner grafiskt. Räknaren ska ha stöd för de fyra räknesätten och flyttalsaritmetik.
+\section*{Teknisk specifikation}
+Räknaren använder reverse polish-notation\footnote{\url{https://en.wikipedia.org/wiki/Reverse_Polish_notation}}  (RPN) som är en postfixnotation vilket innebär att operatorn skrivs efter operanderna. Exempelvis skulle uttrycket ‘5 + 4’ skrivas ‘5 4 +’ i RPN. Fördelen med detta är att notationen blir helt parenteslös och därmed enklare att utvärdera utan rekursion.
+
+Användargränssnittet kommer delas in i en konsol på vänstra delen av skärmen och en grafdel på den högra. Grafen kan anpassas genom konsolkommandon på sin respektive del. Här kan även funktionerna som ritas skrivas in och literaluttryck utvärderas.
+\section*{Blockschema}
+\tikzstyle{block} = [draw, fill=blue!20, rectangle, 
+    minimum height=3em, minimum width=6em]
+\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+\begin{tikzpicture}[auto, node distance=2cm,>=latex']
+    \node [block] (keyboard) {Tangentbord};
+    \node [block, right of=keyboard,
+            node distance=3cm] (nexys) {Nexys3};
+
+   \draw [->] (keyboard) -- node[name=u] {} (nexys);
+    \node [block, below of=u, node distance=2cm] (vga) {Skärm};
+    \node [output, right of=nexys] (foo) {};
+
+    \draw [->] (keyboard) -- node {} (nexys);
+    \draw [->] (nexys) |- node[near start]{$VGA$} (vga);
+\end{tikzpicture}
+\section*{Krav}
+\subsubsection*{Skall-krav}
+\begin{enumerate*}
+\item Input från USB-tangentbord.
+%\item Skärmen ska ha upplösningen 640$\times$480 pixlar.
+\item Hantera addition, subtraktion, multiplikation, division.
+\item Flyttal.
+\item Grafritning via VGA (alt touchpanel efter börkravet).
+\item Inputvalidering.
+\end{enumerate*}
+\subsubsection*{Bör-krav}
+\begin{enumerate*}
+\item Grafmanipulation (e.g. ändra visningsområde, stega över grafen för diskreta värden osv.).
+\item Minne med senaste resultat.
+\item Touchinput.
+\item Trigonometri, exponenter, konstanter såsom $e$, $\pi$.
+\end{enumerate*}
+\end{multicols}
+\end{document}
