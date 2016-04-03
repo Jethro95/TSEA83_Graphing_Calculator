@@ -84,6 +84,8 @@ minimum height=3em, minimum width=6em]
 \end{tikzpicture}
 \end{center}
 
+\newpage
+
 \section{CPU}
 Vår processor är mikroprogrammerad, med gemensamt data och programminne. Vi använder 32-bitars ordbredd. Endast blockram används.
 
@@ -92,6 +94,10 @@ Processor laddas alltid med samma program vid start.
 Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utritning av bildminnets innehåll. Dessa uppgifter inkluderar: beräkningar, historik, parsing av input, beräkning av graf, och så vidare.
 
 Flyttalsupport ska finnas. Detta sköts i ALU:n snarare än i en separat flyttalsenhet; ett antal assembly-instruktioner, som använder sig av ALU:n, interpreterar indata (och utdata) som flyttal snarare än heltal. Konvertering från användarinmatade flyttal till flyttal i minnet sker via programkod.
+\begin{figure}[h]
+	\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{cpu.png}}
+	\caption{Blockschema över CPU}
+\end{figure}
 
 \newpage
 
