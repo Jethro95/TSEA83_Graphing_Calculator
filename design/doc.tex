@@ -30,7 +30,7 @@
 
 %opening
 \title{Grafritande Räknare - Designskiss}
-\author{Hannes Haglund hanha265\\Felix Härnström felha423\\Silas Lenz sille914}
+\author{Grupp 35:\\Hannes Haglund hanha265\\Felix Härnström felha423\\Silas Lenz sille914}
 
 %Modifies toc spacing. Source: http://www.latex-community.org/forum/viewtopic.php?f=5&t=7701
 \setlength\cftparskip{1pt}
@@ -91,7 +91,7 @@ Processor laddas alltid med samma program vid start.
 
 Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utritning av bildminnets innehåll. Dessa uppgifter inkluderar: beräkningar, historik, parsing av input, beräkning av graf, och så vidare.
 
-Flyttalsupport ska finnas. Detta sköts i CPU:n snarare än i en separat flyttalsenhet; ett antal assembly-instruktioner interpreterar indata (och utdata) som flyttal snarare än heltal. Konvertering från användarinmatade flyttal till flyttal i minnet sker via programkod.
+Flyttalsupport ska finnas. Detta sköts i ALU:n snarare än i en separat flyttalsenhet; ett antal assembly-instruktioner, som använder sig av ALU:n, interpreterar indata (och utdata) som flyttal snarare än heltal. Konvertering från användarinmatade flyttal till flyttal i minnet sker via programkod.
 
 \newpage
 
