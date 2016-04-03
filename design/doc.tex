@@ -91,6 +91,8 @@ Processor laddas alltid med samma program vid start.
 
 Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utritning av bildminnets innehåll. Dessa uppgifter inkluderar: beräkningar, historik, parsing av input, beräkning av graf, och så vidare.
 
+Flyttalsupport ska finnas. Detta sköts i CPU:n snarare än i en separat flyttalsenhet; ett antal assembly-instruktioner interpreterar indata (och utdata) som flyttal snarare än heltal. Konvertering från användarinmatade flyttal till flyttal i minnet sker via programkod.
+
 \newpage
 
 \section{Instruktioner}
