@@ -57,9 +57,9 @@ minimum height=3em, minimum width=6em]
 \tikzstyle{input} = [coordinate]
 \tikzstyle{output} = [coordinate]
 \tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
-\begin{center}
 
-
+\begin{figure}[h]
+\centering
 \begin{tikzpicture}[auto, node distance=2cm,>=latex']
 
 
@@ -82,7 +82,8 @@ minimum height=3em, minimum width=6em]
 \draw [->] (driver) -- node {} (vga);
 \draw[thick,dotted] ($(keyboarddriver.north west)+(-0.3,0.3)$)  rectangle ($(driver.south east)+(1,-0.3)$) node[pos=0] {FPGA};
 \end{tikzpicture}
-\end{center}
+\caption{Översiktligt blockschema.}
+\end{figure}
 
 \newpage
 
