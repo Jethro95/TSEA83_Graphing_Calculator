@@ -95,7 +95,7 @@ Nästan allt arbete utförs av processorn, förutom tangentbordläsning, och utr
 
 Flyttalsupport ska finnas. Detta sköts i ALU:n snarare än i en separat flyttalsenhet; ett antal assembly-instruktioner, som använder sig av ALU:n, interpreterar indata (och utdata) som flyttal snarare än heltal. Konvertering från användarinmatade flyttal till flyttal i minnet sker via programkod.
 \begin{figure}[h]
-	\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{cpu.png}}
+	\makebox[\textwidth][c]{\includegraphics[width=\textwidth]{cpu_v2.png}}
 	\caption{Blockschema över CPU}
 \end{figure}
 
@@ -235,7 +235,7 @@ Much of the instruction set is taken from the Motorola 68000 manual\footnote{\ur
 %%%%%
 % HALT
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -251,7 +251,7 @@ Much of the instruction set is taken from the Motorola 68000 manual\footnote{\ur
 %%%%%
 % LOAD
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -267,7 +267,7 @@ Much of the instruction set is taken from the Motorola 68000 manual\footnote{\ur
 %%%%%
 % STORE
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -285,7 +285,7 @@ Much of the instruction set is taken from the Motorola 68000 manual\footnote{\ur
 %%%%%
 % BRA
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -301,7 +301,7 @@ Much of the instruction set is taken from the Motorola 68000 manual\footnote{\ur
 %%%%%
 % Bcc
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -325,7 +325,7 @@ continues at location [PC] + displacement, d.\newline
 %%%%%
 % ADD
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -342,7 +342,7 @@ result in the destination location. The source can be given as a literal using i
 %%%%%
 % ADDF
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -361,7 +361,7 @@ result in the destination location, interpreting operands and sum as signed floa
 %%%%%
 % SUB
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -378,7 +378,7 @@ result in the destination location. The source can be given as a literal using i
 %%%%%
 % SUBF
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -397,7 +397,7 @@ result in the destination location, interpreting operands and difference as sign
 %%%%%
 % DIVF
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -417,7 +417,7 @@ are undefined). The C-bit is always cleared.\\
 %%%%%
 % MULTF
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -439,7 +439,7 @@ are undefined). The C-bit is always cleared.\\
 %%%%%
 % AND
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
@@ -458,7 +458,7 @@ result in the destination location. The source can be given as a literal using i
 %%%%%
 % ASL/ASR
 %%%%%
-\noindent\rule{10cm}{1pt}\newline %Horizontal line
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
 \newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
 \setlength\extrarowheight{5pt} %Increase row spacing
 \begin{tabularx}{\textwidth}{lL}
