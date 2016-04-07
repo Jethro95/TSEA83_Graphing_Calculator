@@ -31,6 +31,7 @@ signal uPCsig   : unsigned(3 downto 0);     -- (TODO: Describe modes)
 signal uAddr    : unsigned(13 downto 0);     -- micro Address
 signal TB       : unsigned(3 downto 0);     -- To Bus field
 signal FB       : unsigned(3 downto 0);     -- From Bus field
+signal ALU		: unsigned(4 downto 0);		-- ALU mode
 
 -- program Memory
 type p_mem_t is array (0 to 3) of unsigned(31 downto 0);
@@ -49,6 +50,7 @@ signal Pcsig    : std_logic;                -- 0:PC=PC, 1:PC++
 signal ASR      : unsigned(31 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
+signal AR		: unsigned(31 downto 0);	-- Accumulator Register
 
 begin
 
@@ -105,6 +107,29 @@ begin
     end if;
 end process;
 
+-- AR : Accumulator Register
+process(clk)
+begin
+	if rising_edge(clk) then
+		if (rst = '1') then
+			AR <= (others => '0');
+		--Modes currently stolen from http://www.isy.liu.se/edu/kurs/TSEA83/tex/mikrokomp_2013.pdf
+		--These have not been tested, but do compile.
+		--Note: ALU=00000 has no effect
+		elsif (ALU = "00001") then --AR:=bus
+			AR <= DATA_BUS;
+		elsif (ALU = "00010") then --AR:=bus' (One's complement)
+			AR <= not DATA_BUS;
+		elsif (ALU = "00011") then --AR:=0
+			AR <= (others => '0');
+		elsif (ALU = "00100") then --AR:=AR+buss (ints)
+			AR <= AR + DATA_BUS;
+			--TODO: Flags
+		--TODO: Others
+		end if;
+	end if;
+end process;
+
 
 uM      <= u_mem(to_integer(uPC));
 uAddr   <= uM(13 downto 0);
@@ -112,13 +137,14 @@ uPCsig  <= uM(17 downto 14);
 PCsig   <= uM(18);
 FB      <= uM(22 downto 19);
 TB      <= uM(26 downto 23);
---TODO: ALU
+ALU		<= uM(31 downto 27);
 PM      <= p_mem(to_integer(ASR));
 
 DATA_BUS <= IR when (TB = "0001") else
             PM when (TB = "0010") else
             PC when (TB = "0011") else
             ASR when (TB = "0100") else
+			AR when (TB = "0101") else
             (others => '0');
 end Behavioral;
 
