@@ -28,7 +28,7 @@ signal u_mem : u_mem_t := u_mem_c;
 signal uM       : unsigned(31 downto 0);    -- micro Memory output
 signal uPC      : unsigned(5 downto 0);     -- micro Program Counter
 signal uPCsig   : unsigned(3 downto 0);     -- (TODO: Describe modes)
-signal uAddr    : unsigned(13 downto 0);   	-- micro Address
+signal uAddr    : unsigned(13 downto 0);    -- micro Address
 signal TB       : unsigned(3 downto 0);     -- To Bus field
 signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU		: unsigned(4 downto 0);		-- ALU mode
