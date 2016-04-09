@@ -31,7 +31,7 @@ signal uPCsig   : unsigned(3 downto 0);     -- (TODO: Describe modes)
 signal uAddr    : unsigned(13 downto 0);    -- micro Address
 signal TB       : unsigned(3 downto 0);     -- To Bus field
 signal FB       : unsigned(3 downto 0);     -- From Bus field
-signal ALU		: unsigned(4 downto 0);		-- ALU mode
+signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
 -- program Memory
 type p_mem_t is array (0 to 3) of unsigned(31 downto 0);
@@ -50,7 +50,7 @@ signal Pcsig    : std_logic;                -- 0:PC=PC, 1:PC++
 signal ASR      : unsigned(31 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
-signal AR		: signed(31 downto 0);      -- Accumulator Register
+signal AR       : signed(31 downto 0);      -- Accumulator Register
 
 -- Flags
 signal flag_X   : std_logic;                -- Extra carry flag
@@ -58,6 +58,28 @@ signal flag_N   : std_logic;                -- Negative flag
 signal flag_Z   : std_logic;                -- Zero flag
 signal flag_V   : std_logic;                -- Overflow Flag
 signal flag_C   : std_logic;                -- Carry flag
+
+-- IR
+signal K1       : unsigned(4 downto 0);     -- K1 register (OP)
+signal K2       : unsigned(2 downto 0);     -- K2 register (adressing mode)
+signal GRx      : unsigned(2 downto 0);     -- Control signal for GR mux
+signal IR_ADR   : unsigned(20 downto 0);    -- IR address field
+
+-- General registers
+type gr_t is array (0 to 7) of unsigned(31 downto 0);
+constant gr_c : gr_t :=
+    (
+        x"00000000",
+        x"00000000",
+        x"00000000",
+        x"00000000",
+        x"00000000",
+        x"00000000",
+        x"00000000",
+        x"00000000"
+    );
+
+signal g_reg : gr_t := gr_c;
 
 begin
 
@@ -121,24 +143,24 @@ variable op_arg_2       : unsigned(32 downto 0);
 variable op_part_result : unsigned(32 downto 0);
 variable op_result      : signed(31 downto 0);
 begin
-	if rising_edge(clk) then
-		if (rst = '1') then
-			AR <= (others => '0');
+    if rising_edge(clk) then
+        if (rst = '1') then
+            AR <= (others => '0');
             flag_X <= '0';
             flag_N <= '0';
             flag_Z <= '0';
             flag_V <= '0';
             flag_C <= '0';
 
-		--Modes currently stolen from http://www.isy.liu.se/edu/kurs/TSEA83/tex/mikrokomp_2013.pdf
-		--ALU=00000 has no effect
-		elsif (ALU = "00001") then --AR:=bus
-			AR <= signed(DATA_BUS);
-		elsif (ALU = "00010") then --AR:=bus' (One's complement)
-			AR <= not signed(DATA_BUS);
-		elsif (ALU = "00011") then --AR:=0
-			AR <= (others => '0');
-		elsif (ALU = "00100") then --AR:=AR+buss (ints)
+        --Modes currently stolen from http://www.isy.liu.se/edu/kurs/TSEA83/tex/mikrokomp_2013.pdf
+        --ALU=00000 has no effect
+        elsif (ALU = "00001") then --AR:=bus
+            AR <= signed(DATA_BUS);
+        elsif (ALU = "00010") then --AR:=bus' (One's complement)
+            AR <= not signed(DATA_BUS);
+        elsif (ALU = "00011") then --AR:=0
+            AR <= (others => '0');
+        elsif (ALU = "00100") then --AR:=AR+buss (ints)
             --In summary, we'll:
             --  Extend argument size by 1 bit
             --  Add those together
@@ -154,13 +176,17 @@ begin
             flag_X <= flag_C;
             if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
             if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                --Is the sum of negative positive, or vise versa?
+                --Is the sum of negative positive, or vice versa?
             if ((AR>0 and signed(DATA_BUS)>0 and op_result<=0) or (AR<0 and signed(DATA_BUS)<0 and op_result>=0)) then flag_V <= '1'; else flag_V <= '0'; end if;
-			flag_C <= op_part_result(32);
-		end if;
-	end if;
+            flag_C <= op_part_result(32);
+        end if;
+    end if;
 end process;
 
+K1      <= IR(31 downto 27);
+GRx     <= IR(26 downto 24);
+K2      <= IR(23 downto 21);
+IR_ADR  <= IR(20 downto 0);
 
 uM      <= u_mem(to_integer(uPC));
 uAddr   <= uM(13 downto 0);
@@ -168,13 +194,13 @@ uPCsig  <= uM(17 downto 14);
 PCsig   <= uM(18);
 FB      <= uM(22 downto 19);
 TB      <= uM(26 downto 23);
-ALU		<= uM(31 downto 27);
+ALU     <= uM(31 downto 27);
 PM      <= p_mem(to_integer(ASR));
 
 DATA_BUS <= IR  when (TB = "0001") else
             PM  when (TB = "0010") else
             PC  when (TB = "0011") else
             ASR when (TB = "0100") else
-			unsigned(AR)  when (TB = "0101") else
+            unsigned(AR)  when (TB = "0101") else
             (others => '0');
 end Behavioral;
