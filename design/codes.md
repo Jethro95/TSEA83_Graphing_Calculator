@@ -16,6 +16,7 @@
 |0011|PC|
 |0100|ASR|
 |0101|unsigned(AR)|
+|0110|GRx|
 
 ## PC
 |Binary|Action|
@@ -29,6 +30,7 @@
 |0000|μPC:=μPC+1|
 |0001|μPC:=μAddr|
 |0010|μPC:=K2(MM)|
+|0011|μPC:=K1(MM)|
 
 
 - - -

@@ -17,14 +17,14 @@ type u_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
-        b"00000_0011_0100_0_0000_00000000000000",  -- ASR:=PC
-        b"00000_0010_0001_0_0000_00000000000000",  -- IR:=PMM, PC:=PC+1
-        b"00100_0010_0000_1_0010_00000000000000",  -- Direct memory access (u_mem(3
-        b"00000_0000_0000_0_0000_00000000000000",  -- Immediate memory access (u_mem(4))
-        b"00000_0000_0000_0_0000_00000000000000",  -- Indirect memory access (u_mem(5))
-        b"00000_0000_0000_0_0000_00000000000000",
-        b"00000_0000_0000_0_0000_00000000000000",
-        b"00000_0000_0000_0_0000_00000000000000",
+        b"00000_0011_0100_0_0000_00000000000000",  -- 0 ASR:=PC
+        b"00000_0010_0001_1_0000_00000000000000",  -- 1 IR:=PMM, PC:=PC+1
+        b"00100_0010_0000_0_0010_00000000000000",  -- 2 uPC:= K2(M-field)
+        b"00000_0001_0100_0_0011_00000000000000",  -- 3 Direct memory access (u_mem(3))  ASR:=IR, uPC:= K1(OP-field)
+        b"00000_0011_0100_1_0011_00000000000000",  -- 4 Immediate memory access (u_mem(4)) ASR:=PC, PC:= PC+1, uPC:= K1(OP-fältet)
+        b"00000_0001_0100_0_0000_00000000000000",  -- 5 Indirect memory access (u_mem(5)) ASR:= IR
+        b"00000_0010_0100_0_0011_00000000000000",  -- 6 ASR:= PM, uPC:= K1(OP-f¨altet)
+        b"00000_0010_0110_0_0001_00000000000000",  -- 7 LOAD
         b"00000_0000_0000_0_0000_00000000000000",
         b"00000_0000_0000_0_0000_00000000000000"
     );
@@ -42,9 +42,9 @@ signal ALU      : unsigned(4 downto 0);     -- ALU mode
 type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
-        --INS   GRx M  ADRESS/LITERAL
-        b"00000_000_01_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
+        --OP   GRx M  ADRESS/LITERAL
+        b"00000_000_01_0000000000000000000000", -- Load with Immediate adressing to GR0
+        b"11111_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
@@ -58,9 +58,9 @@ constant p_mem_c : p_mem_t :=
 
 signal p_mem : p_mem_t := p_mem_c;
 signal PM       : unsigned(31  downto 0);   -- Program Memory output
-signal PC       : unsigned(31 downto 0);    -- Program Counter
+signal PC       : unsigned(21 downto 0);    -- Program Counter
 signal Pcsig    : std_logic;                -- 0:PC=PC, 1:PC++
-signal ASR      : unsigned(31 downto 0);    -- Address Register
+signal ASR      : unsigned(21 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
 signal AR       : signed(31 downto 0);      -- Accumulator Register
@@ -82,11 +82,22 @@ constant K2_mem_c : K2_mem_t :=
     );
 signal K2_mem : K2_mem_t := K2_mem_c;
 
+-- K1 Memory (Operation => uPC address)
+type K1_mem_t is array (0 to 2) of unsigned(5 downto 0);
+constant K1_mem_c : K1_mem_t :=
+    (
+        b"000111", -- Load (u_mem(7))
+        b"000000",
+        b"000000"
+    );
+signal K1_mem : K1_mem_t := K1_mem_c;
+
+
 -- IR
-signal K1       : unsigned(4 downto 0);     -- K1 register (OP)
-signal MM       : unsigned(2 downto 0);     -- MM register (adressing mode)
+signal OP       : unsigned(4 downto 0);     -- Operation
+signal MM       : unsigned(1 downto 0);     -- Memory mode
 signal GRx      : unsigned(2 downto 0);     -- Control signal for GR mux
-signal IR_ADR   : unsigned(20 downto 0);    -- IR address field
+signal IR_ADR   : unsigned(21 downto 0);    -- IR address field
 
 -- General registers
 type gr_t is array (0 to 7) of unsigned(31 downto 0);
@@ -115,7 +126,9 @@ begin
         elsif (uPCsig = "0001") then
             uPC <= uAddr(5 downto 0);
         elsif (uPCsig = "0010") then
-            uPc <= K2_mem(to_integer(MM));
+            uPC <= K2_mem(to_integer(MM));
+        elsif (uPCsig = "0011") then
+            uPC <= K1_mem(to_integer(OP));
         else
             uPC <= uPC + 1;
         end if;
@@ -142,7 +155,7 @@ begin
         if (rst = '1') then
             PC <= (others => '0');
         elsif (FB = "0011") then
-            PC <= DATA_BUS;
+            PC <= DATA_BUS(21 downto 0); -- We only want the adress/literal part of the bus(/IR)
         elsif (PCsig = '1') then
             PC <= PC + 1;
         end if;
@@ -156,7 +169,19 @@ begin
         if (rst = '1') then
             ASR <= (others => '0');
         elsif (FB = "0100") then
-            ASR <= DATA_BUS;
+            ASR <= DATA_BUS(21 downto 0); -- We only want the adress/literal part of the bus(/IR)
+        end if;
+    end if;
+end process;
+
+-- GRx : General registers
+process(clk)
+begin
+    if rising_edge(clk) then
+        if (rst = '1') then
+            g_reg <= gr_c;
+        elsif (FB = "0110") then
+            g_reg(to_integer(GRx)) <= DATA_BUS;
         end if;
     end if;
 end process;
@@ -208,10 +233,10 @@ begin
     end if;
 end process;
 
-K1      <= IR(31 downto 27);
+OP      <= IR(31 downto 27);
 GRx     <= IR(26 downto 24);
-MM      <= IR(23 downto 21);
-IR_ADR  <= IR(20 downto 0);
+MM      <= IR(23 downto 22);
+IR_ADR  <= IR(21 downto 0);
 
 uM      <= u_mem(to_integer(uPC));
 uAddr   <= uM(13 downto 0);
@@ -222,10 +247,11 @@ TB      <= uM(26 downto 23);
 ALU     <= uM(31 downto 27);
 PM      <= p_mem(to_integer(ASR));
 
-DATA_BUS <= IR  when (TB = "0001") else
-            PM  when (TB = "0010") else
-            PC  when (TB = "0011") else
-            ASR when (TB = "0100") else
-            unsigned(AR)  when (TB = "0101") else
+DATA_BUS <= IR                      when (TB = "0001") else
+            PM                      when (TB = "0010") else
+            "0000000000" & PC       when (TB = "0011") else
+            "0000000000" & ASR      when (TB = "0100") else
+            unsigned(AR)            when (TB = "0101") else
+            g_reg(to_integer(GRx))  when (TB = "0110") else -- TODO: Is GRx updated yet?
             (others => '0');
 end Behavioral;
