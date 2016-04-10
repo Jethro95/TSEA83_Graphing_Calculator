@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 
 --CPU interface
-entity cpu is 
+entity cpu is
     port(
         clk: in std_logic;
         rst: in std_logic
@@ -13,13 +13,18 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 4) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
         b"00000_0011_0100_0_0000_00000000000000",  -- ASR:=PC
-        b"00000_0010_0001_0_0000_00000000000000",  -- IR:=PM, PC:=PC+1
-        b"00100_0010_0000_1_0001_00000000000000",  -- Test for addition
+        b"00000_0010_0001_0_0000_00000000000000",  -- IR:=PMM, PC:=PC+1
+        b"00100_0010_0000_1_0010_00000000000000",  -- Direct memory access (u_mem(3
+        b"00000_0000_0000_0_0000_00000000000000",  -- Immediate memory access (u_mem(4))
+        b"00000_0000_0000_0_0000_00000000000000",  -- Indirect memory access (u_mem(5))
+        b"00000_0000_0000_0_0000_00000000000000",
+        b"00000_0000_0000_0_0000_00000000000000",
+        b"00000_0000_0000_0_0000_00000000000000",
         b"00000_0000_0000_0_0000_00000000000000",
         b"00000_0000_0000_0_0000_00000000000000"
     );
@@ -34,14 +39,22 @@ signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
 -- program Memory
-type p_mem_t is array (0 to 3) of unsigned(31 downto 0);
+type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
-        x"BFFFFFFF",
-        x"BFFFFFFF",
-        x"BFFFFFFF",
-        x"BFFFFFFF"
+        --INS   GRx M  ADRESS/LITERAL
+        b"00000_000_01_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000"
     );
+
 
 signal p_mem : p_mem_t := p_mem_c;
 signal PM       : unsigned(31  downto 0);   -- Program Memory output
@@ -59,9 +72,19 @@ signal flag_Z   : std_logic;                -- Zero flag
 signal flag_V   : std_logic;                -- Overflow Flag
 signal flag_C   : std_logic;                -- Carry flag
 
+-- K2 Memory (Memory mode => uPC address)
+type K2_mem_t is array (0 to 2) of unsigned(5 downto 0);
+constant K2_mem_c : K2_mem_t :=
+    (
+        b"000011", -- Direct memory access (u_mem(3))
+        b"000100", -- Immediate memory access (u_mem(4))
+        b"000101"  -- Indirect memory access (u_mem(5))
+    );
+signal K2_mem : K2_mem_t := K2_mem_c;
+
 -- IR
 signal K1       : unsigned(4 downto 0);     -- K1 register (OP)
-signal K2       : unsigned(2 downto 0);     -- K2 register (adressing mode)
+signal MM       : unsigned(2 downto 0);     -- MM register (adressing mode)
 signal GRx      : unsigned(2 downto 0);     -- Control signal for GR mux
 signal IR_ADR   : unsigned(20 downto 0);    -- IR address field
 
@@ -83,31 +106,33 @@ signal g_reg : gr_t := gr_c;
 
 begin
 
--- mPC : micro Program Counter 
-process(clk) 
-begin 
-    if rising_edge(clk) then 
-        if (rst = '1') then 
-            uPC <= (others => '0'); 
-        elsif (uPCsig = "0001") then 
-            uPC <= uAddr(5 downto 0); 
+-- mPC : micro Program Counter
+process(clk)
+begin
+    if rising_edge(clk) then
+        if (rst = '1') then
+            uPC <= (others => '0');
+        elsif (uPCsig = "0001") then
+            uPC <= uAddr(5 downto 0);
+        elsif (uPCsig = "0010") then
+            uPc <= K2_mem(to_integer(MM));
         else
-            uPC <= uPC + 1; 
-        end if; 
-    end if; 
-end process; 
+            uPC <= uPC + 1;
+        end if;
+    end if;
+end process;
 
--- IR : Instruction Register 
-process(clk) 
-begin 
-    if rising_edge(clk) then 
-        if (rst = '1') then 
-            IR <= (others => '0'); 
-        elsif (FB = "0001") then 
-            IR <= DATA_BUS; 
-        end if; 
-    end if; 
-end process; 
+-- IR : Instruction Register
+process(clk)
+begin
+    if rising_edge(clk) then
+        if (rst = '1') then
+            IR <= (others => '0');
+        elsif (FB = "0001") then
+            IR <= DATA_BUS;
+        end if;
+    end if;
+end process;
 
 
 -- PC : Program Counter
@@ -139,7 +164,7 @@ end process;
 -- AR : Accumulator Register
 process(clk)
 variable op_arg_1       : unsigned(32 downto 0);
-variable op_arg_2       : unsigned(32 downto 0); 
+variable op_arg_2       : unsigned(32 downto 0);
 variable op_part_result : unsigned(32 downto 0);
 variable op_result      : signed(31 downto 0);
 begin
@@ -185,7 +210,7 @@ end process;
 
 K1      <= IR(31 downto 27);
 GRx     <= IR(26 downto 24);
-K2      <= IR(23 downto 21);
+MM      <= IR(23 downto 21);
 IR_ADR  <= IR(20 downto 0);
 
 uM      <= u_mem(to_integer(uPC));
