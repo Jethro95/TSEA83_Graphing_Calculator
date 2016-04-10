@@ -48,6 +48,6 @@ Binary => GR#
 ## Memory Mode
 |Binary|Mode|
 |---|---|
-|00|Immediate|
-|01|Direct|
+|00|Direct|
+|01|Immediate|
 |10|Indirect|
