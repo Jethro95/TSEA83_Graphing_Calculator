@@ -1,12 +1,18 @@
 library IEEE;
+library floatfixlib;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
+use floatfixlib.math_utility_pkg.all;
+use floatfixlib.float_pkg.all;
 
 --CPU interface
 entity cpu is
     port(
         clk: in std_logic;
-        rst: in std_logic
+        rst: in std_logic;
+	led: buffer std_logic;
+	btns: in std_logic;
+	btnu: in std_logic
     );
 end cpu;
 
@@ -99,6 +105,8 @@ signal MM       : unsigned(1 downto 0);     -- Memory mode
 signal GRx      : unsigned(2 downto 0);     -- Control signal for GR mux
 signal IR_ADR   : unsigned(21 downto 0);    -- IR address field
 
+signal x : float (5 downto -10);
+
 -- General registers
 type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
@@ -121,7 +129,12 @@ begin
 process(clk)
 begin
     if rising_edge(clk) then
-        if (rst = '1') then
+        if (btns = '1') then
+		if(led = '1' and x > 3.9) then 
+			led <= '0';
+		else
+			led <= '1';
+		end if;
             uPC <= (others => '0');
         elsif (uPCsig = "0001") then
             uPC <= uAddr(5 downto 0);
@@ -139,7 +152,11 @@ end process;
 process(clk)
 begin
     if rising_edge(clk) then
+	if (btnu='1') then
+		x<=x+to_float (1,x);
+	end if;
         if (rst = '1') then
+		x <= to_float(0,x);
             IR <= (others => '0');
         elsif (FB = "0001") then
             IR <= DATA_BUS;

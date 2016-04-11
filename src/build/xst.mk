@@ -31,9 +31,13 @@ $(PROJNAME)-synthdir/xst/synth/design.scr: $(S)
 # First enter all Verilog files into the project file, then all VHDL files
 	rm -f $(@D)/design.prj
 	touch $(@D)/design.prj
-	$(foreach i,$(filter %.v,$(S)), echo 'verilog work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
-	$(foreach i,$(filter %.vhd,$(S)), echo 'vhdl work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
-	$(foreach i,$(filter %.vhdl,$(S)), echo 'vhdl work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
+	#$(foreach i,$(filter %.v,$(S)), echo 'verilog work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
+	#$(foreach i,$(filter %.vhd,$(S)), echo 'vhdl work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
+	#$(foreach i,$(filter %.vhdl,$(S)), echo 'vhdl work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
+	echo 'vhdl work "../../../cpu.vhd"' >> $(@D)/design.prj
+	echo 'vhdl floatfixlib "../../../floatfixlib/math_utility_pkg.vhd"' >> $(@D)/design.prj
+	echo 'vhdl floatfixlib "../../../floatfixlib/fixed_pkg_c.vhd"' >> $(@D)/design.prj
+	echo 'vhdl floatfixlib "../../../floatfixlib/float_pkg_c.vhd"' >> $(@D)/design.prj
 	mv $@.tmp $@
 
 # Synthesize the design based on the synthesis script
