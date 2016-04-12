@@ -8,6 +8,7 @@
 |00011|AR:=0|
 |00100|AR:=AR+BUS|
 |00101|AR:=AR-BUS|
+|00110|AR:=AR and BUS|
 
 ## Bus codes
 |Binary|Item|
@@ -45,6 +46,7 @@
 |00001|STORE|
 |00010|ADD|
 |00011|SUB|
+|00100|AND|
 
 ## GRx
 Binary => GR#

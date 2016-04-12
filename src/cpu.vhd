@@ -16,7 +16,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 13) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 15) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -33,7 +33,9 @@ constant u_mem_c : u_mem_t :=
         b"00100_0010_0000_0_0000_00000000000000",  -- 10 ADD AR := AR+PM(A)
         b"00100_0101_0110_0_0001_00000000000000",  -- 11 ADD GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",  -- 12 SUB AR := GRx
-        b"00101_0010_0000_0_0001_00000000001011"   -- 13 SUB AR := AR-PM(A) then GRx := AR
+        b"00101_0010_0000_0_0001_00000000001011",  -- 13 SUB AR := AR-PM(A) then GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",  -- 14 AND AR := GRx
+        b"00110_0010_0000_0_0001_00000000001011"   -- 15 AND AR := AR and PM(A) then GRx := AR
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -51,9 +53,9 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"00001_001_00_0000000000000000000010", -- Add 3 to GR1
+        b"00100_001_00_0000000000000000000010", -- Add 3 to GR1
         b"00000_000_00_0000000000000000000011", -- 3
-        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000100010",
         b"10000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
@@ -91,13 +93,14 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 3) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 4) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000111", -- LOAD (u_mem(7))
         b"001000", -- STORE (u_mem(8))
         b"001001", -- ADD (u_mem(9))
-	    b"001100"  -- SUB (u_mem(12))
+	    b"001100", -- SUB (u_mem(12))
+	    b"001110"  -- AND (u_mem(14))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -115,7 +118,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000001",
+        x"00000003",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -253,6 +256,8 @@ begin
             flag_C <= op_part_result(32);
         elsif (ALU = "00101") then
             AR <= signed(AR) - signed(DATA_BUS); -- TODO: Flags
+        elsif (ALU = "00110") then
+            AR <= signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS)); -- TODO: Flags
         end if;
     end if;
 end process;
