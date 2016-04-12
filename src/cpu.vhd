@@ -33,7 +33,7 @@ constant u_mem_c : u_mem_t :=
         b"00100_0010_0000_0_0000_00000000000000",  -- 10 ADD AR := AR+PM(A)
         b"00100_0101_0110_0_0001_00000000000000",  -- 11 ADD GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",  -- 12 SUB AR := GRx
-        b"00101_0010_0000_0_0001_00000000001011"  -- 13 SUB AR := AR-PM(A) then GRx := AR
+        b"00101_0010_0000_0_0001_00000000001011"   -- 13 SUB AR := AR-PM(A) then GRx := AR
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -51,7 +51,7 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"00011_001_01_0000000000000000000000", -- Add 3 to GR1
+        b"00001_001_00_0000000000000000000010", -- Add 3 to GR1
         b"00000_000_00_0000000000000000000011", -- 3
         b"00000_000_00_0000000000000000000000",
         b"10000_000_00_0000000000000000000000",
@@ -115,7 +115,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000000",
+        x"00000001",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -194,6 +194,16 @@ begin
             g_reg <= gr_c;
         elsif (FB = "0110") then
             g_reg(to_integer(GRx)) <= DATA_BUS;
+        end if;
+    end if;
+end process;
+
+-- p_mem : Program memory
+process(clk)
+begin
+    if rising_edge(clk) then
+        if (FB = "0010") then
+            p_mem(to_integer(ASR)) <= DATA_BUS;
         end if;
     end if;
 end process;
