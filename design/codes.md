@@ -7,6 +7,7 @@
 |00010|AR:=BUS'|
 |00011|AR:=0|
 |00100|AR:=AR+BUS|
+|00101|AR:=AR-BUS|
 
 ## Bus codes
 |Binary|Item|
@@ -40,7 +41,10 @@
 ## OP
 |Binary|Operation|
 |---|---|
-|00000|Load (Maybe)|
+|00000|LOAD|
+|00001|STORE|
+|00010|ADD|
+|00011|SUB|
 
 ## GRx
 Binary => GR#

@@ -9,17 +9,14 @@ use floatfixlib.float_pkg.all;
 entity cpu is
     port(
         clk: in std_logic;
-        rst: in std_logic;
-	led: buffer std_logic;
-	btns: in std_logic;
-	btnu: in std_logic
+        rst: in std_logic
     );
 end cpu;
 
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 9) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 13) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -30,10 +27,15 @@ constant u_mem_c : u_mem_t :=
         b"00000_0011_0100_1_0011_00000000000000",  -- 4 Immediate memory access (u_mem(4)) ASR:=PC, PC:= PC+1, uPC:= K1(OP-fältet)
         b"00000_0001_0100_0_0000_00000000000000",  -- 5 Indirect memory access (u_mem(5)) ASR:= IR
         b"00000_0010_0100_0_0011_00000000000000",  -- 6 ASR:= PM, uPC:= K1(OP-f¨altet)
-        b"00000_0010_0110_0_0001_00000000000000",  -- 7 LOAD
-        b"00000_0000_0000_0_0000_00000000000000",
-        b"00000_0000_0000_0_0000_00000000000000"
+        b"00000_0010_0110_0_0001_00000000000000",  -- 7 LOAD GRx := PM(A) 
+        b"00000_0110_0010_0_0001_00000000000000",  -- 8 STORE PM(A) := GRx 
+        b"00001_0110_0000_0_0000_00000000000000",  -- 9 ADD AR := GRx
+        b"00100_0010_0000_0_0000_00000000000000",  -- 10 ADD AR := AR+PM(A)
+        b"00100_0101_0110_0_0001_00000000000000",  -- 11 ADD GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",  -- 12 SUB AR := GRx
+        b"00101_0010_0000_0_0001_00000000001011"  -- 13 SUB AR := AR-PM(A) then GRx := AR
     );
+--         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
 
 signal uM       : unsigned(31 downto 0);    -- micro Memory output
@@ -49,8 +51,8 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"00000_001_00_0000000000000000000011", -- Load from PM(3) => GR1
-        b"00000_000_00_0000000000000000000000",
+        b"00011_001_01_0000000000000000000000", -- Add 3 to GR1
+        b"00000_000_00_0000000000000000000011", -- 3
         b"00000_000_00_0000000000000000000000",
         b"10000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
@@ -89,12 +91,13 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 2) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 3) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
-        b"000111", -- Load (u_mem(7))
-        b"000000",
-        b"000000"
+        b"000111", -- LOAD (u_mem(7))
+        b"001000", -- STORE (u_mem(8))
+        b"001001", -- ADD (u_mem(9))
+	    b"001100"  -- SUB (u_mem(12))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -129,12 +132,7 @@ begin
 process(clk)
 begin
     if rising_edge(clk) then
-        if (btns = '1') then
-		if(led = '1' and x > 3.9) then 
-			led <= '0';
-		else
-			led <= '1';
-		end if;
+        if (rst = '1') then
             uPC <= (others => '0');
         elsif (uPCsig = "0001") then
             uPC <= uAddr(5 downto 0);
@@ -152,9 +150,6 @@ end process;
 process(clk)
 begin
     if rising_edge(clk) then
-	if (btnu='1') then
-		x<=x+to_float (1,x);
-	end if;
         if (rst = '1') then
 		x <= to_float(0,x);
             IR <= (others => '0');
@@ -246,6 +241,8 @@ begin
                 --Is the sum of negative positive, or vice versa?
             if ((AR>0 and signed(DATA_BUS)>0 and op_result<=0) or (AR<0 and signed(DATA_BUS)<0 and op_result>=0)) then flag_V <= '1'; else flag_V <= '0'; end if;
             flag_C <= op_part_result(32);
+        elsif (ALU = "00101") then
+            AR <= signed(AR) - signed(DATA_BUS); -- TODO: Flags
         end if;
     end if;
 end process;
