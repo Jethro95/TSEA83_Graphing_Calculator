@@ -2,12 +2,12 @@ LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
 
-ENTITY cpu_tb IS
-END cpu_tb;
+ENTITY main_tb IS
+END main_tb;
 
-ARCHITECTURE behavior OF cpu_tb IS
+ARCHITECTURE behavior OF main_tb IS
 	-- Component Declaration for the Unit Under Test (UUT)
-	COMPONENT cpu
+	COMPONENT main
 	PORT(
 		clk : IN std_logic;
 		rst : IN std_logic
@@ -22,7 +22,7 @@ ARCHITECTURE behavior OF cpu_tb IS
 
 	BEGIN
 	    -- Instantiate the Unit Under Test (UUT)
-	    uut: cpu PORT MAP (
+	    uut: main PORT MAP (
 	        clk => clk,
 	        rst => rst
 	    );
