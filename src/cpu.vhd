@@ -263,7 +263,12 @@ begin
 
             flag_C <= op_part_result(32);
         elsif (ALU = "00110") then
-            AR <= signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS)); -- TODO: Flags
+			op_result := signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS));
+            AR <= op_result;
+			flag_N <= op_result(31);
+			if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+			flag_V <= '0';
+			flag_C <= '0';
         end if;
     end if;
 end process;
