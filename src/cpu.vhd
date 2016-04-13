@@ -20,22 +20,34 @@ type u_mem_t is array (0 to 15) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
-        b"00000_0011_0100_0_0000_00000000000000",  -- 0 ASR:=PC
-        b"00000_0010_0001_1_0000_00000000000000",  -- 1 IR:=PMM, PC:=PC+1
-        b"00000_0010_0000_0_0010_00000000000000",  -- 2 uPC:= K2(M-field)
-        b"00000_0001_0100_0_0011_00000000000000",  -- 3 Direct memory access (u_mem(3))  ASR:=IR, uPC:= K1(OP-field)
-        b"00000_0011_0100_1_0011_00000000000000",  -- 4 Immediate memory access (u_mem(4)) ASR:=PC, PC:= PC+1, uPC:= K1(OP-fältet)
-        b"00000_0001_0100_0_0000_00000000000000",  -- 5 Indirect memory access (u_mem(5)) ASR:= IR
-        b"00000_0010_0100_0_0011_00000000000000",  -- 6 ASR:= PM, uPC:= K1(OP-f¨altet)
-        b"00000_0010_0110_0_0001_00000000000000",  -- 7 LOAD GRx := PM(A) 
-        b"00000_0110_0010_0_0001_00000000000000",  -- 8 STORE PM(A) := GRx 
-        b"00001_0110_0000_0_0000_00000000000000",  -- 9 ADD AR := GRx
-        b"00100_0010_0000_0_0000_00000000000000",  -- 10 ADD AR := AR+PM(A)
-        b"00100_0101_0110_0_0001_00000000000000",  -- 11 ADD GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",  -- 12 SUB AR := GRx
-        b"00101_0010_0000_0_0001_00000000001011",  -- 13 SUB AR := AR-PM(A) then GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",  -- 14 AND AR := GRx
-        b"00110_0010_0000_0_0001_00000000001011"   -- 15 AND AR := AR and PM(A) then GRx := AR
+        b"00000_0011_0100_0_0000_00000000000000",   -- 0 ASR:=PC
+        b"00000_0010_0001_1_0000_00000000000000",   -- 1 IR:=PMM, PC:=PC+1
+        b"00000_0010_0000_0_0010_00000000000000",   -- 2 uPC:= K2(M-field)
+        b"00000_0001_0100_0_0011_00000000000000",   -- 3 Direct memory access (u_mem(3))  ASR:=IR, uPC:= K1(OP-field)
+        b"00000_0011_0100_1_0011_00000000000000",   -- 4 Immediate memory access (u_mem(4)) ASR:=PC, PC:= PC+1, uPC:= K1(OP-fältet)
+        b"00000_0001_0100_0_0000_00000000000000",   -- 5 Indirect memory access (u_mem(5)) ASR:= IR
+        b"00000_0010_0100_0_0011_00000000000000",   -- 6 ASR:= PM, uPC:= K1(OP-f¨altet)
+        b"00000_0010_0110_0_0001_00000000000000",   -- 7 LOAD GRx := PM(A) 
+        b"00000_0110_0010_0_0001_00000000000000",   -- 8 STORE PM(A) := GRx 
+        b"00001_0110_0000_0_0000_00000000000000",   -- 9 ADD AR := GRx
+        b"00100_0010_0000_0_0000_00000000000000",   -- 10 ADD AR := AR+PM(A)
+        b"00100_0101_0110_0_0001_00000000000000",   -- 11 ADD GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 12 SUB AR := GRx
+        b"00101_0010_0000_0_0001_00000000001011",   -- 13 SUB AR := AR-PM(A) then GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 14 AND AR := GRx
+        b"00110_0010_0000_0_0001_00000000001011",   -- 15 AND AR := AR and PM(A) then GRx := AR
+        b"00001_0011_0000_1_0000_00000000000000",   -- 16 BRA AR := PC, PC := PC+1
+        b"00100_0001_0000_0_0000_00000000000000",   -- 17 BRA AR := AR+IR
+        b"00000_0101_0011_0_0001_00000000000000",   -- 18 BRA PC := AR, uPC := 0
+        b"00000_0000_0000_0_1010_00000000010101",   -- 19 BNE uPC := 21 if Z=1
+        b"00000_0000_0000_0_1001_00000000010000",   -- 19 BNE uPC := 16 (if Z=0 implied)
+        b"00000_0000_0000_1_0001_00000000000000",   -- 21 BNE uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_1010_00000000010000",   -- 22 BEQ uPC := 16 if Z=1
+        b"00000_0000_0000_1_0001_00000000000000",   -- 24 BEQ uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_1001_00000000010000",   -- 25 BMI uPC := 16 if N=1
+        b"00000_0000_0000_1_0001_00000000000000",   -- 26 BMI uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_1100_00000000010000",   -- 27 BRF uPC := 16 if V=1
+        b"00000_0000_0000_1_0001_00000000000000"    -- 28 BRF uPC := 0, PC := PC+1
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -96,11 +108,23 @@ signal K2_mem : K2_mem_t := K2_mem_c;
 type K1_mem_t is array (0 to 4) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
-        b"000111", -- LOAD (u_mem(7))
-        b"001000", -- STORE (u_mem(8))
-        b"001001", -- ADD (u_mem(9))
-	    b"001100", -- SUB (u_mem(12))
-	    b"001110"  -- AND (u_mem(14))
+        b"000000",  -- HALT
+        b"000111",  -- LOAD (u_mem(7))
+        b"001000",  -- STORE (u_mem(8))
+        b"010000",  -- BRA (u_mem(16))
+        b"010110",  -- BEQ (u_mem(22))
+        b"011001",  -- BMI (u_mem(25))
+        b"010011",  -- BNE (u_mem(19))
+        b"011011",  -- BRF (u_mem(27))
+        b"001001",  -- ADD (u_mem(9))
+        b"000000",  -- ADDF
+        b"001100",  -- SUB (u_mem(12))
+        b"000000",  -- SUBF
+        b"000000",  -- DIVF
+        b"000000",  -- MULTF
+        b"000000",  -- AND (u_mem(14))
+        b"000000",  -- ASR
+        b"000000",  -- ASL
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -143,6 +167,31 @@ begin
             uPC <= K2_mem(to_integer(MM));
         elsif (uPCsig = "0011") then
             uPC <= K1_mem(to_integer(OP));
+        elsif (uPCsig = "1000") then 
+            if (flag_X = '1') then
+                uPC <= uAddr(5 downto 0);
+            else
+                uPC <= uPC + 1;
+        elsif (uPCsig = "1001") then
+            if (flag_N = '1') then
+                uPC <= uAddr(5 downto 0);
+            else
+                uPC <= uPC + 1;
+        elsif (uPCsig = "1010") then
+            if (flag_Z = '1') then
+                uPC <= uAddr(5 downto 0);
+            else
+                uPC <= uPC + 1;
+        elsif (uPCsig = "1011") then
+            if (flag_C = '1') then
+                uPC <= uAddr(5 downto 0);
+            else
+                uPC <= uPC + 1;
+        elsif (uPCsig = "1100") then
+            if (flag_V = '1') then
+                uPC <= uAddr(5 downto 0);
+            else
+                uPC <= uPC + 1;
         else
             uPC <= uPC + 1;
         end if;
