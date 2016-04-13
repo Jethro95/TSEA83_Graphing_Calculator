@@ -33,7 +33,11 @@
 |0001|μPC:=μAddr|
 |0010|μPC:=K2(MM)|
 |0011|μPC:=K1(MM)|
-
+|1000|μPC:=μAddr if X=1|
+|1001|μPC:=μAddr if N=1|
+|1010|μPC:=μAddr if Z=1|
+|1011|μPC:=μAddr if C=1|
+|1100|μPC:=μAddr if V=1|
 
 - - -
 

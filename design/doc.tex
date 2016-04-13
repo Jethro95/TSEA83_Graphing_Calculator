@@ -498,6 +498,25 @@ the number.\\
 
 \newpage
 
+\section{ALU mode list}
+
+\begin{tabular}{lll}
+  \textbf{Code} & \textbf{Function} & \textbf{Flags}\\
+  \texttt{00000} & None & \texttt{X N Z V C}\\
+  && \texttt{- - - - -}\\
+  \texttt{00001} & \texttt{AR := BUS} & \texttt{X N Z V C}\\
+  && \texttt{- - - - -}\\
+  \texttt{00010} & \texttt{AR := $\overline{\texttt{BUS}}$} & \texttt{X N Z V C}\\
+  && \texttt{- - - - -}\\
+  \texttt{00011} & \texttt{AR := 0} & \texttt{X N Z V C}\\
+  && \texttt{- - - - -}\\
+  \texttt{00100} & \texttt{AR := AR + BUS} & \texttt{X N Z V C}\\
+  && \texttt{* * * * *}\\
+  \texttt{00101} & \texttt{AR := AR - BUS} & \texttt{X N Z V C}\\
+  && \texttt{* * * * *}\\
+  \texttt{00110} & \texttt{AR := AR and BUS} & \texttt{X N Z V C}\\
+  && \texttt{- * * 0 0}
+\end{tabular}
 
 
 \end{appendices}
