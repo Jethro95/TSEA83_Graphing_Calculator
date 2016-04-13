@@ -4,7 +4,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
 use floatfixlib.math_utility_pkg.all;
 use floatfixlib.float_pkg.all;
-
 --CPU interface
 entity cpu is
     port(
@@ -213,9 +212,9 @@ end process;
 
 -- AR : Accumulator Register
 process(clk)
-variable op_arg_1       : unsigned(32 downto 0);
-variable op_arg_2       : unsigned(32 downto 0);
-variable op_part_result : unsigned(32 downto 0);
+variable op_arg_1       : signed(32 downto 0);
+variable op_arg_2       : signed(32 downto 0);
+variable op_part_result : signed(32 downto 0);
 variable op_result      : signed(31 downto 0);
 begin
     if rising_edge(clk) then
@@ -235,27 +234,34 @@ begin
             AR <= not signed(DATA_BUS);
         elsif (ALU = "00011") then --AR:=0
             AR <= (others => '0');
-        elsif (ALU = "00100") then --AR:=AR+buss (ints)
+        elsif ((ALU = "00100") or (ALU = "00101")) then --AR:=AR+buss (ints) || AR:=AR-buss
             --In summary, we'll:
             --  Extend argument size by 1 bit
             --  Add those together
             --  Remove MSB: the carry
             --  The remaining number is the result
             --Resizing args to length 33 and adding them
-            op_arg_1        := unsigned(AR(31) & AR(31 downto 0));
-            op_arg_2        := unsigned(DATA_BUS(31) & DATA_BUS(31 downto 0));
+            op_arg_1        := signed(AR(31) & AR(31 downto 0));
+            op_arg_2        := signed(DATA_BUS(31) & DATA_BUS(31 downto 0));
+			if (ALU = "00101") then --if AR:=AR-buss
+				op_arg_2 := -op_arg_2;
+			end if; 
             op_part_result  := op_arg_1 + op_arg_2;
-            op_result       := signed(op_part_result(31 downto 0)); --Unsigned addition with overflow cut off
+            op_result       := signed(op_part_result(31 downto 0)); --overflow cut off
             AR <= op_result;
             --Doing flags
             flag_X <= flag_C;
             if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
             if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+
                 --Is the sum of negative positive, or vice versa?
-            if ((AR>0 and signed(DATA_BUS)>0 and op_result<=0) or (AR<0 and signed(DATA_BUS)<0 and op_result>=0)) then flag_V <= '1'; else flag_V <= '0'; end if;
+            if ((op_arg_1>0 and op_arg_2>0 and op_result<=0) or 
+				(op_arg_1<0 and op_arg_2<0 and op_result>=0)) then 
+
+				flag_V <= '1'; else flag_V <= '0';
+			end if;
+
             flag_C <= op_part_result(32);
-        elsif (ALU = "00101") then
-            AR <= signed(AR) - signed(DATA_BUS); -- TODO: Flags
         elsif (ALU = "00110") then
             AR <= signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS)); -- TODO: Flags
         end if;
