@@ -34,8 +34,10 @@ $(PROJNAME)-synthdir/xst/synth/design.scr: $(S)
 	#$(foreach i,$(filter %.v,$(S)), echo 'verilog work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
 	#$(foreach i,$(filter %.vhd,$(S)), echo 'vhdl work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
 	#$(foreach i,$(filter %.vhdl,$(S)), echo 'vhdl work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
-	echo 'vhdl work "../../../cpu.vhd"' >> $(@D)/design.prj
 	echo 'vhdl work "../../../main.vhd"' >> $(@D)/design.prj
+	echo 'vhdl work "../../../cpu.vhd"' >> $(@D)/design.prj
+	echo 'vhdl work "../../../PICT_MEM.vhd"' >> $(@D)/design.prj
+	echo 'vhdl work "../../../VGA_MOTOR.vhd"' >> $(@D)/design.prj
 	echo 'vhdl floatfixlib "../../../floatfixlib/math_utility_pkg.vhd"' >> $(@D)/design.prj
 	echo 'vhdl floatfixlib "../../../floatfixlib/fixed_pkg_c.vhd"' >> $(@D)/design.prj
 	echo 'vhdl floatfixlib "../../../floatfixlib/float_pkg_c.vhd"' >> $(@D)/design.prj
@@ -43,7 +45,7 @@ $(PROJNAME)-synthdir/xst/synth/design.scr: $(S)
 
 # Synthesize the design based on the synthesis script
 # Clean out temporary directories to be sure no stale data is left...
-$(PROJNAME)-synthdir/xst/synth/design.ngc: $(PROJNAME)-synthdir/xst/synth/design.scr 
+$(PROJNAME)-synthdir/xst/synth/design.ngc: $(PROJNAME)-synthdir/xst/synth/design.scr
 	@echo
 	@echo '*** Synthesizing ***'
 	@echo
@@ -82,7 +84,7 @@ PARSIMC: work $(PROJNAME)-synthdir/layoutdefault/design_postpar.vhd SIMTBFILES
 POWERSIM: work $(PROJNAME)-synthdir/layoutdefault/design_postpar.vhd SIMTBFILES
 	vcom +acc $(PROJNAME)-synthdir/layoutdefault/design_postpar.vhd
 	vsim -sdfmax /uut=$(PROJNAME)-synthdir/layoutdefault/design_postpar.sdf -do 'vcd file activity.vcd;vcd add -r -internal -in -out uut/*; vcd  on;run -a;vcd off;vcd flush;quit -f' -c -L simprim $$(basename $$(echo $(firstword $(T)) | sed 's/\..*$$//'))
-	$(XILINX_INIT) xpwr  -v -a -s activity.vcd   $(PROJNAME)-synthdir/layoutdefault/design.ncd 
+	$(XILINX_INIT) xpwr  -v -a -s activity.vcd   $(PROJNAME)-synthdir/layoutdefault/design.ncd
 
 $(PROJNAME)-synthdir/synth/design.ngc: $(PROJNAME)-synthdir/xst/synth/design.ngc
 	mkdir -p $(@D)
@@ -126,10 +128,3 @@ dump_synthsettings:
 
 %.powersim:
 	$(NICE) $(MAKE) -f Makefile POWERSIM PROJNAME="$*" S="$(S)" U="$(U)" XST_OPT="$(XST_OPT)" PART="$(PART)" T="$(T)" INCDIRS="$(INCDIRS)"
-
-
-
-
-
-
-
