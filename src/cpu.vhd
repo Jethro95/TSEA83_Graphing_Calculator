@@ -171,26 +171,31 @@ begin
                 uPC <= uAddr(5 downto 0);
             else
                 uPC <= uPC + 1;
+            end if;
         elsif (uPCsig = "1001") then
             if (flag_N = '1') then
                 uPC <= uAddr(5 downto 0);
             else
                 uPC <= uPC + 1;
+            end if;
         elsif (uPCsig = "1010") then
             if (flag_Z = '1') then
                 uPC <= uAddr(5 downto 0);
             else
                 uPC <= uPC + 1;
+            end if;
         elsif (uPCsig = "1011") then
             if (flag_C = '1') then
                 uPC <= uAddr(5 downto 0);
             else
                 uPC <= uPC + 1;
+            end if;
         elsif (uPCsig = "1100") then
             if (flag_V = '1') then
                 uPC <= uAddr(5 downto 0);
             else
                 uPC <= uPC + 1;
+            end if;
         else
             uPC <= uPC + 1;
         end if;
