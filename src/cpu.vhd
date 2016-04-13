@@ -8,7 +8,9 @@ use floatfixlib.float_pkg.all;
 entity cpu is
     port(
         clk: in std_logic;
-        rst: in std_logic
+        rst: in std_logic;
+        we1		        : out std_logic;                         -- write enable
+        data_in1	        : out std_logic_vector(7 downto 0)      -- data in
     );
 end cpu;
 
@@ -134,6 +136,8 @@ begin
 process(clk)
 begin
     if rising_edge(clk) then
+        we1 <= '1';
+        data_in1 <= x"03";
         if (rst = '1') then
             uPC <= (others => '0');
         elsif (uPCsig = "0001") then

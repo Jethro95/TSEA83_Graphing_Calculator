@@ -19,8 +19,10 @@ end main;
 architecture Behavioral of main is
     component cpu
         port(
-            clk: in std_logic;
-            rst: in std_logic
+		clk: in std_logic;
+		rst: in std_logic;
+		we1		        : out std_logic;                         -- write enable
+		data_in1	        : out std_logic_vector(7 downto 0)      -- data in
         );
     end component;
 
@@ -29,8 +31,8 @@ architecture Behavioral of main is
     component PICT_MEM
       port ( clk			: in std_logic;                         -- system clock
  --  	 -- port 1 (No input yet)
-    --          we1		        : in std_logic;                         -- write enable
-    --          data_in1	        : in std_logic_vector(7 downto 0);      -- data in
+              we1		        : in std_logic;                         -- write enable
+              data_in1	        : in std_logic_vector(7 downto 0);      -- data in
     --          data_out1	        : out std_logic_vector(7 downto 0);     -- data out
     --          addr1	        : in unsigned(10 downto 0);             -- address
   	 -- port 2
@@ -52,6 +54,8 @@ architecture Behavioral of main is
              Hsync		: out std_logic;                        -- horizontal sync
              Vsync		: out std_logic);                       -- vertical sync
     end component;
+  signal        data_s	        : std_logic_vector(7 downto 0);         -- data
+  signal	we_s		: std_logic;                            -- write enable
 
     -- intermediate signals between PICT_MEM and VGA_MOTOR
     signal	data_out2_s     : std_logic_vector(7 downto 0);         -- data
@@ -60,10 +64,10 @@ architecture Behavioral of main is
 
 begin
 
-    CPU_UNIT     : cpu port map (clk, rst);
+    CPU_UNIT     : cpu port map (clk, rst, we1=>we_s, data_in1=>data_s);
 
     -- picture memory component connection
-    PIC_MEM_UNIT : PICT_MEM port map(clk=>clk, we2=>'0', data_in2=>"00000000", data_out2=>data_out2_s, addr2=>addr2_s);
+    PIC_MEM_UNIT : PICT_MEM port map( we1=>we_s, data_in1=>data_s, clk=>clk, we2=>'0', data_in2=>"00000000", data_out2=>data_out2_s, addr2=>addr2_s);
 
     -- VGA motor component connection
     VGA_UNIT     : VGA_MOTOR port map(clk=>clk, rst=>rst, data=>data_out2_s, addr=>addr2_s, vgaRed=>vgaRed, vgaGreen=>vgaGreen, vgaBlue=>vgaBlue, Hsync=>Hsync, Vsync=>Vsync);
