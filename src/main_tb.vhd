@@ -9,14 +9,14 @@ ARCHITECTURE behavior OF main_tb IS
 	-- Component Declaration for the Unit Under Test (UUT)
 	COMPONENT main
 	PORT(
-		clk : IN std_logic;
-		rst : IN std_logic;
+		clk            : IN std_logic;
+		rst            : IN std_logic;
         -- VGA
-        Hsync	                : out std_logic;                        -- horizontal sync
-        Vsync	                : out std_logic;                        -- vertical sync
-        vgaRed	                : out	std_logic_vector(2 downto 0);   -- VGA red
-        vgaGreen                : out std_logic_vector(2 downto 0);     -- VGA green
-        vgaBlue     	        : out std_logic_vector(2 downto 1)     -- VGA blue
+        Hsync    : out std_logic;                        -- horizontal sync
+        Vsync    : out std_logic;                        -- vertical sync
+        vgaRed   : out	std_logic_vector(2 downto 0);   -- VGA red
+        vgaGreen : out std_logic_vector(2 downto 0);     -- VGA green
+        vgaBlue  : out std_logic_vector(2 downto 1)     -- VGA blue
 	);
 	END COMPONENT;
 
