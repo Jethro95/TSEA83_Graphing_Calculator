@@ -383,23 +383,21 @@ begin
                 lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
                 AR <= signed(lengthhack_result);
             elsif (ALU = "01001") then -- ASR 
-                    if(to_integer(DATA_BUS) /= 0) then
-                        -- C and X unaffected by a shift count of zero
-                        flag_C <= AR(to_integer(DATA_BUS) - 1);
-                        flag_X <= AR(to_integer(DATA_BUS) - 1);
-                    end if;
-                    AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
+                if(to_integer(DATA_BUS) /= 0) then
+                    -- C and X unaffected by a shift count of zero
+                    flag_C <= AR(to_integer(DATA_BUS) - 1);
+                    flag_X <= AR(to_integer(DATA_BUS) - 1);
                 end if;
+                AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
             elsif (ALU = "01010") then -- ASL
-                    if(to_integer(DATA_BUS) /= 0) then
-                        -- C and X unaffected by a shift count of zero
-                        flag_C <= AR(32 - to_integer(DATA_BUS));
-                        flag_X <= AR(32 - to_integer(DATA_BUS));
-                    end if;
-                    AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
+                if(to_integer(DATA_BUS) /= 0) then
+                    -- C and X unaffected by a shift count of zero
+                    flag_C <= AR(32 - to_integer(DATA_BUS));
+                    flag_X <= AR(32 - to_integer(DATA_BUS));
                 end if;
+                AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
             elsif ((ALU = "01011") or (ALU = "01100")) then --AR:=AR+Buss (floats) || AR:=AR-Buss (floats)
