@@ -17,7 +17,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 15) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 28) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -38,7 +38,7 @@ constant u_mem_c : u_mem_t :=
         b"00001_0110_0000_0_0000_00000000000000",   -- 14 AND AR := GRx
         b"00110_0010_0000_0_0001_00000000001011",   -- 15 AND AR := AR and PM(A) then GRx := AR
         b"00000_0000_0000_1_0000_00000000000000",   -- 16 BRA PC := PC+1
-	b"00001_0011_0000_0_0000_00000000000000",   -- 17 BRA AR := PC
+	    b"00001_0011_0000_0_0000_00000000000000",   -- 17 BRA AR := PC
         b"00100_0001_0000_0_0000_00000000000000",   -- 18 BRA AR := AR+IR
         b"00000_0101_0011_0_0001_00000000000000",   -- 19 BRA PC := AR, uPC := 0
         b"00000_0000_0000_0_1010_00000000010101",   -- 20 BNE uPC := 21 if Z=1
@@ -107,7 +107,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 4) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 16) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -126,7 +126,7 @@ constant K1_mem_c : K1_mem_t :=
         b"000000",  -- MULTF
         b"000000",  -- AND (u_mem(14))
         b"000000",  -- ASR
-        b"000000",  -- ASL
+        b"000000"  -- ASL
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
