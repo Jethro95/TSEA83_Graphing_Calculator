@@ -270,10 +270,15 @@ begin
 
     -- AR : Accumulator Register
     process(clk)
-    variable op_arg_1       : signed(32 downto 0);
-    variable op_arg_2       : signed(32 downto 0);
-    variable op_part_result : signed(32 downto 0);
-    variable op_result      : signed(31 downto 0);
+		--Variables
+		--For integer operations:
+		variable op_arg_1       : signed(32 downto 0);
+		variable op_arg_2       : signed(32 downto 0);
+		variable op_part_result : signed(32 downto 0);
+		variable op_result      : signed(31 downto 0);
+		--For floating-point operations:
+		variable lengthhack_float : float32;
+		variable lengthhack_result : unsigned(31 downto 0);
     begin
         if rising_edge(clk) then
             if (rst = '1') then
@@ -327,7 +332,21 @@ begin
     			if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
     			flag_V <= '0';
     			flag_C <= '0';
-            end if;
+            elsif (ALU = "00111") then --AR:=float(AR)
+				--Trying set AR to unsigned(to_slv(to_float(...))) causes modelsim to protest about array lengths
+				--The solution: Create a 0-value unsigned. Add the bits of the conversion result to it.
+				--	and set AR to that
+		        lengthhack_float := to_float(AR, lengthhack_float);
+		        lengthhack_result := "00000000000000000000000000000000";
+		        lengthhack_result := lengthhack_result + unsigned(to_slv(lengthhack_float));
+		        AR <= signed(lengthhack_result);
+			elsif (ALU = "01000") then --AR:=signed(AR)
+				--See comment in ALU mode above. Similar logic.
+		        lengthhack_float := float(AR);
+		        lengthhack_result := "00000000000000000000000000000000";
+		        lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
+				AR <= signed(lengthhack_result);
+       		end if;
         end if;
     end process;
 
