@@ -77,7 +77,7 @@ Binary => GR#
 ## Flags
 |Flag|Name|Comment|
 |---|---|---|
-|C|Carry|Works as you would expect carry to work. Also contains the shifted bit after a shift operation.|
+|C|Carry|Works as you would expect carry to work. Also contains the bit that was shifted out after a shift operation.|
 |V|Overflow|Will be set if a result can't be represented.|
 |Z|Zero|Set if AR is zero.|
 |N|Negative|Set if AR is negative.|
