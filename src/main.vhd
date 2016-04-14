@@ -35,7 +35,7 @@ architecture Behavioral of main is
             data_in1   : in std_logic_vector(7 downto 0);      -- data
             save_at    : in integer range 0 to 1200;            -- save data_in1 on adress
             data_out2  : out std_logic_vector(7 downto 0);     -- data out
-            addr2      : in unsigned(10 downto 0));            -- address
+            addr2      : in unsigned(12 downto 0));            -- address
     end component;
 
     -- VGA motor component
@@ -43,7 +43,7 @@ architecture Behavioral of main is
       port ( clk       : in std_logic;                         -- system clock
              rst       : in std_logic;                         -- reset
              data      : in std_logic_vector(7 downto 0);      -- data
-             addr      : out unsigned(10 downto 0);            -- address
+             addr      : out unsigned(12 downto 0);            -- address
              vgaRed    : out std_logic_vector(2 downto 0);     -- VGA red
              vgaGreen  : out std_logic_vector(2 downto 0);     -- VGA green
              vgaBlue   : out std_logic_vector(2 downto 1);     -- VGA blue
@@ -58,7 +58,7 @@ architecture Behavioral of main is
 
     -- intermediate signals between PICT_MEM and VGA_MOTOR
     signal	data_out2_s : std_logic_vector(7 downto 0);         -- data
-    signal	addr2_s     : unsigned(10 downto 0);                -- address
+    signal	addr2_s     : unsigned(12 downto 0);                -- address
 
 
 begin

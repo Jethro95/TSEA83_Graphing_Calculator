@@ -74,7 +74,7 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"10000_001_00_0000000000000000000000", -- Shift GR1 left by 1
+        b"00010_001_00_0000000000001111101011", -- Shift GR1 left by 1
         b"10000_001_01_0000000000000000000000", -- Shift GR1 left by 2
         b"00000_000_00_0000000000000000000010", -- 2
         b"10000_001_00_0000000000000000000011", -- Shift GR1 left by 3
@@ -361,7 +361,7 @@ begin
                 lengthhack_result := "00000000000000000000000000000000";
                 lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
                 AR <= signed(lengthhack_result);
-            elsif (ALU = "01001") then -- ASR 
+            elsif (ALU = "01001") then -- ASR
                 if(to_integer(DATA_BUS) /= 0) then
                     -- C and X unaffected by a shift count of zero
                     flag_C <= AR(to_integer(DATA_BUS) - 1);
@@ -389,7 +389,7 @@ begin
                 AR <= signed(to_slv(op_f_result));
                 --TODO: flag_C, flag_X, flag_V
                 if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;   
+                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
              end if;
         end if;
     end process;
