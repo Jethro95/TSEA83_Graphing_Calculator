@@ -3,7 +3,7 @@
 ## ALU
 
 Binary | Action
------- | --------------
+------ | ---------------------------
 00001  | AR:=BUS
 00010  | AR:=BUS'
 00011  | AR:=0
@@ -75,6 +75,8 @@ Binary | Operation
 01111  | ASR
 10000  | ASL
 
+Note on STORE: Addr above 1000 is used to store in picture memory, at pict_mem(addr-1000). Last 8 bits are used.
+
 ## GRx
 
 Binary => GR#
@@ -90,7 +92,7 @@ Binary | Mode
 ## Flags
 
 Flag | Name     | Comment
----- | -------- | -------
+---- | -------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 C    | Carry    | Works as you would expect carry to work. Also contains the bit that was shifted out after a shift operation.
 V    | Overflow | Will be set if a result can't be represented.
 Z    | Zero     | Set if AR is zero.
