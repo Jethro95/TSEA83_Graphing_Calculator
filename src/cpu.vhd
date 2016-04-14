@@ -7,10 +7,11 @@ use floatfixlib.float_pkg.all;
 --CPU interface
 entity cpu is
     port(
-        clk: in std_logic;
-        rst: in std_logic;
-        we1		        : out std_logic;                         -- write enable
-        data_in1	        : out std_logic_vector(7 downto 0)      -- data in
+        clk      : in std_logic;
+        rst      : in std_logic;
+        we1      : out std_logic;                         -- write enable
+        data_in1 : out std_logic_vector(7 downto 0);      -- data in
+        save_at  : out integer range 0 to 1200            -- save data_in1 on adress
     );
 end cpu;
 
@@ -67,9 +68,9 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"01000_001_01_0000000000000000000000", -- Add 'big number' to GR1
-	b"01111_000_00_1000000000000000000011",	-- 'big number'
-        b"01000_001_01_0000000000000000000000", -- Add 'another big number' to GR1
+        b"00010_000_00_0000000000001111101010", -- Store GR0 at 1001 (C=> tile 3)
+        b"00010_001_00_0000000000001111101100", -- Store GR0 at 1001 (
+        b"00000_001_01_0000000000000000000000", -- Add 'another big number' to GR1
         b"01111_000_00_1000000000000000000100",	-- 'another big number'
         b"00110_000_01_0000000000000000000000",
         b"00000_000_00_0000000000000011111111",
@@ -142,8 +143,8 @@ signal x : float (5 downto -10);
 type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
-        x"00000000",
-        x"00000000",
+        x"00000003",
+        x"00000007",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -160,8 +161,6 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            we1 <= '1';
-            data_in1 <= x"03";
             if (rst = '1') then
                 uPC <= (others => '0');
             elsif (uPCsig = "0001") then
@@ -263,7 +262,13 @@ begin
     begin
         if rising_edge(clk) then
             if (FB = "0010") then
-                p_mem(to_integer(ASR)) <= DATA_BUS;
+                if ASR<1000 then
+                    p_mem(to_integer(ASR)) <= DATA_BUS;
+                else
+                    we1 <= '1';
+                    data_in1 <= x"03";
+                    save_at <= to_integer(ASR) - 1000;
+                end if;
             end if;
         end if;
     end process;
@@ -343,7 +348,7 @@ begin
     FB      <= uM(22 downto 19);
     TB      <= uM(26 downto 23);
     ALU     <= uM(31 downto 27);
-    PM      <= p_mem(to_integer(ASR));
+    PM      <= p_mem(to_integer(ASR)) when ASR < 10 else (others => '0');
 
     DATA_BUS <= IR                      when (TB = "0001") else
                 PM                      when (TB = "0010") else

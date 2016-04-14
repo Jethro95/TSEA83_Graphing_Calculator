@@ -16,8 +16,7 @@ entity PICT_MEM is
     port (  clk		  : in std_logic;
             we1       : in std_logic;
             data_in1  : in std_logic_vector(7 downto 0);
-            we2       : in std_logic;
-            data_in2  : in std_logic_vector(7 downto 0);
+            save_at   : in integer range 0 to 1200;
             data_out2 : out std_logic_vector(7 downto 0);
             addr2     : in unsigned(10 downto 0));
 
@@ -39,10 +38,7 @@ begin
     begin
         if rising_edge(clk) then
             if (we1 ='1') then
-                pictMem(0) <= data_in1;
-            end if;
-            if (we2  ='1') then
-                pictMem(to_integer(addr2)) <= data_in2;
+                pictMem(save_at) <= data_in1;
             end if;
             data_out2 <= pictMem(to_integer(addr2));
         end if;
