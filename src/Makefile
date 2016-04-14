@@ -1,6 +1,6 @@
 # Makefile for hardware implementation on Xilinx FPGAs and ASICs
 # Author: Andreas Ehliar <ehliar@isy.liu.se>
-# 
+#
 # T is the testbench file for this project
 # S is the synthesizable sources for this project
 # U is the UCF file
@@ -18,7 +18,7 @@
 #                       rebuild bitfile if source files have changed!
 # make clean            Removes all generated files for all projects. Also
 #                       backup files (*~) are removed.
-# 
+#
 # VIKTIG NOTERING: 	Om du ändrar vilka filer som finns med i projektet så måste du köra
 #                  	make lab.clean
 #
@@ -33,7 +33,7 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-proj.%: S=cpu.vhd main.vhd floatfixlib/math_utility_pkg.vhd floatfixlib/fixed_pkg_c.vhd floatfixlib/float_pkg_c.vhd
+proj.%: S=main.vhd cpu.vhd PICT_MEM.vhd VGA_MOTOR.vhd  floatfixlib/math_utility_pkg.vhd floatfixlib/fixed_pkg_c.vhd floatfixlib/float_pkg_c.vhd
 proj.%: T=main_tb.vhd
 proj.%: U=Nexys3.ucf
 
@@ -63,6 +63,3 @@ include build/digilentprog.mk
 #include design_compiler.mk
 # The following is for synthesis to a Xilinx target using Precision.
 #include precision-xilinx.mk
-
-
-
