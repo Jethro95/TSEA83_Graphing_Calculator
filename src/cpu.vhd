@@ -8,7 +8,9 @@ use floatfixlib.float_pkg.all;
 entity cpu is
     port(
         clk: in std_logic;
-        rst: in std_logic
+        rst: in std_logic;
+        we1		        : out std_logic;                         -- write enable
+        data_in1	        : out std_logic_vector(7 downto 0)      -- data in
     );
 end cpu;
 
@@ -37,7 +39,7 @@ constant u_mem_c : u_mem_t :=
         b"00110_0010_0000_0_0001_00000000001011",   -- 15 AND AR := AR and PM(A) then GRx := AR
         b"00000_0000_0000_1_0000_00000000000000",   -- 16 BRA PC := PC+1
 	b"00001_0011_0000_0_0000_00000000000000",   -- 17 BRA AR := PC
-        b"00100_0010_0000_0_0000_00000000000000",   -- 18 BRA AR := AR+IR
+        b"00100_0010_0000_0_0000_00000000000000",   -- 18 BRA AR:= AR+IR
         b"00000_0101_0011_0_0001_00000000000000",   -- 19 BRA PC := AR, uPC := 0
         b"00000_0000_0000_0_1010_00000000010101",   -- 20 BNE uPC := 21 if Z=1
         b"00000_0000_0000_0_1001_00000000010000",   -- 21 BNE uPC := 16 (if Z=0 implied)
@@ -124,10 +126,9 @@ constant K1_mem_c : K1_mem_t :=
         b"000000",  -- MULTF
         b"000000",  -- AND (u_mem(14))
         b"000000",  -- ASR
-        b"000000"   -- ASL
+        b"000000"  -- ASL
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
-
 
 -- IR
 signal OP       : unsigned(4 downto 0);     -- Operation
@@ -159,6 +160,8 @@ begin
 process(clk)
 begin
     if rising_edge(clk) then
+        we1 <= '1';
+        data_in1 <= x"03";
         if (rst = '1') then
             uPC <= (others => '0');
         elsif (uPCsig = "0001") then
