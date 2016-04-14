@@ -25,11 +25,11 @@ constant u_mem_c : u_mem_t :=
         b"00000_0010_0001_1_0000_00000000000000",   -- 1 IR:=PMM, PC:=PC+1
         b"00000_0010_0000_0_0010_00000000000000",   -- 2 uPC:= K2(M-field)
         b"00000_0001_0100_0_0011_00000000000000",   -- 3 Direct memory access (u_mem(3))  ASR:=IR, uPC:= K1(OP-field)
-        b"00000_0011_0100_1_0011_00000000000000",   -- 4 Immediate memory access (u_mem(4)) ASR:=PC, PC:= PC+1, uPC:= K1(OP-fältet)
+        b"00000_0011_0100_1_0011_00000000000000",   -- 4 Immediate memory access (u_mem(4)) ASR:=PC, PC:= PC+1, uPC:= K1(OP-field)
         b"00000_0001_0100_0_0000_00000000000000",   -- 5 Indirect memory access (u_mem(5)) ASR:= IR
-        b"00000_0010_0100_0_0011_00000000000000",   -- 6 ASR := PM, uPC := K1 (OP)
-        b"00000_0010_0110_0_0001_00000000000000",   -- 7 LOAD GRx := PM(A) 
-        b"00000_0110_0010_0_0001_00000000000000",   -- 8 STORE PM(A) := GRx 
+        b"00000_0010_0100_0_0011_00000000000000",   -- 6 ASR := PM, uPC := K1 (OP-field)
+        b"00000_0010_0110_0_0001_00000000000000",   -- 7 LOAD GRx := PM(A)
+        b"00000_0110_0010_0_0001_00000000000000",   -- 8 STORE PM(A) := GRx
         b"00001_0110_0000_0_0000_00000000000000",   -- 9 ADD AR := GRx
         b"00100_0010_0000_0_0000_00000000000000",   -- 10 ADD AR := AR+PM(A)
         b"00100_0101_0110_0_0001_00000000000000",   -- 11 ADD GRx := AR
@@ -50,12 +50,12 @@ constant u_mem_c : u_mem_t :=
         b"00000_0000_0000_1_0001_00000000000000",   -- 26 BMI uPC := 0, PC := PC+1
         b"00000_0000_0000_0_1100_00000000010000",   -- 27 BRF uPC := 16 if V=1
         b"00000_0000_0000_1_0001_00000000000000",   -- 28 BRF uPC := 0, PC := PC+1
-	    b"00001_0110_0000_0_0000_00000000000000",   -- 29 ASR AR := GRx
-	    b"01001_0100_0000_0_0000_00000000000000",   -- 30 ASR AR := AR >> ASR
-	    b"00000_0101_0110_0_0001_00000000000000",   -- 31 ASR GRx := AR
-	    b"00001_0110_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
-	    b"01010_0100_0000_0_0000_00000000000000",   -- 33 ASL AR := AR << ASR
-	    b"00000_0101_0110_0_0001_00000000000000"    -- 34 ASL GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 29 ASR AR := GRx
+        b"01001_0100_0000_0_0000_00000000000000",   -- 30 ASR AR := AR >> ASR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 31 ASR GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
+        b"01010_0100_0000_0_0000_00000000000000",   -- 33 ASL AR := AR << ASR
+        b"00000_0101_0110_0_0001_00000000000000"    -- 34 ASL GRx := AR
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -353,19 +353,19 @@ begin
                 lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
                 AR <= signed(lengthhack_result);
             elsif (ALU = "01001") then -- ASR 
-		        flag_C <= AR(0);
-		        if (DATA_BUS = 0) then
-			        AR <= SHIFT_RIGHT(signed(AR),1);
-		        else
-			        AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
-		        end if;
-	        elsif (ALU = "01010") then -- ASL
-		        flag_C <= AR(31);
-		        if (DATA_BUS = 0) then
-			        AR <= SHIFT_LEFT(signed(AR),1);
-		        else
-			        AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
-		        end if;
+                flag_C <= AR(0);
+                if (DATA_BUS = 0) then
+                    AR <= SHIFT_RIGHT(signed(AR),1);
+                else
+                    AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
+                end if;
+            elsif (ALU = "01010") then -- ASL
+                flag_C <= AR(31);
+                if (DATA_BUS = 0) then
+                    AR <= SHIFT_LEFT(signed(AR),1);
+                else
+                    AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
+                end if;
            end if;
         end if;
     end process;
