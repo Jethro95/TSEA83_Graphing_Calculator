@@ -358,7 +358,7 @@ begin
                     flag_X <= AR(0);
                     AR <= SHIFT_RIGHT(signed(AR),1);
                 else
-                    if(to_integer(DATA_BUS) != 0) then
+                    if(to_integer(DATA_BUS) /= 0) then
                         -- C and X unaffected by a shift count of zero
                         flag_C <= AR(to_integer(DATA_BUS) - 1);
                         flag_X <= AR(to_integer(DATA_BUS) - 1);
@@ -373,7 +373,7 @@ begin
                     flag_X <= AR(31);
                     AR <= SHIFT_LEFT(signed(AR),1);
                 else
-                    if(to_integer(DATA_BUS) != 0) then
+                    if(to_integer(DATA_BUS) /= 0) then
                         -- C and X unaffected by a shift count of zero
                         flag_C <= AR(32 - to_integer(DATA_BUS));
                         flag_X <= AR(32 - to_integer(DATA_BUS));
