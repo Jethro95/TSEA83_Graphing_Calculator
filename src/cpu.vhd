@@ -15,7 +15,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 15) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 28) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -37,7 +37,7 @@ constant u_mem_c : u_mem_t :=
         b"00110_0010_0000_0_0001_00000000001011",   -- 15 AND AR := AR and PM(A) then GRx := AR
         b"00000_0000_0000_1_0000_00000000000000",   -- 16 BRA PC := PC+1
 	b"00001_0011_0000_0_0000_00000000000000",   -- 17 BRA AR := PC
-        b"00100_0001_0000_0_0000_00000000000000",   -- 18 BRA AR := AR+IR
+        b"00100_0010_0000_0_0000_00000000000000",   -- 18 BRA AR := AR+IR
         b"00000_0101_0011_0_0001_00000000000000",   -- 19 BRA PC := AR, uPC := 0
         b"00000_0000_0000_0_1010_00000000010101",   -- 20 BNE uPC := 21 if Z=1
         b"00000_0000_0000_0_1001_00000000010000",   -- 21 BNE uPC := 16 (if Z=0 implied)
@@ -65,12 +65,12 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"00100_001_00_0000000000000000000010", -- Add 3 to GR1
-        b"00000_000_00_0000000000000000000011", -- 3
-        b"00000_000_00_0000000000000000100010",
-        b"10000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
+        b"01000_001_01_0000000000000000000000", -- Add 'big number' to GR1
+	b"01111_000_00_1000000000000000000011",	-- 'big number'
+        b"01000_001_01_0000000000000000000000", -- Add 'another big number' to GR1
+        b"01111_000_00_1000000000000000000100",	-- 'another big number'
+        b"00110_000_01_0000000000000000000000",
+        b"00000_000_00_0000000000000011111111",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
@@ -105,7 +105,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 4) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 16) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -124,7 +124,7 @@ constant K1_mem_c : K1_mem_t :=
         b"000000",  -- MULTF
         b"000000",  -- AND (u_mem(14))
         b"000000",  -- ASR
-        b"000000",  -- ASL
+        b"000000"   -- ASL
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -142,7 +142,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000003",
+        x"00000000",
         x"00000000",
         x"00000000",
         x"00000000",
