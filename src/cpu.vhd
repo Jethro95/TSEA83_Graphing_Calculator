@@ -357,11 +357,6 @@ begin
                 lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
                 AR <= signed(lengthhack_result);
             elsif (ALU = "01001") then -- ASR 
-                if (MM = "00") and (to_integer(DATA_BUS) = 0 ) then
-                    flag_C <= AR(0);
-                    flag_X <= AR(0);
-                    AR <= SHIFT_RIGHT(signed(AR),1);
-                else
                     if(to_integer(DATA_BUS) /= 0) then
                         -- C and X unaffected by a shift count of zero
                         flag_C <= AR(to_integer(DATA_BUS) - 1);
@@ -372,11 +367,6 @@ begin
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
             elsif (ALU = "01010") then -- ASL
-                if (MM = "00") and (to_integer(DATA_BUS) = 0 ) then
-                    flag_C <= AR(31);
-                    flag_X <= AR(31);
-                    AR <= SHIFT_LEFT(signed(AR),1);
-                else
                     if(to_integer(DATA_BUS) /= 0) then
                         -- C and X unaffected by a shift count of zero
                         flag_C <= AR(32 - to_integer(DATA_BUS));
