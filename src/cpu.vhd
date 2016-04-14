@@ -285,6 +285,10 @@ begin
         --For floating-point operations:
         variable lengthhack_float : float32;
         variable lengthhack_result : unsigned(31 downto 0);
+        --For floating-point operations:
+        variable op_f_arg_1         : float32;
+        variable op_f_arg_2         : float32;
+        variable op_f_result        : float32;
     begin
         if rising_edge(clk) then
             if (rst = '1') then
@@ -353,19 +357,35 @@ begin
                 lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
                 AR <= signed(lengthhack_result);
             elsif (ALU = "01001") then -- ASR 
-                flag_C <= AR(0);
-                if (DATA_BUS = 0) then
+                if (MM = "00") and (to_integer(DATA_BUS) = 0 ) then
+                    flag_C <= AR(0);
+                    flag_X <= AR(0);
                     AR <= SHIFT_RIGHT(signed(AR),1);
                 else
+                    if(to_integer(DATA_BUS) /= 0) then
+                        -- C and X unaffected by a shift count of zero
+                        flag_C <= AR(to_integer(DATA_BUS) - 1);
+                        flag_X <= AR(to_integer(DATA_BUS) - 1);
+                    end if;
                     AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
                 end if;
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
             elsif (ALU = "01010") then -- ASL
-                flag_C <= AR(31);
-                if (DATA_BUS = 0) then
+                if (MM = "00") and (to_integer(DATA_BUS) = 0 ) then
+                    flag_C <= AR(31);
+                    flag_X <= AR(31);
                     AR <= SHIFT_LEFT(signed(AR),1);
                 else
+                    if(to_integer(DATA_BUS) /= 0) then
+                        -- C and X unaffected by a shift count of zero
+                        flag_C <= AR(32 - to_integer(DATA_BUS));
+                        flag_X <= AR(32 - to_integer(DATA_BUS));
+                    end if;
                     AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 end if;
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
             elsif ((ALU = "01011") or (ALU = "01100")) then --AR:=AR+Buss (floats) || AR:=AR-Buss (floats)
                 op_f_arg_1  := float(AR);
                 op_f_arg_2  := float(DATA_BUS);
@@ -382,7 +402,8 @@ begin
                     flag_V <= '1'; 
                 else 
                     flag_V <= '0';
-                end if;
+                end if;      
+             end if;
         end if;
     end process;
 
