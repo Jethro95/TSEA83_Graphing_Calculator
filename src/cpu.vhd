@@ -150,7 +150,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"88000001",
+        x"00000004",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -272,7 +272,7 @@ begin
                     p_mem(to_integer(ASR)) <= DATA_BUS;
                 else
                     we1 <= '1';
-                    data_in1 <= x"03";
+                    data_in1 <= std_logic_vector(DATA_BUS(7 downto 0));
                     save_at <= to_integer(ASR) - 1000;
                 end if;
             end if;
