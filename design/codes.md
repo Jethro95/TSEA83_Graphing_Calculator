@@ -10,8 +10,12 @@ Binary | Action
 00100  | AR:=AR+BUS
 00101  | AR:=AR-BUS
 00110  | AR:=AR and BUS
-00111 | AR:=signed_to_float(AR)
-01000 | AR:=float_to_signed(AR)
+00111  | AR:=signed_to_float(AR)
+01000  | AR:=float_to_signed(AR)
+01001  | AR:=AR>>
+01010  | AR:=<<AR
+01011  | AR:=AR+BUS (floating point)
+01100  | AR:=AR-BUS (floating point)
 
 ## Bus codes
 

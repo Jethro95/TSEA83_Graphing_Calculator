@@ -366,7 +366,23 @@ begin
                 else
                     AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 end if;
-           end if;
+            elsif ((ALU = "01011") or (ALU = "01100")) then --AR:=AR+Buss (floats) || AR:=AR-Buss (floats)
+                op_f_arg_1  := float(AR);
+                op_f_arg_2  := float(DATA_BUS);
+                if (ALU = "01100") then --if AR:=AR-Buss
+                    op_f_arg_2 := -op_f_arg_2;
+                end if;
+                op_f_result := op_f_arg_1 + op_f_arg_2;
+                AR <= signed(to_slv(op_f_result));
+                --TODO: flag_C, flag_X
+                if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                if ((op_f_arg_1>0 and op_f_arg_2>0 and op_f_result<=0) or
+                    (op_f_arg_1<0 and op_f_arg_2<0 and op_f_result>=0)) then
+                    flag_V <= '1'; 
+                else 
+                    flag_V <= '0';
+                end if;
         end if;
     end process;
 
