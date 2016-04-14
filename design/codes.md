@@ -73,3 +73,12 @@ Binary => GR#
 |00|Direct|
 |01|Immediate|
 |10|Indirect|
+
+## Flags
+|Flag|Name|Comment|
+|---|---|---|
+|C|Carry|Works as you would expect carry to work. Also contains the shifted bit after a shift operation.|
+|V|Overflow|Will be set if a result can't be represented.|
+|Z|Zero|Set if AR is zero.|
+|N|Negative|Set if AR is negative.|
+|X|Extended|This flag is a copy of the carry-flag, but it won't be changed in all operations where C is changed. This allows you to first make a check (that will set C and X), then some other instructions that will change the C flag but not the X flag, and THEN you can make the branch according to the flags, which means you can use the X flag.|
