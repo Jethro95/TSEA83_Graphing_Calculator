@@ -390,7 +390,19 @@ begin
                 --TODO: flag_C, flag_X, flag_V
                 if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
                 if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-             end if;
+            elsif ((ALU = "01101") or (ALU = "01110")) then --AR:=AR*Buss (floats) || AR:=AR/Buss (floats)
+            --Very similar to add/sub, but kept seperate for readability and possibly future flag implementations, which may differ
+                op_f_arg_1  := float(AR);
+                op_f_arg_2  := float(DATA_BUS);
+                if (ALU = "01110") then --if AR:=AR/Buss
+                    op_f_arg_2 := 1 / op_f_arg_2;
+                end if;
+                op_f_result := op_f_arg_1 * op_f_arg_2;
+                AR <= signed(to_slv(op_f_result));
+                --TODO: flag_C, flag_X, flag_V
+                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+            end if;
         end if;
     end process;
 

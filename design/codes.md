@@ -16,6 +16,8 @@ Binary | Action
 01010  | AR:=<<AR
 01011  | AR:=AR+BUS (floating point)
 01100  | AR:=AR-BUS (floating point)
+01101  | AR:=AR*BUS (floating point)
+01110  | AR:=AR/BUS (floating point)
 
 ## Bus codes
 
