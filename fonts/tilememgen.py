@@ -23,12 +23,12 @@ for i in range(len(unicode_text)):
             if x<text_width and y<text_height:
                 r,g,b = canvas.getpixel((x, y))
 
-                r=int(round((r/255.0)*7))
-                g=int(round((g/255.0)*7))
-                b=int(round((b/255.0)*3))
-                print('x"'+format((int(format(r, '03b')+format(g, '03b')+format(b, '02b'),2)),'02x')+'",', end='')
+                if r!=0:
+                    print("'0',", end='')
+                else:
+                    print("'1',",end='')
             else:
-                print ('x"ff",', end='')
+                print ("'0',", end='')
         print ()
 
     canvas.save(unicode_text[i]+".png")
