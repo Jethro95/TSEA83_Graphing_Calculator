@@ -182,6 +182,11 @@ begin
             x"24" when x"3D",  -- 7
             x"25" when x"3E",  -- 8
             x"26" when x"46",  -- 9
+            x"27" when x"55",  -- =
+            x"28" when x"4A",  -- /
+            x"29" when x"7C",  -- *
+            x"2A" when x"7B",  -- -
+            x"2B" when x"79",  -- +
             x"00" when others;
                          
                          
