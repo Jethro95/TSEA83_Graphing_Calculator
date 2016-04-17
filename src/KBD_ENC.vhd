@@ -187,6 +187,7 @@ begin
             x"29" when x"7C",  -- *
             x"2A" when x"7B",  -- -
             x"2B" when x"79",  -- +
+            x"2C" when x"49",  -- .
             x"00" when others;
                          
                          
