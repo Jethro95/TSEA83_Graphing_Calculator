@@ -1,7 +1,7 @@
 from PIL import Image,ImageDraw,ImageFont
 
 # sample text and font
-unicode_text = u" ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ1234567890πΩ"
+unicode_text = u" ABCDEFGHIJKLMNOPQRSTUVWXYZÅÄÖ1234567890πΩ.=+-*/"
 verdana_font = ImageFont.truetype("UbuntuMono-R.ttf", 16, encoding="unic")
 
 for i in range(len(unicode_text)):
@@ -31,4 +31,4 @@ for i in range(len(unicode_text)):
                 print ("'0',", end='')
         print ()
 
-    canvas.save(unicode_text[i]+".png")
+    #canvas.save(unicode_text[i]+".png")
