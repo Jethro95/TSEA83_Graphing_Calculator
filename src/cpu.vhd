@@ -18,7 +18,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 35) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 41) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -57,7 +57,13 @@ constant u_mem_c : u_mem_t :=
         b"00001_0110_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
         b"01010_0100_0000_0_0000_00000000000000",   -- 33 ASL AR := AR << ASR
         b"00000_0101_0110_0_0001_00000000000000",   -- 34 ASL GRx := AR
-        b"00000_0100_0011_0_0001_00000000000000"    -- 35 JMP PC := ASR
+        b"00000_0100_0011_0_0001_00000000000000",   -- 35 JMP PC := ASR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 36 LSR AR := GRx
+        b"01111_0100_0000_0_0000_00000000000000",   -- 37 LSR AR := AR >>> ASR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 38 LSR GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
+        b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
+        b"00000_0101_0110_0_0001_00000000000000"    -- 41 LSL GRx := AR
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -115,7 +121,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 17) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 19) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -135,7 +141,9 @@ constant K1_mem_c : K1_mem_t :=
         b"000000",  -- AND (u_mem(14))
         b"011101",  -- ASR (u_mem(29))
         b"100000",  -- ASL (u_mem(32))
-        b"100011"   -- JMP (u_mem(35))
+        b"100011",  -- JMP (u_mem(35))
+        b"100100",  -- LSR (u_mem(36))
+        b"100111"   -- LSL (u_mem(39))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -152,7 +160,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000004",
+        x"00000000",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -365,18 +373,22 @@ begin
                 AR <= signed(lengthhack_result);
             elsif (ALU = "01001") then -- ASR
                 if(to_integer(DATA_BUS) /= 0) then
-                    -- C and X unaffected by a shift count of zero
-                    flag_C <= AR(to_integer(DATA_BUS) - 1);
                     flag_X <= AR(to_integer(DATA_BUS) - 1);
+                    flag_C <= AR(to_integer(DATA_BUS) - 1);
+                else
+                    -- C cleared by a shift count of zero, X unaffected
+                    flag_C <= '0';
                 end if;
                 AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
             elsif (ALU = "01010") then -- ASL
                 if(to_integer(DATA_BUS) /= 0) then
-                    -- C and X unaffected by a shift count of zero
-                    flag_C <= AR(32 - to_integer(DATA_BUS));
                     flag_X <= AR(32 - to_integer(DATA_BUS));
+                    flag_C <= AR(32 - to_integer(DATA_BUS));
+                else
+                    -- C cleared by a shift count of zero, X unaffected
+                    flag_C <= '0';
                 end if;
                 AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
@@ -404,6 +416,30 @@ begin
                 --TODO: flag_C, flag_X, flag_V
                 if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
                 if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+            elsif (ALU = "01111") then -- LSR
+                if(to_integer(DATA_BUS) /= 0) then
+                    flag_X <= AR(to_integer(DATA_BUS) - 1);
+                    flag_C <= AR(to_integer(DATA_BUS) - 1);
+                else
+                    -- C cleared by a shift count of zero, X unaffected
+                    flag_C <= '0';
+                end if;
+                AR <= SHIFT_RIGHT(AR,to_integer(DATA_BUS));
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
+                flag_V <= '0';
+            elsif (ALU = "10000") then -- LSL
+                if(to_integer(DATA_BUS) /= 0) then
+                    flag_X <= AR(32 - to_integer(DATA_BUS));
+                    flag_C <= AR(32 - to_integer(DATA_BUS));
+                else
+                    -- C cleared by a shift count of zero, X unaffected
+                    flag_C <= '0';
+                end if;
+                AR <= SHIFT_LEFT(AR,to_integer(DATA_BUS));
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
+                flag_V <= '0';
             end if;
         end if;
     end process;
