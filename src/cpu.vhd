@@ -139,8 +139,8 @@ constant K1_mem_c : K1_mem_t :=
         b"000000",  -- DIVF
         b"000000",  -- MULTF
         b"000000",  -- AND (u_mem(14))
-        b"011101",  -- ASR (u_mem(29))
         b"100000",  -- ASL (u_mem(32))
+        b"011101",  -- ASR (u_mem(29))
         b"100011",  -- JMP (u_mem(35))
         b"100100",  -- LSR (u_mem(36))
         b"100111"   -- LSL (u_mem(39))
