@@ -9,7 +9,7 @@ entity cpu is
     port(
         clk: in std_logic;
         rst: in std_logic;
-        we1                : out std_logic;                         -- write enable
+        we1                 : out std_logic;                        -- write enable
         data_in1            : out std_logic_vector(7 downto 0)      -- data in
     );
 end cpu;
@@ -17,7 +17,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 34) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 35) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -55,7 +55,8 @@ constant u_mem_c : u_mem_t :=
         b"00000_0101_0110_0_0001_00000000000000",   -- 31 ASR GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
         b"01010_0100_0000_0_0000_00000000000000",   -- 33 ASL AR := AR << ASR
-        b"00000_0101_0110_0_0001_00000000000000"    -- 34 ASL GRx := AR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 34 ASL GRx := AR
+        b"00000_0100_0011_0_0001_00000000000000"    -- 35 JMP PC := ASR
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -73,10 +74,10 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"10000_001_00_0000000000000000000000", -- Shift GR1 left by 1
-        b"10000_001_01_0000000000000000000000", -- Shift GR1 left by 2
-        b"00000_000_00_0000000000000000000010", -- 2
-        b"10000_001_00_0000000000000000000011", -- Shift GR1 left by 3
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
@@ -113,7 +114,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 16) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 17) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -132,7 +133,8 @@ constant K1_mem_c : K1_mem_t :=
         b"000000",  -- MULTF
         b"000000",  -- AND (u_mem(14))
         b"011101",  -- ASR (u_mem(29))
-        b"100000"   -- ASL (u_mem(32))
+        b"100000",  -- ASL (u_mem(32))
+        b"100011"   -- JMP (u_mem(35))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -390,8 +392,8 @@ begin
                     flag_V <= '1'; 
                 else 
                     flag_V <= '0';
-                end if;      
-             end if;
+                end if;
+            end if;
         end if;
     end process;
 
