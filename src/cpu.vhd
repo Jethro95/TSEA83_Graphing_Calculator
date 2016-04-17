@@ -7,10 +7,11 @@ use floatfixlib.float_pkg.all;
 --CPU interface
 entity cpu is
     port(
-        clk: in std_logic;
-        rst: in std_logic;
-        we1                 : out std_logic;                        -- write enable
-        data_in1            : out std_logic_vector(7 downto 0)      -- data in
+        clk      : in std_logic;
+        rst      : in std_logic;
+        we1      : out std_logic;                         -- write enable
+        data_in1 : out std_logic_vector(7 downto 0);      -- data in
+        save_at  : out integer range 0 to 1200            -- save data_in1 on adress
     );
 end cpu;
 
@@ -151,7 +152,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"88000001",
+        x"00000004",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -168,8 +169,6 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            we1 <= '1';
-            data_in1 <= x"03";
             if (rst = '1') then
                 uPC <= (others => '0');
             elsif (uPCsig = "0001") then
@@ -271,7 +270,13 @@ begin
     begin
         if rising_edge(clk) then
             if (FB = "0010") then
-                p_mem(to_integer(ASR)) <= DATA_BUS;
+                if ASR<1000 then
+                    p_mem(to_integer(ASR)) <= DATA_BUS;
+                else
+                    we1 <= '1';
+                    data_in1 <= std_logic_vector(DATA_BUS(7 downto 0));
+                    save_at <= to_integer(ASR) - 1000;
+                end if;
             end if;
         end if;
     end process;
@@ -358,7 +363,7 @@ begin
                 lengthhack_result := "00000000000000000000000000000000";
                 lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
                 AR <= signed(lengthhack_result);
-            elsif (ALU = "01001") then -- ASR 
+            elsif (ALU = "01001") then -- ASR
                 if(to_integer(DATA_BUS) /= 0) then
                     -- C and X unaffected by a shift count of zero
                     flag_C <= AR(to_integer(DATA_BUS) - 1);
@@ -384,15 +389,21 @@ begin
                 end if;
                 op_f_result := op_f_arg_1 + op_f_arg_2;
                 AR <= signed(to_slv(op_f_result));
-                --TODO: flag_C, flag_X
-                if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                if ((op_f_arg_1>0 and op_f_arg_2>0 and op_f_result<=0) or
-                    (op_f_arg_1<0 and op_f_arg_2<0 and op_f_result>=0)) then
-                    flag_V <= '1'; 
-                else 
-                    flag_V <= '0';
+                --TODO: flag_C, flag_X, flag_V
+                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+            elsif ((ALU = "01101") or (ALU = "01110")) then --AR:=AR*Buss (floats) || AR:=AR/Buss (floats)
+            --Very similar to add/sub, but kept seperate for readability and possibly future flag implementations, which may differ
+                op_f_arg_1  := float(AR);
+                op_f_arg_2  := float(DATA_BUS);
+                if (ALU = "01110") then --if AR:=AR/Buss
+                    op_f_arg_2 := 1 / op_f_arg_2;
                 end if;
+                op_f_result := op_f_arg_1 * op_f_arg_2;
+                AR <= signed(to_slv(op_f_result));
+                --TODO: flag_C, flag_X, flag_V
+                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
             end if;
         end if;
     end process;
@@ -409,7 +420,7 @@ begin
     FB      <= uM(22 downto 19);
     TB      <= uM(26 downto 23);
     ALU     <= uM(31 downto 27);
-    PM      <= p_mem(to_integer(ASR));
+    PM      <= p_mem(to_integer(ASR)) when ASR < 10 else (others => '0');
 
     DATA_BUS <= IR                      when (TB = "0001") else
                 PM                      when (TB = "0010") else
