@@ -31,6 +31,7 @@ architecture Behavioral of main is
     -- picture memory component
     component PICT_MEM
       port (clk        : in std_logic;                         -- system clock
+            rst        : in std_logic;
             we1        : in std_logic;                         -- write enable
             data_in1   : in std_logic_vector(7 downto 0);      -- data
             save_at    : in integer range 0 to 1200;            -- save data_in1 on adress
@@ -66,7 +67,7 @@ begin
     CPU_UNIT           : cpu port map (clk, rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s);
 
     -- picture memory component connection
-    PIC_MEM_UNIT       : PICT_MEM port map( we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
+    PIC_MEM_UNIT       : PICT_MEM port map( rst=>rst,we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
 
     -- VGA motor component connection
     VGA_UNIT           : VGA_MOTOR port map(clk=>clk, rst=>rst, data=>data_out2_s, addr=>addr2_s, vgaRed=>vgaRed, vgaGreen=>vgaGreen, vgaBlue=>vgaBlue, Hsync=>Hsync, Vsync=>Vsync);
