@@ -19,7 +19,10 @@ ARCHITECTURE behavior OF main_tb IS
         Vsync    : out std_logic;                        -- vertical sync
         vgaRed   : out	std_logic_vector(2 downto 0);   -- VGA red
         vgaGreen : out std_logic_vector(2 downto 0);     -- VGA green
-        vgaBlue  : out std_logic_vector(2 downto 1)     -- VGA blue
+        vgaBlue  : out std_logic_vector(2 downto 1);     -- VGA blue
+-- KB
+    PS2KbCLK    : in std_logic;                         -- PS2 clock
+    PS2KbData   : in std_logic                          -- PS2 data
 	);
 	END COMPONENT;
 
@@ -33,6 +36,8 @@ ARCHITECTURE behavior OF main_tb IS
     signal vgaBlue  :  std_logic_vector(2 downto 1);     -- VGA blue
     signal ClkDiv : unsigned(1 downto 0);		-- Clock divisor, to generate 25 MHz signal
     signal Clk25  : std_logic;			-- One pulse width 25 MHz signal
+	signal PS2KbCLK    : std_logic;                         -- PS2 clock
+    signal PS2KbData   : std_logic;
 	-- Clock period definitions
 	constant clk_period : time := 10 ns;
 
@@ -45,7 +50,9 @@ ARCHITECTURE behavior OF main_tb IS
             vsync => vsync,
             vgaRed => vgaRed,
             vgaGreen => vgaGreen,
-            vgaBlue => vgaBlue
+            vgaBlue => vgaBlue,
+	PS2KbCLK => PS2KbCLK,
+	PS2KbData => PS2KbData
 	    );
 	    -- Clock process definitions
 	    clk_process :process

@@ -17,10 +17,10 @@ entity KBD_ENC is
         clk                 : in std_logic;                     -- system clock (100 MHz)
         rst                 : in std_logic;                     -- reset signal
         PS2KeyboardCLK      : in std_logic;                     -- USB keyboard PS2 clock
-        PS2KeyboardData     : in std_logic;                     -- USB keyboard PS2 data
-        data                : out std_logic_vector(7 downto 0); -- tile data
+        PS2KeyboardData     : in std_logic                     -- USB keyboard PS2 data
+        --data                : out std_logic_vector(7 downto 0) -- tile data
         --addr                : out unsigned(10 downto 0);        -- tile address
-        we                  : out std_logic                     -- write enable
+        --we                  : out std_logic                     -- write enable
     );
     end KBD_ENC;
 
@@ -296,7 +296,7 @@ begin
 
     -- we will be enabled ('1') for two consecutive clock cycles during WRCHAR and WRCUR states
     -- and disabled ('0') otherwise at STANDBY state
-    we <= '0' when (WRstate = STANDBY) else '1';
+    --we <= '0' when (WRstate = STANDBY) else '1';
 
 
     -- memory address is a composite of curposY and curposX
@@ -305,5 +305,5 @@ begin
 
   
     -- data output is set to be x"1F" (cursor tile index) during WRCUR state, otherwise set as scan code tile index
-    data <= x"1F" when (WRstate =  WRCUR) else TileIndex;
+    --data <= x"1F" when (WRstate =  WRCUR) else TileIndex;
 end behavioral;
