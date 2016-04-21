@@ -424,7 +424,7 @@ begin
                 if (ALU = "01110") then --if AR_f:=AR_f-Buss
                     op_f_arg_2 := 1 / op_f_arg_2;
                 end if;
-                op_f_result := op_f_arg_1 + op_f_arg_2;
+                op_f_result := op_f_arg_1 * op_f_arg_2;
                 AR_f <= op_f_result;
                 --TODO: flag_C, flag_X, flag_V
                 if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
