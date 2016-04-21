@@ -27,8 +27,9 @@ Binary | Item
 0010   | PM
 0011   | PC
 0100   | ASR
-0101   | unsigned(AR)
-0110   | GRx
+0101   | AR
+0110   | AR_f
+0111   | GRx
 
 ## PC
 
@@ -76,6 +77,8 @@ Binary | Operation
 01110  | AND
 01111  | ASR
 10000  | ASL
+10001  | ITF (Integer To Float)
+10010  | FTI (Float To Integer)
 
 Note on STORE: Addr above 1000 is used to store in picture memory, at pict_mem(addr-1000). Last 8 bits are used.
 

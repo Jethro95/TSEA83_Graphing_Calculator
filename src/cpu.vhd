@@ -18,7 +18,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 34) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 46) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -33,7 +33,7 @@ constant u_mem_c : u_mem_t :=
         b"00000_0110_0010_0_0001_00000000000000",   -- 8 STORE PM(A) := GRx
         b"00001_0110_0000_0_0000_00000000000000",   -- 9 ADD AR := GRx
         b"00100_0010_0000_0_0000_00000000000000",   -- 10 ADD AR := AR+PM(A)
-        b"00100_0101_0110_0_0001_00000000000000",   -- 11 ADD GRx := AR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 11 ADD GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 12 SUB AR := GRx
         b"00101_0010_0000_0_0001_00000000001011",   -- 13 SUB AR := AR-PM(A) then GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 14 AND AR := GRx
@@ -56,7 +56,19 @@ constant u_mem_c : u_mem_t :=
         b"00000_0101_0110_0_0001_00000000000000",   -- 31 ASR GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
         b"01010_0100_0000_0_0000_00000000000000",   -- 33 ASL AR := AR << ASR
-        b"00000_0101_0110_0_0001_00000000000000"    -- 34 ASL GRx := AR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 34 ASL GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 35 ITF AR := GRx
+        b"00111_0000_0000_0_0001_00000000001011",   -- 36 ITF AR := float(AR) then GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 37 FTI AR := GRx
+        b"01000_0000_0000_0_0001_00000000001011",   -- 38 FTI AR := signed(AR) then GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 39 ADDF AR := GRx
+        b"01011_0010_0000_0_0001_00000000001011",   -- 40 ADDF AR := AR+PM(A) then GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 41 SUBF AR := GRx
+        b"01100_0010_0000_0_0001_00000000001011",   -- 42 SUBF AR := AR-PM(A) then GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 43 MULTF AR := GRx
+        b"01101_0010_0000_0_0001_00000000001011",   -- 44 MULTF AR := AR*PM(A) then GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 45 DIVF AR := GRx
+        b"01110_0010_0000_0_0001_00000000001011"    -- 46 DIVF AR := AR/PM(A) then GRx := AR
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -70,17 +82,23 @@ signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
 -- program Memory
-type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
+type p_mem_t is array (0 to 15) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"00010_001_00_0000000000001111101011", -- Shift GR1 left by 1
-        b"10000_001_01_0000000000000000000000", -- Shift GR1 left by 2
-        b"00000_000_00_0000000000000000000010", -- 2
-        b"10000_001_00_0000000000000000000011", -- Shift GR1 left by 3
+        b"00001_100_00_0000000000000000001100",
+	b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
+        b"10001_001_00_0000000000000000000000", -- Convert value at gr1 to float
+        b"00001_010_01_0000000000000000000000", -- Store 8 at gr2
+        b"00000_000_00_0000000000000000001000", -- 8
+        b"10001_010_00_0000000000000000000000", -- Convert value at gr2 to float
+        b"00010_010_00_0000000000000000001010", -- Load Gr2 to adress 10
+        b"01001_001_01_0000000000000000000000", -- Add Gr2 value to gr1
+        b"01000_001_00_0000000000000000000000",
+        b"10010_001_00_0000000000000000000000", -- Covert gr1 to int
         b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000001",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000"
@@ -114,7 +132,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 16) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 18) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -126,14 +144,16 @@ constant K1_mem_c : K1_mem_t :=
         b"010100",  -- BNE (u_mem(20))
         b"011011",  -- BRF (u_mem(27))
         b"001001",  -- ADD (u_mem(9))
-        b"000000",  -- ADDF
+        b"100111",  -- ADDF (u_mem(39))
         b"001100",  -- SUB (u_mem(12))
-        b"000000",  -- SUBF
-        b"000000",  -- DIVF
-        b"000000",  -- MULTF
+        b"101001",  -- SUBF (u_mem(41))
+        b"101101",  -- DIVF (u_mem(45))
+        b"101011",  -- MULTF (u_mem(43))
         b"000000",  -- AND (u_mem(14))
         b"011101",  -- ASR (u_mem(29))
-        b"100000"   -- ASL (u_mem(32))
+        b"100000",  -- ASL (u_mem(32))
+        b"100011",  -- ITF (u_mem(35))
+        b"100110"   -- FTI (u_mem(38))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -150,7 +170,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000004",
+        x"00000001",
         x"00000000",
         x"00000000",
         x"00000000",
