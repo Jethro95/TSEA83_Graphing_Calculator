@@ -29,14 +29,14 @@ constant u_mem_c : u_mem_t :=
         b"00000_0011_0100_1_0011_00000000000000",   -- 4 Immediate memory access (u_mem(4)) ASR:=PC, PC:= PC+1, uPC:= K1(OP-field)
         b"00000_0001_0100_0_0000_00000000000000",   -- 5 Indirect memory access (u_mem(5)) ASR:= IR
         b"00000_0010_0100_0_0011_00000000000000",   -- 6 ASR := PM, uPC := K1 (OP-field)
-        b"00000_0010_0110_0_0001_00000000000000",   -- 7 LOAD GRx := PM(A)
-        b"00000_0110_0010_0_0001_00000000000000",   -- 8 STORE PM(A) := GRx
-        b"00001_0110_0000_0_0000_00000000000000",   -- 9 ADD AR := GRx
+        b"00000_0010_1000_0_0001_00000000000000",   -- 7 LOAD GRx := PM(A)
+        b"00000_1000_0010_0_0001_00000000000000",   -- 8 STORE PM(A) := GRx
+        b"00001_1000_0000_0_0000_00000000000000",   -- 9 ADD AR := GRx
         b"00100_0010_0000_0_0000_00000000000000",   -- 10 ADD AR := AR+PM(A)
-        b"00000_0101_0110_0_0001_00000000000000",   -- 11 ADD GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 12 SUB AR := GRx
+        b"00000_0101_1000_0_0001_00000000000000",   -- 11 ADD GRx := AR
+        b"00001_1000_0000_0_0000_00000000000000",   -- 12 SUB AR := GRx
         b"00101_0010_0000_0_0001_00000000001011",   -- 13 SUB AR := AR-PM(A) then GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 14 AND AR := GRx
+        b"00001_1000_0000_0_0000_00000000000000",   -- 14 AND AR := GRx
         b"00110_0010_0000_0_0001_00000000001011",   -- 15 AND AR := AR and PM(A) then GRx := AR
         b"00000_0000_0000_1_0000_00000000000000",   -- 16 BRA PC := PC+1
         b"00001_0011_0000_0_0000_00000000000000",   -- 17 BRA AR := PC
@@ -51,20 +51,20 @@ constant u_mem_c : u_mem_t :=
         b"00000_0000_0000_1_0001_00000000000000",   -- 26 BMI uPC := 0, PC := PC+1
         b"00000_0000_0000_0_1100_00000000010000",   -- 27 BRF uPC := 16 if V=1
         b"00000_0000_0000_1_0001_00000000000000",   -- 28 BRF uPC := 0, PC := PC+1
-        b"00001_0110_0000_0_0000_00000000000000",   -- 29 ASR AR := GRx
+        b"00001_1000_0000_0_0000_00000000000000",   -- 29 ASR AR := GRx
         b"01001_0100_0000_0_0000_00000000000000",   -- 30 ASR AR := AR >> ASR
-        b"00000_0101_0110_0_0001_00000000000000",   -- 31 ASR GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
+        b"00000_0101_1000_0_0001_00000000000000",   -- 31 ASR GRx := AR
+        b"00001_1000_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
         b"01010_0100_0000_0_0000_00000000000000",   -- 33 ASL AR := AR << ASR
-        b"00000_0101_0110_0_0001_00000000000000",   -- 34 ASL GRx := AR
+        b"00000_0101_1000_0_0001_00000000000000",   -- 34 ASL GRx := AR
         b"00000_0100_0011_0_0001_00000000000000",   -- 35 JMP PC := ASR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 36 LSR AR := GRx
+        b"00001_1000_0000_0_0000_00000000000000",   -- 36 LSR AR := GRx
         b"01111_0100_0000_0_0000_00000000000000",   -- 37 LSR AR := AR >>> ASR
-        b"00000_0101_0110_0_0001_00000000000000",   -- 38 LSR GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
+        b"00000_0101_1000_0_0001_00000000000000",   -- 38 LSR GRx := AR
+        b"00001_1000_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
         b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
-        b"00000_0101_0110_0_0001_00000000000000",   -- 41 LSL GRx := AR
-        b"00000_0110_0111_0_0001_00000000000000"    -- 42 STOREP pict_mem(A) := GRx
+        b"00000_0101_1000_0_0001_00000000000000",   -- 41 LSL GRx := AR
+        b"00000_1000_0111_0_0001_00000000000000"    -- 42 STOREP pict_mem(A) := GRx
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -278,7 +278,7 @@ begin
         if rising_edge(clk) then
             if (rst = '1') then
                 g_reg <= gr_c;
-            elsif (FB = "0110") then
+            elsif (FB = "1000") then
                 g_reg(to_integer(GRx)) <= DATA_BUS;
             end if;
         end if;
@@ -315,12 +315,9 @@ begin
         variable op_part_result : signed(32 downto 0);
         variable op_result      : signed(31 downto 0);
         --For floating-point operations:
-        variable lengthhack_float : float32;
-        variable lengthhack_result : unsigned(31 downto 0);
-        --For floating-point operations:
-        variable op_f_arg_1         : float32;
-        variable op_f_arg_2         : float32;
-        variable op_f_result        : float32;
+        variable op_f_arg_1     : float32;
+        variable op_f_arg_2     : float32;
+        variable op_f_result    : float32;
     begin
         if rising_edge(clk) then
             if (rst = '1') then
@@ -388,13 +385,50 @@ begin
                 flag_V <= '0';
 
             elsif (ALU = "00111") then --AR_f:=float(AR)
-                --Trying set AR to unsigned(to_slv(to_float(...))) causes modelsim to protest about array lengths
-                --The solution: Create a 0-value unsigned. Add the bits of the conversion result to it.
-                --    and set AR to that
-                lengthhack_float := to_float(AR, lengthhack_float);
-                lengthhack_result := "00000000000000000000000000000000";
-                lengthhack_result := lengthhack_result + unsigned(to_slv(lengthhack_float));
-                AR_f <= to_float(lengthhack_result);
+                AR_f <= to_float(AR, AR_f);
+			elsif (ALU = "01000") then --AR:=signed(AR_f)
+				AR <= to_signed(AR_f, 32);
+			elsif (ALU = "01001") then -- ASR
+                if(to_integer(DATA_BUS) /= 0) then
+                    -- C and X unaffected by a shift count of zero
+                    flag_C <= AR(to_integer(DATA_BUS) - 1);
+                    flag_X <= AR(to_integer(DATA_BUS) - 1);
+                end if;
+                AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
+            elsif (ALU = "01010") then -- ASL
+                if(to_integer(DATA_BUS) /= 0) then
+                    -- C and X unaffected by a shift count of zero
+                    flag_C <= AR(32 - to_integer(DATA_BUS));
+                    flag_X <= AR(32 - to_integer(DATA_BUS));
+                end if;
+                AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
+			elsif ((ALU = "01011") or (ALU = "01100")) then --AR_f:=AR_f+Buss (floats) || AR_f:=AR_f-Buss (floats)
+                op_f_arg_1  := AR_f;
+                op_f_arg_2  := float(DATA_BUS);
+                if (ALU = "01100") then --if AR_f:=AR_f-Buss
+                    op_f_arg_2 := -op_f_arg_2;
+                end if;
+                op_f_result := op_f_arg_1 + op_f_arg_2;
+                AR_f <= op_f_result;
+                --TODO: flag_C, flag_X, flag_V
+                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+            elsif ((ALU = "01101") or (ALU = "01110")) then --AR:=AR*Buss (floats) || AR:=AR/Buss (floats)
+            	--Very similar to add/sub, but kept seperate for readability and possibly future flag implementations, which may differ
+				op_f_arg_1  := AR_f;
+                op_f_arg_2  := float(DATA_BUS);
+                if (ALU = "01110") then --if AR_f:=AR_f-Buss
+                    op_f_arg_2 := 1 / op_f_arg_2;
+                end if;
+                op_f_result := op_f_arg_1 + op_f_arg_2;
+                AR_f <= op_f_result;
+                --TODO: flag_C, flag_X, flag_V
+                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
             end if;
         end if;
     end process;
@@ -418,6 +452,7 @@ begin
                 "0000000000" & PC       when (TB = "0011") else
                 "0000000000" & ASR      when (TB = "0100") else
                 unsigned(AR)            when (TB = "0101") else
-                g_reg(to_integer(GRx))  when (TB = "0110") else -- TODO: Is GRx updated yet?
+				unsigned(to_slv(AR_f))  when (TB = "0110") else
+                g_reg(to_integer(GRx))  when (TB = "0111") else -- TODO: Is GRx updated yet?
                 (others => '0');
 end Behavioral;
