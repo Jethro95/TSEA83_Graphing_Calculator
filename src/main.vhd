@@ -22,43 +22,23 @@ end main;
 architecture Behavioral of main is
     component cpu
         port(
-<<<<<<< HEAD
-            clk         : in std_logic;
-            rst         : in std_logic;
-            we1         : out std_logic;                        -- write enable
-            data_in1    : out std_logic_vector(7 downto 0);     -- data in
-            save_at     : out integer range 0 to 1200         	-- save data_in1 on adress
-=======
 		clk      : in std_logic;
 		rst      : in std_logic;
 		we1      : buffer std_logic;                         -- write enable
 		data_in1 : out std_logic_vector(7 downto 0);      -- data in
         save_at  : out integer range 0 to 3250             -- save data_in1 on adress
->>>>>>> 3cc6390... VGA working in practice. Float instructions temporarily removed; need seperate AR for floats in order for them to play nice.
         );
     end component;
 
 
     -- picture memory component
     component PICT_MEM
-<<<<<<< HEAD
-        port (
-            clk         : in std_logic;                         -- system clock
-            rst         : in std_logic;
-            we1         : in std_logic;                         -- write enable
-            data_in1    : in std_logic_vector(7 downto 0);      -- data
-            save_at     : in integer range 0 to 1200;           -- save data_in1 on adress
-            data_out2   : out std_logic_vector(7 downto 0);     -- data out
-            addr2       : in unsigned(12 downto 0)            	-- address
-        );
-=======
       port (clk        : in std_logic;                         -- system clock
             we1        : in std_logic;                         -- write enable
             data_in1   : in std_logic_vector(7 downto 0);      -- data
             save_at    : in integer range 0 to 3250;            -- save data_in1 on adress
             data_out2  : out std_logic_vector(7 downto 0);     -- data out
             addr2      : in unsigned(12 downto 0));            -- address
->>>>>>> 3cc6390... VGA working in practice. Float instructions temporarily removed; need seperate AR for floats in order for them to play nice.
     end component;
 
     -- VGA motor component

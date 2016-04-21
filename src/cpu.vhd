@@ -11,7 +11,8 @@ entity cpu is
         rst      : in std_logic;
         we1      : out std_logic;                         -- write enable
         data_in1 : out std_logic_vector(7 downto 0);      -- data in
-        save_at  : out integer range 0 to 1200            -- save data_in1 on adress
+        save_at  : out integer range 0 to 1200;           -- save data_in1 on adress
+	kb_data  : in std_logic_vector(7 downto 0)
     );
 end cpu;
 
@@ -63,7 +64,8 @@ constant u_mem_c : u_mem_t :=
         b"00000_0101_0110_0_0001_00000000000000",   -- 38 LSR GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
         b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
-        b"00000_0101_0110_0_0001_00000000000000"    -- 41 LSL GRx := AR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 41 LSL GRx := AR
+	b"00000_0101_0110_0_0001_00000000000000"    -- 41 RC GRx := KB_CHAR
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
