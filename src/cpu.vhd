@@ -356,7 +356,7 @@ begin
                 end if;
 
                 flag_C <= op_part_result(32);
-            elsif (ALU = "00110") then
+            elsif (ALU = "00110") then -- AR:=AR and BUS
                 op_result := signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS));
                 AR <= op_result;
                 flag_N <= op_result(31);
@@ -375,6 +375,15 @@ begin
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
                 flag_V <= '0';
+
+            elsif (ALU = "00111") then --AR_f:=float(AR)
+                --Trying set AR to unsigned(to_slv(to_float(...))) causes modelsim to protest about array lengths
+                --The solution: Create a 0-value unsigned. Add the bits of the conversion result to it.
+                --    and set AR to that
+                lengthhack_float := to_float(AR, lengthhack_float);
+                lengthhack_result := "00000000000000000000000000000000";
+                lengthhack_result := lengthhack_result + unsigned(to_slv(lengthhack_float));
+                AR_f <= to_float(lengthhack_result);
             end if;
         end if;
     end process;
