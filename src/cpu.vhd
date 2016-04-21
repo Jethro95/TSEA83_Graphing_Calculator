@@ -327,10 +327,6 @@ begin
         variable op_arg_2       : signed(32 downto 0);
         variable op_part_result : signed(32 downto 0);
         variable op_result      : signed(31 downto 0);
-        --For floating-point operations:
-        variable op_f_arg_1     : float32;
-        variable op_f_arg_2     : float32;
-        variable op_f_result    : float32;
     begin
         if rising_edge(clk) then
             if (rst = '1') then
@@ -423,29 +419,14 @@ begin
                 AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
-			elsif ((ALU = "01011") or (ALU = "01100")) then --AR_f:=AR_f+Buss (floats) || AR_f:=AR_f-Buss (floats)
-                op_f_arg_1  := AR_f;
-                op_f_arg_2  := float(DATA_BUS);
-                if (ALU = "01100") then --if AR_f:=AR_f-Buss
-                    op_f_arg_2 := -op_f_arg_2;
-                end if;
-                op_f_result := op_f_arg_1 + op_f_arg_2;
-                AR_f <= op_f_result;
-                --TODO: flag_C, flag_X, flag_V
-                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-            elsif ((ALU = "01101") or (ALU = "01110")) then --AR:=AR*Buss (floats) || AR:=AR/Buss (floats)
-            	--Very similar to add/sub, but kept seperate for readability and possibly future flag implementations, which may differ
-				op_f_arg_1  := AR_f;
-                op_f_arg_2  := float(DATA_BUS);
-                if (ALU = "01110") then --if AR_f:=AR_f-Buss
-                    op_f_arg_2 := 1 / op_f_arg_2;
-                end if;
-                op_f_result := op_f_arg_1 * op_f_arg_2;
-                AR_f <= op_f_result;
-                --TODO: flag_C, flag_X, flag_V
-                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+			elsif (ALU = "01011") then --AR_f:=AR_f+Buss (floats)
+				AR_f <= AR_f + to_float(DATA_BUS);
+			elsif (ALU = "01100") then --AR_f:=AR_f-Buss (floats)
+				AR_f <= AR_f - to_float(DATA_BUS);
+            elsif (ALU = "01101") then --AR_f:=AR_f*Buss (floats)
+				AR_f <= AR_f * to_float(DATA_BUS);
+			elsif (ALU = "01110") then --AR_f:=AR_f/Buss (floats)
+				AR_f <= AR_f / to_float(DATA_BUS);
             end if;
         end if;
     end process;
