@@ -7,18 +7,18 @@ use floatfixlib.float_pkg.all;
 --CPU interface
 entity cpu is
     port(
-        clk      : in std_logic;
-        rst      : in std_logic;
-        we1      : out std_logic;                         -- write enable
-        data_in1 : out std_logic_vector(7 downto 0);      -- data in
-        save_at  : out integer range 0 to 1200            -- save data_in1 on adress
+        clk             : in std_logic;
+        rst             : in std_logic;
+        we1             : out std_logic;                         -- write enable
+        data_out_picmem : out std_logic_vector(7 downto 0);      -- data out to pictmem
+        save_at         : out integer range 0 to 3250            -- save data_out_picmem on adress
     );
 end cpu;
 
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 46) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 42) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -57,18 +57,14 @@ constant u_mem_c : u_mem_t :=
         b"00001_0110_0000_0_0000_00000000000000",   -- 32 ASL AR := GRx
         b"01010_0100_0000_0_0000_00000000000000",   -- 33 ASL AR := AR << ASR
         b"00000_0101_0110_0_0001_00000000000000",   -- 34 ASL GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 35 ITF AR := GRx
-        b"00111_0000_0000_0_0001_00000000001011",   -- 36 ITF AR := float(AR) then GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 37 FTI AR := GRx
-        b"01000_0000_0000_0_0001_00000000001011",   -- 38 FTI AR := signed(AR) then GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 39 ADDF AR := GRx
-        b"01011_0010_0000_0_0001_00000000001011",   -- 40 ADDF AR := AR+PM(A) then GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 41 SUBF AR := GRx
-        b"01100_0010_0000_0_0001_00000000001011",   -- 42 SUBF AR := AR-PM(A) then GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 43 MULTF AR := GRx
-        b"01101_0010_0000_0_0001_00000000001011",   -- 44 MULTF AR := AR*PM(A) then GRx := AR
-        b"00001_0110_0000_0_0000_00000000000000",   -- 45 DIVF AR := GRx
-        b"01110_0010_0000_0_0001_00000000001011"    -- 46 DIVF AR := AR/PM(A) then GRx := AR
+        b"00000_0100_0011_0_0001_00000000000000",   -- 35 JMP PC := ASR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 36 LSR AR := GRx
+        b"01111_0100_0000_0_0000_00000000000000",   -- 37 LSR AR := AR >>> ASR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 38 LSR GRx := AR
+        b"00001_0110_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
+        b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 41 LSL GRx := AR
+        b"00000_0110_0111_0_0001_00000000000000"    -- 42 STOREP pict_mem(A) := GRx
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -82,12 +78,15 @@ signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
 -- program Memory
-type p_mem_t is array (0 to 15) of unsigned(31 downto 0);
+type p_mem_t is array (0 to 18) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
-        --OP   GRx M  ADRESS/LITERAL
-        b"00001_100_00_0000000000000000001100",
-	b"00000_000_00_0000000000000000000000",
+        --OP   GRx M  ADRESS
+        b"10100_000_00_0000000000000000000001",
+        b"10100_001_00_0000000000000000000010",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"10001_001_00_0000000000000000000000", -- Convert value at gr1 to float
         b"00001_010_01_0000000000000000000000", -- Store 8 at gr2
@@ -113,6 +112,7 @@ signal ASR      : unsigned(21 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
 signal AR       : signed(31 downto 0);      -- Accumulator Register
+signal AR_f     : float32;
 
 -- Flags
 signal flag_X   : std_logic;                -- Extra carry flag
@@ -132,7 +132,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 18) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 22) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -150,10 +150,14 @@ constant K1_mem_c : K1_mem_t :=
         b"101101",  -- DIVF (u_mem(45))
         b"101011",  -- MULTF (u_mem(43))
         b"000000",  -- AND (u_mem(14))
-        b"011101",  -- ASR (u_mem(29))
         b"100000",  -- ASL (u_mem(32))
-        b"100011",  -- ITF (u_mem(35))
-        b"100110"   -- FTI (u_mem(38))
+        b"011101",  -- ASR (u_mem(29))
+        b"000000",  -- ITF (u_mem(35))
+        b"000000",   -- FTI (u_mem(38))
+        b"100011",  -- JMP (u_mem(35))
+        b"100100",  -- LSR (u_mem(36))
+        b"100111",  -- LSL (u_mem(39))
+        b"101010"   -- STOREP (u_mem(39))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -162,8 +166,6 @@ signal OP       : unsigned(4 downto 0);     -- Operation
 signal MM       : unsigned(1 downto 0);     -- Memory mode
 signal GRx      : unsigned(2 downto 0);     -- Control signal for GR mux
 signal IR_ADR   : unsigned(21 downto 0);    -- IR address field
-
-signal x : float (5 downto -10);
 
 -- General registers
 type gr_t is array (0 to 7) of unsigned(31 downto 0);
@@ -236,7 +238,6 @@ begin
     begin
         if rising_edge(clk) then
             if (rst = '1') then
-            x <= to_float(0,x);
                 IR <= (others => '0');
             elsif (FB = "0001") then
                 IR <= DATA_BUS;
@@ -288,13 +289,19 @@ begin
     begin
         if rising_edge(clk) then
             if (FB = "0010") then
-                if ASR<1000 then
-                    p_mem(to_integer(ASR)) <= DATA_BUS;
-                else
-                    we1 <= '1';
-                    data_in1 <= std_logic_vector(DATA_BUS(7 downto 0));
-                    save_at <= to_integer(ASR) - 1000;
-                end if;
+                p_mem(to_integer(ASR)) <= DATA_BUS;
+            end if;
+        end if;
+    end process;
+
+    -- pict_mem : Picture memory
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if (FB = "0111") then
+                we1 <= '1';
+                data_out_picmem <= std_logic_vector(DATA_BUS(7 downto 0));
+                save_at <= to_integer(ASR);
             end if;
         end if;
     end process;
@@ -360,68 +367,34 @@ begin
                 end if;
 
                 flag_C <= op_part_result(32);
-            elsif (ALU = "00110") then
+            elsif (ALU = "00110") then -- AR:=AR and BUS
                 op_result := signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS));
                 AR <= op_result;
                 flag_N <= op_result(31);
                 if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_V <= '0';
                 flag_C <= '0';
-            elsif (ALU = "00111") then --AR:=float(AR)
+            elsif (ALU = "01111") then -- LSL
+                if(to_integer(DATA_BUS) /= 0) then
+                    flag_X <= AR(32 - to_integer(DATA_BUS));
+                    flag_C <= AR(32 - to_integer(DATA_BUS));
+                else
+                    -- C cleared by a shift count of zero, X unaffected
+                    flag_C <= '0';
+                end if;
+                AR <= SHIFT_LEFT(AR,to_integer(DATA_BUS));
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
+                flag_V <= '0';
+
+            elsif (ALU = "00111") then --AR_f:=float(AR)
                 --Trying set AR to unsigned(to_slv(to_float(...))) causes modelsim to protest about array lengths
                 --The solution: Create a 0-value unsigned. Add the bits of the conversion result to it.
                 --    and set AR to that
                 lengthhack_float := to_float(AR, lengthhack_float);
                 lengthhack_result := "00000000000000000000000000000000";
                 lengthhack_result := lengthhack_result + unsigned(to_slv(lengthhack_float));
-                AR <= signed(lengthhack_result);
-            elsif (ALU = "01000") then --AR:=signed(AR)
-                --See comment in ALU mode above. Similar logic.
-                lengthhack_float := float(AR);
-                lengthhack_result := "00000000000000000000000000000000";
-                lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
-                AR <= signed(lengthhack_result);
-            elsif (ALU = "01001") then -- ASR
-                if(to_integer(DATA_BUS) /= 0) then
-                    -- C and X unaffected by a shift count of zero
-                    flag_C <= AR(to_integer(DATA_BUS) - 1);
-                    flag_X <= AR(to_integer(DATA_BUS) - 1);
-                end if;
-                AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
-                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                flag_N <= AR(31);
-            elsif (ALU = "01010") then -- ASL
-                if(to_integer(DATA_BUS) /= 0) then
-                    -- C and X unaffected by a shift count of zero
-                    flag_C <= AR(32 - to_integer(DATA_BUS));
-                    flag_X <= AR(32 - to_integer(DATA_BUS));
-                end if;
-                AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
-                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                flag_N <= AR(31);
-            elsif ((ALU = "01011") or (ALU = "01100")) then --AR:=AR+Buss (floats) || AR:=AR-Buss (floats)
-                op_f_arg_1  := float(AR);
-                op_f_arg_2  := float(DATA_BUS);
-                if (ALU = "01100") then --if AR:=AR-Buss
-                    op_f_arg_2 := -op_f_arg_2;
-                end if;
-                op_f_result := op_f_arg_1 + op_f_arg_2;
-                AR <= signed(to_slv(op_f_result));
-                --TODO: flag_C, flag_X, flag_V
-                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-            elsif ((ALU = "01101") or (ALU = "01110")) then --AR:=AR*Buss (floats) || AR:=AR/Buss (floats)
-            --Very similar to add/sub, but kept seperate for readability and possibly future flag implementations, which may differ
-                op_f_arg_1  := float(AR);
-                op_f_arg_2  := float(DATA_BUS);
-                if (ALU = "01110") then --if AR:=AR/Buss
-                    op_f_arg_2 := 1 / op_f_arg_2;
-                end if;
-                op_f_result := op_f_arg_1 * op_f_arg_2;
-                AR <= signed(to_slv(op_f_result));
-                --TODO: flag_C, flag_X, flag_V
-                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                AR_f <= to_float(lengthhack_result);
             end if;
         end if;
     end process;

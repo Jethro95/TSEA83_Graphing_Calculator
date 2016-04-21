@@ -467,11 +467,9 @@ result in the destination location. The source can be given as a literal using i
   \textbf{Syntax:}  		& \texttt{ASL <ea>,Dn}\newline
   							  \texttt{ASR <ea>,Dn}\newline
  							  \texttt{ASL \#<data>,Dy}\newline
- 							  \texttt{ASR \#<data>,Dy}\newline
- 							  \texttt{ASL <ea>}\newline
- 							  \texttt{ASR <ea>}\newline 							  
+ 							  \texttt{ASR \#<data>,Dy}\newline							  
  							  \\
-  \textbf{Binary code:} 	& ASR: \texttt{01111}, ASL: \texttt{10000}\\
+  \textbf{Binary code:} 	& ASL: \texttt{01111}, ASR: \texttt{10000}\\
   \textbf{Description:}  	& Arithmetically shift the bits of the operand in the specified direction
 (i.e., left or right). The shift count may be specified in one of
 three ways. The count may be a literal, the contents of a data
@@ -487,17 +485,64 @@ out into both the X- and the C-bits of the CCR. The overflow bit
 of the CCR is set if a sign change occurs during shifting (i.e., if
 the most-significant bit changes value during shifting).
 
-The effect of an arithmetic shift right is to shift the leastsignificant
+The effect of an arithmetic shift right is to shift the least significant
 bit into both the X- and C-bits of the CCR. The mostsignificant
 bit (i.e., the sign bit) is replicated to preserve the sign of
 the number.\\
-  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * * *}\newline The X-bit and the C-bit are set according to the last bit shifted out
+of the operand. If the shift count is zero, the C-bit is cleared.\\
 \end{tabularx}
 \newline
 
-
 \newpage
 
+%%%%%
+% JMP
+%%%%%
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{JMP}} 	& {\Large \textbf{Jump}}\\
+  \textbf{Operation:} 		& \texttt{[PC] $\leftarrow$ d}\\
+  \textbf{Syntax:}  		& \texttt{JMP <label>}\newline\texttt{JMP <literal>}\\
+  \textbf{Binary code:} 	& \texttt{10001}\\
+  \textbf{Description:}  	& Program execution continues at location d.\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline - - - - -}\\
+\end{tabularx}
+\newline
+
+%%%%%
+% LSL/LSR
+%%%%%
+\noindent\rule{\textwidth}{1pt}\newline %Horizontal line
+\newcolumntype{L}{>{\raggedright\arraybackslash}X} %Custom column type for left column
+\setlength\extrarowheight{5pt} %Increase row spacing
+\begin{tabularx}{\textwidth}{lL}
+  {\Large \textbf{LSL/LSR}} 	& {\Large \textbf{Logical shift left/right}}\\
+  \textbf{Operation:} 		& \texttt{[destination] $\leftarrow$ [destination] shifted by <count>}\\
+  \textbf{Syntax:}  		& \texttt{LSL <ea>,Dn}\newline
+  							  \texttt{LSR <ea>,Dn}\newline
+ 							  \texttt{LSL \#<data>,Dy}\newline
+ 							  \texttt{LSR \#<data>,Dy}\newline						  
+ 							  \\
+  \textbf{Binary code:} 	& LSL: \texttt{10010}, LSR: \texttt{10011}\\
+  \textbf{Description:}  	& Logically shift the bits of the operand in the specified direction
+(i.e., left or right). A zero is shifted into the input position and the
+bit shifted out is copied into both the C- and the X-bit of the CCR.
+The shift count may be specified in one of three ways. The count
+may be a literal, the contents of a data register, or the value 1. An
+immediate count permits a shift of 1 to 8 places. If the count is in
+a register, the value is modulo 64  from 0 to 63. If no count is
+specified, one shift is made (e.g., LSL <ea> shifts the word at the
+effective address one position left).\\
+  \textbf{Condition codes:} & \texttt{X N Z V C\newline * * * 0 *}\newline The X-bit is set to the last bit shifted out of the operand and is
+equal to the C-bit. However, a zero shift count leaves the X-bit
+unaffected and the C-bit cleared.\\
+\end{tabularx}
+\newline
+
+\newpage
 
 \end{appendices}
 \end{document}

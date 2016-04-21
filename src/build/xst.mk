@@ -36,8 +36,9 @@ $(PROJNAME)-synthdir/xst/synth/design.scr: $(S)
 	#$(foreach i,$(filter %.vhdl,$(S)), echo 'vhdl work "$(call fixpath3,$(i))"' >> $(@D)/design.prj;)
 	echo 'vhdl work "../../../main.vhd"' >> $(@D)/design.prj
 	echo 'vhdl work "../../../cpu.vhd"' >> $(@D)/design.prj
-	echo 'vhdl work "../../../PICT_MEM.vhd"' >> $(@D)/design.prj
 	echo 'vhdl work "../../../VGA_MOTOR.vhd"' >> $(@D)/design.prj
+	echo 'vhdl work "../../../PICT_MEM.vhd"' >> $(@D)/design.prj
+	#echo 'vhdl work "../../../KBD_ENC.vhd"' >> $(@D)/design.prj
 	echo 'vhdl floatfixlib "../../../floatfixlib/math_utility_pkg.vhd"' >> $(@D)/design.prj
 	echo 'vhdl floatfixlib "../../../floatfixlib/fixed_pkg_c.vhd"' >> $(@D)/design.prj
 	echo 'vhdl floatfixlib "../../../floatfixlib/float_pkg_c.vhd"' >> $(@D)/design.prj

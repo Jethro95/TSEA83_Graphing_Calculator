@@ -10,14 +10,16 @@ Binary | Action
 00100  | AR:=AR+BUS
 00101  | AR:=AR-BUS
 00110  | AR:=AR and BUS
-00111  | AR:=signed_to_float(AR)
+00111  | AR_f:=signed_to_float(AR)
 01000  | AR:=float_to_signed(AR)
-01001  | AR:=AR>>
-01010  | AR:=<<AR
+01001  | AR:=AR >> ASM
+01010  | AR:=AR << ASM
 01011  | AR:=AR+BUS (floating point)
 01100  | AR:=AR-BUS (floating point)
 01101  | AR:=AR*BUS (floating point)
 01110  | AR:=AR/BUS (floating point)
+01111  | AR:=AR >>> ASM
+10000  | AR:=AR <<< ASM
 
 ## Bus codes
 
@@ -29,7 +31,8 @@ Binary | Item
 0100   | ASR
 0101   | AR
 0110   | AR_f
-0111   | GRx
+0111   | Pict_mem
+1000   | GRx
 
 ## PC
 
@@ -75,12 +78,15 @@ Binary | Operation
 01100  | DIVF
 01101  | MULTF
 01110  | AND
-01111  | ASR
-10000  | ASL
-10001  | ITF (Integer To Float)
-10010  | FTI (Float To Integer)
+01111  | ASL
+10000  | ASR
+10001  | JMP
+10010  | LSL
+10011  | LSR
+10100  | STOREP
+10101  | ITF (Integer To Float)
+10110  | FTI (Float To Integer)
 
-Note on STORE: Addr above 1000 is used to store in picture memory, at pict_mem(addr-1000). Last 8 bits are used.
 
 ## GRx
 
