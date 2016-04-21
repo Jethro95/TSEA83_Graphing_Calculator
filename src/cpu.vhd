@@ -67,7 +67,7 @@ constant u_mem_c : u_mem_t :=
         b"00000_1000_0111_0_0001_00000000000000",    -- 42 STOREP pict_mem(A) := GRx
         b"00001_1000_0000_0_0000_00000000000000",   -- 43 ITF AR := GRx
         b"00111_0000_0000_0_0000_00000000001011",   -- 44 ITF AR_f := float(AR)
-		b"00000_0110_1000_0_0001_00000000000000",   -- 45 ITF GRx := AR_f
+        b"00000_0110_1000_0_0001_00000000000000",   -- 45 ITF GRx := AR_f
         b"00001_1000_0000_0_0000_00000000000000",   -- 46 FTI AR := GRx
         b"01000_0000_0000_0_0001_00000000001011",   -- 47 FTI AR := signed(AR_f) then GRx := AR
         b"00001_1000_0000_0_0000_00000000000000",   -- 48 ADDF AR_f := GRx
@@ -331,7 +331,7 @@ begin
         if rising_edge(clk) then
             if (rst = '1') then
                 AR <= (others => '0');
-				AR_f <= (others => '0');
+                AR_f <= (others => '0');
                 flag_X <= '0';
                 flag_N <= '0';
                 flag_Z <= '0';
@@ -342,13 +342,13 @@ begin
             --ALU=00000 has no effect
             elsif (ALU = "00001") then --AR:=bus, AR_f:=bus
                 AR <= signed(DATA_BUS);
-				AR_f <= float(DATA_BUS);
+                AR_f <= float(DATA_BUS);
             elsif (ALU = "00010") then --AR:=bus', AR_f:=bus' (One's complement)
                 AR <= not signed(DATA_BUS);
-				AR_f <= float(not DATA_BUS);
+                AR_f <= float(not DATA_BUS);
             elsif (ALU = "00011") then --AR:=0, AR_f:=0
                 AR <= (others => '0');
-				AR_f <= (others => '0');
+                AR_f <= (others => '0');
             elsif ((ALU = "00100") or (ALU = "00101")) then --AR:=AR+buss (ints) || AR:=AR-buss
                 --In summary, we'll:
                 --  Extend argument size by 1 bit
@@ -399,9 +399,9 @@ begin
 
             elsif (ALU = "00111") then --AR_f:=float(AR)
                 AR_f <= to_float(AR, AR_f);
-			elsif (ALU = "01000") then --AR:=signed(AR_f)
-				AR <= to_signed(AR_f, 32);
-			elsif (ALU = "01001") then -- ASR
+            elsif (ALU = "01000") then --AR:=signed(AR_f)
+                AR <= to_signed(AR_f, 32);
+            elsif (ALU = "01001") then -- ASR
                 if(to_integer(DATA_BUS) /= 0) then
                     -- C and X unaffected by a shift count of zero
                     flag_C <= AR(to_integer(DATA_BUS) - 1);
@@ -419,14 +419,14 @@ begin
                 AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
-			elsif (ALU = "01011") then --AR_f:=AR_f+Buss (floats)
-				AR_f <= AR_f + to_float(DATA_BUS);
-			elsif (ALU = "01100") then --AR_f:=AR_f-Buss (floats)
-				AR_f <= AR_f - to_float(DATA_BUS);
+            elsif (ALU = "01011") then --AR_f:=AR_f+Buss (floats)
+                AR_f <= AR_f + to_float(DATA_BUS);
+            elsif (ALU = "01100") then --AR_f:=AR_f-Buss (floats)
+                AR_f <= AR_f - to_float(DATA_BUS);
             elsif (ALU = "01101") then --AR_f:=AR_f*Buss (floats)
-				AR_f <= AR_f * to_float(DATA_BUS);
-			elsif (ALU = "01110") then --AR_f:=AR_f/Buss (floats)
-				AR_f <= AR_f / to_float(DATA_BUS);
+                AR_f <= AR_f * to_float(DATA_BUS);
+            elsif (ALU = "01110") then --AR_f:=AR_f/Buss (floats)
+                AR_f <= AR_f / to_float(DATA_BUS);
             end if;
         end if;
     end process;
@@ -450,7 +450,7 @@ begin
                 "0000000000" & PC       when (TB = "0011") else
                 "0000000000" & ASR      when (TB = "0100") else
                 unsigned(AR)            when (TB = "0101") else
-				unsigned(to_slv(AR_f))  when (TB = "0110") else
+                unsigned(to_slv(AR_f))  when (TB = "0110") else
                 g_reg(to_integer(GRx))  when (TB = "1000") else -- TODO: Is GRx updated yet?
                 (others => '0');
 end Behavioral;
