@@ -420,13 +420,13 @@ begin
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
             elsif (ALU = "01011") then --AR_f:=AR_f+Buss (floats)
-                AR_f <= AR_f + to_float(DATA_BUS);
+                AR_f <= AR_f + float(DATA_BUS);
             elsif (ALU = "01100") then --AR_f:=AR_f-Buss (floats)
-                AR_f <= AR_f - to_float(DATA_BUS);
+                AR_f <= AR_f - float(DATA_BUS);
             elsif (ALU = "01101") then --AR_f:=AR_f*Buss (floats)
-                AR_f <= AR_f * to_float(DATA_BUS);
+                AR_f <= AR_f * float(DATA_BUS);
             elsif (ALU = "01110") then --AR_f:=AR_f/Buss (floats)
-                AR_f <= AR_f / to_float(DATA_BUS);
+                AR_f <= AR_f / float(DATA_BUS);
             end if;
         end if;
     end process;
