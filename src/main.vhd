@@ -90,15 +90,9 @@ architecture Behavioral of main is
     end component;
 
     -- intermediate signals between PICT_MEM and CPU
-<<<<<<< HEAD
-    signal data_s       : std_logic_vector(7 downto 0);         -- data
-    signal we_s         : std_logic;                            -- write enable
-    signal save_at_s    : integer range 0 to 1200;              -- write enable
-=======
     signal data_s    : std_logic_vector(7 downto 0);         -- data
     signal we_s      : std_logic;                            -- write enable
     signal save_at_s : integer range 0 to 3250;                            -- write enable
->>>>>>> 3cc6390... VGA working in practice. Float instructions temporarily removed; need seperate AR for floats in order for them to play nice.
 
     -- intermediate signals between PICT_MEM and VGA_MOTOR
     signal data_out2_s  : std_logic_vector(7 downto 0);         -- data
@@ -114,11 +108,7 @@ architecture Behavioral of main is
     CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s);
 
     -- picture memory component connection
-<<<<<<< HEAD
-    PIC_MEM_UNIT    : PICT_MEM port map( we1=>we_s, rst=>rst, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
-=======
     PIC_MEM_UNIT       : PICT_MEM port map(we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
->>>>>>> 3cc6390... VGA working in practice. Float instructions temporarily removed; need seperate AR for floats in order for them to play nice.
 
     -- VGA motor component connection
     VGA_UNIT        : VGA_MOTOR port map(clk=>clk, rst=>rst, data=>data_out2_s, addr=>addr2_s, vgaRed=>vgaRed, vgaGreen=>vgaGreen, vgaBlue=>vgaBlue, Hsync=>Hsync, Vsync=>Vsync);
