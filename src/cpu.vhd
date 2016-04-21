@@ -33,7 +33,7 @@ constant u_mem_c : u_mem_t :=
         b"00000_0110_0010_0_0001_00000000000000",   -- 8 STORE PM(A) := GRx
         b"00001_0110_0000_0_0000_00000000000000",   -- 9 ADD AR := GRx
         b"00100_0010_0000_0_0000_00000000000000",   -- 10 ADD AR := AR+PM(A)
-        b"00100_0101_0110_0_0001_00000000000000",   -- 11 ADD GRx := AR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 11 ADD GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 12 SUB AR := GRx
         b"00101_0010_0000_0_0001_00000000001011",   -- 13 SUB AR := AR-PM(A) then GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 14 AND AR := GRx
@@ -81,10 +81,10 @@ type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-       	b"00001_000_01_0000000000000000000000", -- LOAD Immediate to gr0
-    	b"00000_000_00_0000000000000000000001", -- 1 = A
-    	b"00010_000_00_0000000000001111101001", -- STORE gr0 to 1001
-    	b"00000_000_00_0000000000000000000000",
+        b"00010_000_00_0000000000001111101001",
+        b"00010_001_00_0000000000001111101010",
+        b"00010_010_00_0000000000001111101011",
+        b"10011_000_00_0000000000000000000011",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
@@ -102,6 +102,7 @@ signal ASR      : unsigned(21 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
 signal AR       : signed(31 downto 0);      -- Accumulator Register
+signal AR_f : float32;
 
 -- Flags
 signal flag_X   : std_logic;                -- Extra carry flag
@@ -153,15 +154,13 @@ signal MM       : unsigned(1 downto 0);     -- Memory mode
 signal GRx      : unsigned(2 downto 0);     -- Control signal for GR mux
 signal IR_ADR   : unsigned(21 downto 0);    -- IR address field
 
-signal x : float (5 downto -10);
-
 -- General registers
 type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
-        x"00000000",
-        x"00000000",
-        x"00000000",
+        x"00000001",
+        x"00000002",
+        x"00000003",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -226,7 +225,6 @@ begin
     begin
         if rising_edge(clk) then
             if (rst = '1') then
-            x <= to_float(0,x);
                 IR <= (others => '0');
             elsif (FB = "0001") then
                 IR <= DATA_BUS;
@@ -277,9 +275,7 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if (rst = '1') then
-		            we1 <= '0';
-            elsif (FB = "0010") then
+            if (FB = "0010") then
                 if ASR<1000 then
                     p_mem(to_integer(ASR)) <= DATA_BUS;
                 else
@@ -287,8 +283,6 @@ begin
                     data_in1 <= std_logic_vector(DATA_BUS(7 downto 0));
                     save_at <= to_integer(ASR) - 1000;
                 end if;
-            else
-                we1 <= '0';
             end if;
         end if;
     end process;
@@ -361,89 +355,6 @@ begin
                 if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_V <= '0';
                 flag_C <= '0';
-            elsif (ALU = "00111") then --AR:=float(AR)
-                --Trying set AR to unsigned(to_slv(to_float(...))) causes modelsim to protest about array lengths
-                --The solution: Create a 0-value unsigned. Add the bits of the conversion result to it.
-                --    and set AR to that
-                lengthhack_float := to_float(AR, lengthhack_float);
-                lengthhack_result := "00000000000000000000000000000000";
-                lengthhack_result := lengthhack_result + unsigned(to_slv(lengthhack_float));
-                AR <= signed(lengthhack_result);
-            elsif (ALU = "01000") then --AR:=signed(AR)
-                --See comment in ALU mode above. Similar logic.
-                lengthhack_float := float(AR);
-                lengthhack_result := "00000000000000000000000000000000";
-                lengthhack_result := lengthhack_result + unsigned(to_signed(lengthhack_float, 32));
-                AR <= signed(lengthhack_result);
-            elsif (ALU = "01001") then -- ASR
-                if(to_integer(DATA_BUS) /= 0) then
-                    flag_X <= AR(to_integer(DATA_BUS) - 1);
-                    flag_C <= AR(to_integer(DATA_BUS) - 1);
-                else
-                    -- C cleared by a shift count of zero, X unaffected
-                    flag_C <= '0';
-                end if;
-                AR <= SHIFT_RIGHT(signed(AR),to_integer(DATA_BUS));
-                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                flag_N <= AR(31);
-            elsif (ALU = "01010") then -- ASL
-                if(to_integer(DATA_BUS) /= 0) then
-                    flag_X <= AR(32 - to_integer(DATA_BUS));
-                    flag_C <= AR(32 - to_integer(DATA_BUS));
-                else
-                    -- C cleared by a shift count of zero, X unaffected
-                    flag_C <= '0';
-                end if;
-                AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
-                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                flag_N <= AR(31);
-            elsif ((ALU = "01011") or (ALU = "01100")) then --AR:=AR+Buss (floats) || AR:=AR-Buss (floats)
-                op_f_arg_1  := float(AR);
-                op_f_arg_2  := float(DATA_BUS);
-                if (ALU = "01100") then --if AR:=AR-Buss
-                    op_f_arg_2 := -op_f_arg_2;
-                end if;
-                op_f_result := op_f_arg_1 + op_f_arg_2;
-                AR <= signed(to_slv(op_f_result));
-                --TODO: flag_C, flag_X, flag_V
-                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-            elsif ((ALU = "01101") or (ALU = "01110")) then --AR:=AR*Buss (floats) || AR:=AR/Buss (floats)
-            --Very similar to add/sub, but kept seperate for readability and possibly future flag implementations, which may differ
-                op_f_arg_1  := float(AR);
-                op_f_arg_2  := float(DATA_BUS);
-                if (ALU = "01110") then --if AR:=AR/Buss
-                    op_f_arg_2 := 1 / op_f_arg_2;
-                end if;
-                op_f_result := op_f_arg_1 * op_f_arg_2;
-                AR <= signed(to_slv(op_f_result));
-                --TODO: flag_C, flag_X, flag_V
-                if (op_f_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_f_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-            elsif (ALU = "01111") then -- LSR
-                if(to_integer(DATA_BUS) /= 0) then
-                    flag_X <= AR(to_integer(DATA_BUS) - 1);
-                    flag_C <= AR(to_integer(DATA_BUS) - 1);
-                else
-                    -- C cleared by a shift count of zero, X unaffected
-                    flag_C <= '0';
-                end if;
-                AR <= SHIFT_RIGHT(AR,to_integer(DATA_BUS));
-                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                flag_N <= AR(31);
-                flag_V <= '0';
-            elsif (ALU = "10000") then -- LSL
-                if(to_integer(DATA_BUS) /= 0) then
-                    flag_X <= AR(32 - to_integer(DATA_BUS));
-                    flag_C <= AR(32 - to_integer(DATA_BUS));
-                else
-                    -- C cleared by a shift count of zero, X unaffected
-                    flag_C <= '0';
-                end if;
-                AR <= SHIFT_LEFT(AR,to_integer(DATA_BUS));
-                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                flag_N <= AR(31);
-                flag_V <= '0';
             end if;
         end if;
     end process;

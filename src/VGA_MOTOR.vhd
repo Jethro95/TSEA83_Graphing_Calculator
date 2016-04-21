@@ -988,24 +988,31 @@ begin
     begin
         if rising_edge(clk) then
             if (blank = '0') then
+		if tileRow = '1' then			
+		   tilepixel <= x"00";
+		else
+			tilepixel <= x"ff";
+		end if;
                 tileRow <= tileMem(to_integer(tileAddr));
             else
+   		tilePixel <= (others => '0');
                 tileRow <= '0';
             end if;
         end if;
     end process;
 
 
-    with tileRow select tilePixel <=
-        x"00" when '1',
-        x"ff" when others;
+    --with tileRow select tilePixel <=
+      --  x"00" when '1',
+      --  x"ff" when others;
+   --tilepixel <= x"00";
     -- Tile memory address composite
     --tilecontent <= ;
     tileAddr <= unsigned(data(7 downto 0)) & Ypixel(3 downto 0) & Xpixel(2 downto 0);
 
 
     -- Picture memory address composite
-    addr <= to_unsigned(40, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3);
+    addr <= to_unsigned(80, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3);
 
 
     -- VGA generation

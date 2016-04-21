@@ -14,10 +14,9 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 -- entity
 entity PICT_MEM is
     port (  clk		  : in std_logic;
-            rst       : in std_logic;
             we1       : in std_logic;
             data_in1  : in std_logic_vector(7 downto 0);
-            save_at   : in integer range 0 to 1200;
+            save_at   : in integer range 0 to 3250;
             data_out2 : out std_logic_vector(7 downto 0);
             addr2     : in unsigned(12 downto 0));
 
@@ -28,19 +27,17 @@ end PICT_MEM;
 architecture Behavioral of PICT_MEM is
 
     -- picture memory type
-
-    type ram_t is array (0 to 3000) of std_logic_vector(7 downto 0);
+    type ram_t is array (0 to 3250) of std_logic_vector(7 downto 0);
     -- initiate picture memory to one cursor ("1F") followed by spaces ("00")
- signal pictMem : ram_t := (0 => x"02",1=>x"02", others => (others => '0'));
+    signal pictMem : ram_t := (others => (others => '0'));
 
 
 begin
 
     process(clk)
     begin
-
         if rising_edge(clk) then
-            if (we1 ='1' and rst='0') then
+            if (we1 ='1') then
                 pictMem(save_at) <= data_in1;
             end if;
             data_out2 <= pictMem(to_integer(addr2));
