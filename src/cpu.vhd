@@ -18,7 +18,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 42) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 55) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -64,7 +64,20 @@ constant u_mem_c : u_mem_t :=
         b"00001_1000_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
         b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
         b"00000_0101_1000_0_0001_00000000000000",   -- 41 LSL GRx := AR
-        b"00000_1000_0111_0_0001_00000000000000"    -- 42 STOREP pict_mem(A) := GRx
+        b"00000_1000_0111_0_0001_00000000000000",    -- 42 STOREP pict_mem(A) := GRx
+        b"00001_1000_0000_0_0000_00000000000000",   -- 43 ITF AR := GRx
+        b"00111_0000_0000_0_0000_00000000001011",   -- 44 ITF AR_f := float(AR)
+		b"00000_0110_1000_0_0001_00000000000000",   -- 45 ITF GRx := AR_f
+        b"00001_1000_0000_0_0000_00000000000000",   -- 46 FTI AR := GRx
+        b"01000_0000_0000_0_0001_00000000001011",   -- 47 FTI AR := signed(AR_f) then GRx := AR
+        b"00001_1000_0000_0_0000_00000000000000",   -- 48 ADDF AR_f := GRx
+        b"01011_0010_0000_0_0001_00000000101101",   -- 49 ADDF AR_f := AR_f+PM(A) then GRx := AR_f
+        b"00001_1000_0000_0_0000_00000000000000",   -- 50 SUBF AR_f := GRx
+        b"01100_0010_0000_0_0001_00000000101101",   -- 51 SUBF AR_f := AR_f-PM(A) then GRx := AR_f
+        b"00001_1000_0000_0_0000_00000000000000",   -- 52 MULTF AR_f := GRx
+        b"01101_0010_0000_0_0001_00000000101101",   -- 53 MULTF AR_f := AR_f*PM(A) then GRx := AR_f
+        b"00001_1000_0000_0_0000_00000000000000",   -- 54 DIVF AR_f := GRx
+        b"01110_0010_0000_0_0001_00000000101101"    -- 55 DIVF AR_f := AR_f/PM(A) then GRx := AR_f
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -144,16 +157,16 @@ constant K1_mem_c : K1_mem_t :=
         b"010100",  -- BNE (u_mem(20))
         b"011011",  -- BRF (u_mem(27))
         b"001001",  -- ADD (u_mem(9))
-        b"100111",  -- ADDF (u_mem(39))
+        b"110000",  -- ADDF (u_mem(48))
         b"001100",  -- SUB (u_mem(12))
-        b"101001",  -- SUBF (u_mem(41))
-        b"101101",  -- DIVF (u_mem(45))
-        b"101011",  -- MULTF (u_mem(43))
+        b"110010",  -- SUBF (u_mem(50))
+        b"110100",  -- MULTF (u_mem(52))
+        b"110110",  -- DIVF (u_mem(54))
         b"000000",  -- AND (u_mem(14))
         b"100000",  -- ASL (u_mem(32))
         b"011101",  -- ASR (u_mem(29))
-        b"000000",  -- ITF (u_mem(35))
-        b"000000",   -- FTI (u_mem(38))
+        b"101011",  -- ITF (u_mem(43))
+        b"101110",  -- FTI (u_mem(46))
         b"100011",  -- JMP (u_mem(35))
         b"100100",  -- LSR (u_mem(36))
         b"100111",  -- LSL (u_mem(39))
@@ -322,6 +335,7 @@ begin
         if rising_edge(clk) then
             if (rst = '1') then
                 AR <= (others => '0');
+				AR_f <= (others => '0');
                 flag_X <= '0';
                 flag_N <= '0';
                 flag_Z <= '0';
@@ -330,12 +344,15 @@ begin
 
             --Modes currently stolen from http://www.isy.liu.se/edu/kurs/TSEA83/tex/mikrokomp_2013.pdf
             --ALU=00000 has no effect
-            elsif (ALU = "00001") then --AR:=bus
+            elsif (ALU = "00001") then --AR:=bus, AR_f:=bus
                 AR <= signed(DATA_BUS);
-            elsif (ALU = "00010") then --AR:=bus' (One's complement)
+				AR_f <= float(DATA_BUS);
+            elsif (ALU = "00010") then --AR:=bus', AR_f:=bus' (One's complement)
                 AR <= not signed(DATA_BUS);
-            elsif (ALU = "00011") then --AR:=0
+				AR_f <= float(not DATA_BUS);
+            elsif (ALU = "00011") then --AR:=0, AR_f:=0
                 AR <= (others => '0');
+				AR_f <= (others => '0');
             elsif ((ALU = "00100") or (ALU = "00101")) then --AR:=AR+buss (ints) || AR:=AR-buss
                 --In summary, we'll:
                 --  Extend argument size by 1 bit
@@ -453,6 +470,6 @@ begin
                 "0000000000" & ASR      when (TB = "0100") else
                 unsigned(AR)            when (TB = "0101") else
 				unsigned(to_slv(AR_f))  when (TB = "0110") else
-                g_reg(to_integer(GRx))  when (TB = "0111") else -- TODO: Is GRx updated yet?
+                g_reg(to_integer(GRx))  when (TB = "1000") else -- TODO: Is GRx updated yet?
                 (others => '0');
 end Behavioral;
