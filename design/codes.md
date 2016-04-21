@@ -31,6 +31,7 @@ Binary | Item
 0100   | ASR
 0101   | unsigned(AR)
 0110   | GRx
+0111   | Pict_mem
 
 ## PC
 
@@ -81,8 +82,8 @@ Binary | Operation
 10001  | JMP
 10010  | LSL
 10011  | LSR
+10100  | STOREP
 
-Note on STORE: Addr above 1000 is used to store in picture memory, at pict_mem(addr-1000). Last 8 bits are used.
 
 ## GRx
 

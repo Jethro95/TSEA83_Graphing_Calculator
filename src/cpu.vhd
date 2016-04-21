@@ -7,18 +7,18 @@ use floatfixlib.float_pkg.all;
 --CPU interface
 entity cpu is
     port(
-        clk      : in std_logic;
-        rst      : in std_logic;
-        we1      : out std_logic;                         -- write enable
-        data_in1 : out std_logic_vector(7 downto 0);      -- data in
-        save_at  : out integer range 0 to 1200            -- save data_in1 on adress
+        clk             : in std_logic;
+        rst             : in std_logic;
+        we1             : out std_logic;                         -- write enable
+        data_out_picmem : out std_logic_vector(7 downto 0);      -- data out to pictmem
+        save_at         : out integer range 0 to 3250            -- save data_out_picmem on adress
     );
 end cpu;
 
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 41) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 42) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -63,7 +63,8 @@ constant u_mem_c : u_mem_t :=
         b"00000_0101_0110_0_0001_00000000000000",   -- 38 LSR GRx := AR
         b"00001_0110_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
         b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
-        b"00000_0101_0110_0_0001_00000000000000"    -- 41 LSL GRx := AR
+        b"00000_0101_0110_0_0001_00000000000000",   -- 41 LSL GRx := AR
+        b"00000_0110_0111_0_0001_00000000000000"    -- 42 STOREP pict_mem(A) := GRx
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -80,11 +81,11 @@ signal ALU      : unsigned(4 downto 0);     -- ALU mode
 type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
-        --OP   GRx M  ADRESS/LITERAL
-        b"00010_000_00_0000000000001111101001",
-        b"00010_001_00_0000000000001111101010",
-        b"00010_010_00_0000000000001111101011",
-        b"10011_000_00_0000000000000000000011",
+        --OP   GRx M  ADRESS
+        b"10100_000_00_0000000000000000000001",
+        b"10100_001_00_0000000000000000000010",
+        b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000",
@@ -102,7 +103,7 @@ signal ASR      : unsigned(21 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
 signal AR       : signed(31 downto 0);      -- Accumulator Register
-signal AR_f : float32;
+signal AR_f     : float32;
 
 -- Flags
 signal flag_X   : std_logic;                -- Extra carry flag
@@ -122,7 +123,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 19) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 20) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -144,7 +145,8 @@ constant K1_mem_c : K1_mem_t :=
         b"011101",  -- ASR (u_mem(29))
         b"100011",  -- JMP (u_mem(35))
         b"100100",  -- LSR (u_mem(36))
-        b"100111"   -- LSL (u_mem(39))
+        b"100111",  -- LSL (u_mem(39))
+        b"101010"   -- STOREP (u_mem(39))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -276,13 +278,19 @@ begin
     begin
         if rising_edge(clk) then
             if (FB = "0010") then
-                if ASR<1000 then
-                    p_mem(to_integer(ASR)) <= DATA_BUS;
-                else
-                    we1 <= '1';
-                    data_in1 <= std_logic_vector(DATA_BUS(7 downto 0));
-                    save_at <= to_integer(ASR) - 1000;
-                end if;
+                p_mem(to_integer(ASR)) <= DATA_BUS;
+            end if;
+        end if;
+    end process;
+
+    -- pict_mem : Picture memory
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if (FB = "0111") then
+                we1 <= '1';
+                data_out_picmem <= std_logic_vector(DATA_BUS(7 downto 0));
+                save_at <= to_integer(ASR);
             end if;
         end if;
     end process;
@@ -355,6 +363,18 @@ begin
                 if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_V <= '0';
                 flag_C <= '0';
+            elsif (ALU = "01111") then -- LSL
+                if(to_integer(DATA_BUS) /= 0) then
+                    flag_X <= AR(32 - to_integer(DATA_BUS));
+                    flag_C <= AR(32 - to_integer(DATA_BUS));
+                else
+                    -- C cleared by a shift count of zero, X unaffected
+                    flag_C <= '0';
+                end if;
+                AR <= SHIFT_LEFT(AR,to_integer(DATA_BUS));
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
+                flag_V <= '0';
             end if;
         end if;
     end process;

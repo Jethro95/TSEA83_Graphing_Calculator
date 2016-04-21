@@ -19,11 +19,11 @@ end main;
 architecture Behavioral of main is
     component cpu
         port(
-		clk      : in std_logic;
-		rst      : in std_logic;
-		we1      : buffer std_logic;                         -- write enable
-		data_in1 : out std_logic_vector(7 downto 0);      -- data in
-        save_at  : out integer range 0 to 3250             -- save data_in1 on adress
+		clk      	: in std_logic;
+		rst      	: in std_logic;
+		we1      	: buffer std_logic;                         -- write enable
+		data_out_picmem : out std_logic_vector(7 downto 0);      -- data in
+        	save_at  	: out integer range 0 to 3250             -- save data_in1 on adress
         );
     end component;
 
@@ -63,7 +63,7 @@ architecture Behavioral of main is
 
 begin
 
-    CPU_UNIT           : cpu port map (clk, rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s);
+    CPU_UNIT           : cpu port map (clk, rst, we1=>we_s, data_out_picmem=>data_s, save_at=>save_at_s);
 
     -- picture memory component connection
     PIC_MEM_UNIT       : PICT_MEM port map(we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
