@@ -38,9 +38,8 @@ begin
         if rising_edge(clk) then
             if (we1 ='1') then
                 pictMem(save_at) <= data_in1;
-	        else
-	            data_out2 <= pictMem(to_integer(addr2));
 	        end if;
+	            data_out2 <= pictMem(to_integer(addr2));
         end if;
     end process;
 

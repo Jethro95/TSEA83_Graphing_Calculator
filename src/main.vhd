@@ -13,8 +13,9 @@ port(
     vgaGreen    : out std_logic_vector(2 downto 0);     -- VGA green
     vgaBlue     : out std_logic_vector(2 downto 1);     -- VGA blue
     -- KB
-    PS2KbCLK    : in std_logic;                         -- PS2 clock
-    PS2KbData   : in std_logic                          -- PS2 data
+    PS2KeyboardClk    : in std_logic;                         -- PS2 clock
+    PS2KeyboardData   : in std_logic;                          -- PS2 data
+	led : out std_logic
     );
 end main;
 
@@ -26,7 +27,8 @@ architecture Behavioral of main is
 		rst      : in std_logic;
 		we1      : buffer std_logic;                         -- write enable
 		data_in1 : out std_logic_vector(7 downto 0);      -- data in
-        save_at  : out integer range 0 to 3250             -- save data_in1 on adress
+        	save_at  : out integer range 0 to 3250;             -- save data_in1 on adress
+		kb_data  : in std_logic_vector(7 downto 0)
         );
     end component;
 
@@ -62,8 +64,9 @@ architecture Behavioral of main is
             clk         : in std_logic;                         -- system clock
             rst         : in std_logic;                         -- reset signal
             PS2KeyboardCLK    : in std_logic;                         -- PS2 clock
-            PS2KeyboardData   : in std_logic                         -- PS2 data
-            --data        : out std_logic_vector(7 downto 0)     -- tile data
+            PS2KeyboardData   : in std_logic;                         -- PS2 data
+            data        : out std_logic_vector(7 downto 0);     -- tile data
+	led : out std_logic
             --addr        : out unsigned(10 downto 0);            -- tile address
             --we          : out std_logic                      	-- write enable
         );
@@ -79,13 +82,13 @@ architecture Behavioral of main is
     signal addr2_s      : unsigned(12 downto 0);                -- address
 
     -- intermediate signals between KBD_ENC and CPU
-    --signal data_cpu_kb  : std_logic_vector(7 downto 0);         -- data
+    signal data_cpu_kb  : std_logic_vector(7 downto 0);         -- data
     --signal we_s         : std_logic;                            -- write enable
 
 
     begin
 
-    CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s);
+    CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s, kb_data=>data_cpu_kb);
 
     -- picture memory component connection
     PIC_MEM_UNIT       : PICT_MEM port map(we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
@@ -94,6 +97,6 @@ architecture Behavioral of main is
     VGA_UNIT        : VGA_MOTOR port map(clk=>clk, rst=>rst, data=>data_out2_s, addr=>addr2_s, vgaRed=>vgaRed, vgaGreen=>vgaGreen, vgaBlue=>vgaBlue, Hsync=>Hsync, Vsync=>Vsync);
 
     -- keyboard encoder component connection
-    --KBD_ENC_UNIT    : KBD_ENC port map(clk=>clk, rst=>rst, PS2KeyboardCLK=>PS2KbCLK, PS2KeyboardData=>PS2KbData);
+    KBD_ENC_UNIT    : KBD_ENC port map(clk=>clk, rst=>rst, PS2KeyboardCLK=>PS2KeyboardClk, PS2KeyboardData=>PS2KeyboardData, data=>data_cpu_kb, led=>led);
 
 end Behavioral;

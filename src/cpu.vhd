@@ -19,7 +19,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 41) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 42) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -65,7 +65,7 @@ constant u_mem_c : u_mem_t :=
         b"00001_0110_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
         b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
         b"00000_0101_0110_0_0001_00000000000000",   -- 41 LSL GRx := AR
-	b"00000_0101_0110_0_0001_00000000000000"    -- 41 RC GRx := KB_CHAR
+	b"00000_0111_0110_0_0001_00000000000000"    -- 42 RC GRx := KB_DATA
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -79,19 +79,23 @@ signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
 -- program Memory
-type p_mem_t is array (0 to 9) of unsigned(31 downto 0);
+type p_mem_t is array (0 to 8) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
+        b"10100_000_00_0000000000000000000000",
+	b"00010_000_00_0000000000001111101001",
+	b"10001_000_00_0000000000000000000000",
+	b"00000_000_00_0000000000000000000000",
+	b"00000_000_00_0000000000000000000000",
+	b"00000_000_00_0000000000000000000000",
+	-- Test program, not working
+	--b"01000_001_01_0000000000000000000000",
+	--b"00000_000_00_0000000000000000000001",
+	--b"00010_001_00_0000000000000000001000",
+	--b"00010_000_10_0000000000000000001000",
         b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
+	b"00000_000_00_0000000000000000000000",
         b"00000_000_00_0000000000000000000000"
     );
 
@@ -124,7 +128,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 19) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 20) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -146,7 +150,8 @@ constant K1_mem_c : K1_mem_t :=
         b"011101",  -- ASR (u_mem(29))
         b"100011",  -- JMP (u_mem(35))
         b"100100",  -- LSR (u_mem(36))
-        b"100111"   -- LSL (u_mem(39))
+        b"100111",  -- LSL (u_mem(39))
+	b"101010"   -- RC (u_mem(41))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -160,9 +165,9 @@ signal IR_ADR   : unsigned(21 downto 0);    -- IR address field
 type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
-        x"00000001",
-        x"00000002",
-        x"00000003",
+        x"00000000",
+        x"000003E8",
+        x"00000000",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -297,13 +302,7 @@ begin
         variable op_arg_2       : signed(32 downto 0);
         variable op_part_result : signed(32 downto 0);
         variable op_result      : signed(31 downto 0);
-        --For floating-point operations:
-        variable lengthhack_float : float32;
-        variable lengthhack_result : unsigned(31 downto 0);
-        --For floating-point operations:
-        variable op_f_arg_1         : float32;
-        variable op_f_arg_2         : float32;
-        variable op_f_result        : float32;
+
     begin
         if rising_edge(clk) then
             if (rst = '1') then
@@ -316,47 +315,7 @@ begin
 
             --Modes currently stolen from http://www.isy.liu.se/edu/kurs/TSEA83/tex/mikrokomp_2013.pdf
             --ALU=00000 has no effect
-            elsif (ALU = "00001") then --AR:=bus
-                AR <= signed(DATA_BUS);
-            elsif (ALU = "00010") then --AR:=bus' (One's complement)
-                AR <= not signed(DATA_BUS);
-            elsif (ALU = "00011") then --AR:=0
-                AR <= (others => '0');
-            elsif ((ALU = "00100") or (ALU = "00101")) then --AR:=AR+buss (ints) || AR:=AR-buss
-                --In summary, we'll:
-                --  Extend argument size by 1 bit
-                --  Add those together
-                --  Remove MSB: the carry
-                --  The remaining number is the result
-                --Resizing args to length 33 and adding them
-                op_arg_1        := signed(AR(31) & AR(31 downto 0));
-                op_arg_2        := signed(DATA_BUS(31) & DATA_BUS(31 downto 0));
-                if (ALU = "00101") then --if AR:=AR-buss
-                    op_arg_2 := -op_arg_2;
-                end if;
-                op_part_result  := op_arg_1 + op_arg_2;
-                op_result       := signed(op_part_result(31 downto 0)); --overflow cut off
-                AR <= op_result;
-                --Doing flags
-                flag_X <= flag_C;
-                if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-
-                    --Is the sum of negative positive, or vice versa?
-                if ((op_arg_1>0 and op_arg_2>0 and op_result<=0) or
-                    (op_arg_1<0 and op_arg_2<0 and op_result>=0)) then
-
-                    flag_V <= '1'; else flag_V <= '0';
-                end if;
-
-                flag_C <= op_part_result(32);
-            elsif (ALU = "00110") then
-                op_result := signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS));
-                AR <= op_result;
-                flag_N <= op_result(31);
-                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-                flag_V <= '0';
-                flag_C <= '0';
+            
             end if;
         end if;
     end process;
@@ -381,5 +340,6 @@ begin
                 "0000000000" & ASR      when (TB = "0100") else
                 unsigned(AR)            when (TB = "0101") else
                 g_reg(to_integer(GRx))  when (TB = "0110") else -- TODO: Is GRx updated yet?
+		unsigned(x"000000" & kb_data)                 when (TB = "0111") else
                 (others => '0');
 end Behavioral;
