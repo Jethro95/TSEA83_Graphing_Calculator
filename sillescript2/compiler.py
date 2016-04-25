@@ -215,8 +215,8 @@ def withoutComment(line):
     return result + "\n"
             
 
-def main():
-    with open(sys.argv[1]) as f: #Open file given in command line
+def build(filename):
+    with open(filename) as f: #Open file
         result = [] #Contains lines to be printed
         placeHolderIndexStack = [] #Contains indexes to lines that needs to change when reaching an "END" line
         while True:
@@ -251,9 +251,27 @@ def main():
                 result[index] += bitify(len(result), ADDRESS_WIDTH) #Append next line as argument (to jump to) 
                 #TODO: actual memory location instead
         
-        for line in result:
-            print(line)
-            
+        return result
+    print("Failed to open ", filename)
+    return None
+
+#Adds some fluffs to lines to make them easy to copy-paste into program, and returns it.
+#Designed for this project, and this project only.
+def fancifyForVHDL(lines):
+    result = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
+    result += "constant p_mem_c : p_mem_t :=\n"
+    result += "    (\n"
+    result += "        --OP   GRx M  ADRESS\n"
+    for line in lines:
+        result += '        b"' + line + '",\n'
+    result = result[:len(result)-2] #Remove last ,\n
+    result += "\n"
+    result += "    );\n"
+    return result
+
+def main():
+    builded = build(sys.argv[1]) #Build file given by command line
+    print(fancifyForVHDL(builded))
     
 
 if  __name__ =='__main__':
