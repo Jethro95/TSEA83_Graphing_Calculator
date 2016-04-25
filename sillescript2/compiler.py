@@ -110,8 +110,8 @@ def completeInstruction(instruction, grx, mode, address):
     return result
 
 def placeholderInstruction(instruction, grx, mode):
-    result = bitify(instruction, INSTRUCTION_WIDTH) +BITSEP+ bitfy(grx, GRX_WIDTH) +BITSEP+ bitfy(mode, MODE_WIDTH)
-    assert (len(result) == 2 + WORD_WIDTH - ADRESS_WIDTH)
+    result = bitify(instruction, INSTRUCTION_WIDTH) +BITSEP+ bitify(grx, GRX_WIDTH) +BITSEP+ bitify(mode, MODE_WIDTH) +BITSEP
+    assert (len(result) == 3 + WORD_WIDTH - ADDRESS_WIDTH)
     return result
 
 def arg(line, instructionString):
@@ -125,14 +125,15 @@ def lineToCompleteInstruction(line):
     instrLen = -1
     for instruction in INSTRUCTIONS:
         if line.startswith(instruction):
-            instrStr = INSTRUCTIONS[instruction]
+            instr = INSTRUCTIONS[instruction]
             instrLen = len(instruction)
             break
-    if instrStr == -1:
-        print("A")
+    if instr == -1:
         return None
     #Mode
     restOfLine = line[instrLen:]
+    if restOfLine == "":
+        return None
     mode = -1
     if restOfLine[0] in MODES:
         mode = MODES[restOfLine[0]]
@@ -142,6 +143,8 @@ def lineToCompleteInstruction(line):
     addressOnNextLine = (mode == MODE_ADRESS_ON_NEXT_LINE)
     #GRx
     endIndex = restOfLine.find(GRX_ADDRESS_SEPERATOR)
+    if endIndex == -1:
+        return None
     try:
         grx = int(restOfLine[:endIndex])
     except ValueError:
@@ -149,6 +152,8 @@ def lineToCompleteInstruction(line):
         return None
     #Address
     restOfLine = restOfLine[endIndex+1:]
+    if restOfLine == "":
+        return None
     try:
         address = int(restOfLine)
     except ValueError:
@@ -159,6 +164,7 @@ def lineToCompleteInstruction(line):
     else:
         return [completeInstruction(instr, grx, mode, 0), bitify(address, WORD_WIDTH)]
 
+
 #Parses a boolean expression to a conditional jump
 #Returns None if unsuccesful
 def parseBoolExpr(boolexpr):
@@ -168,15 +174,16 @@ def parseBoolExpr(boolexpr):
     operatorIndex = -1
     for op in BOOL_OPs:
         operatorIndex = boolexpr.find(op)
+        #print("op: ", op, " opi: ", operatorIndex)
         if operatorIndex != -1:
             jumpcode = BOOL_OPs[op]
             lhs = boolexpr[:operatorIndex]
             rhs = boolexpr[operatorIndex:]
-    if operatorIndex == -1:
+    if jumpcode == -1:
         return None #Error
     result = []
-    result.append(completeInstruction(INSTR_CMP, 0)) #TODO: LHS
-    result.append(placeholderInstruction(jumpcode))
+    result.append(completeInstruction(INSTR_CMP, 0, 0, 0)) #TODO: LHS
+    result.append(placeholderInstruction(jumpcode, 0, 0))
     return result
 
 #Returns a list of assembly lines
@@ -231,7 +238,7 @@ def main():
                     return
                 #If we were given an instruction missing argument...
                 for i, instruction in enumerate(instructions):
-                    if len(instructions[0]) < 2*WORD_WIDTH:
+                    if len(instruction) < WORD_WIDTH: #Still works with a few "_" thrown in, luckily. TODO: Somehow make finding these spots not depend on string length
                         placeHolderIndexStack.append(len(result) + i) #Append index of coming instruction
                 result += (instructions)
             else:
@@ -240,7 +247,8 @@ def main():
                     print('Error: Trailing "', KEYWORD_END, '"')
                     return
                 index = placeHolderIndexStack.pop()
-                result[index] += hexify(len(result), ARGUMENT_WIDTH) #Append next line as argument (to jump to) 
+                #TODO:Not really working
+                result[index] += bitify(len(result), ADDRESS_WIDTH) #Append next line as argument (to jump to) 
                 #TODO: actual memory location instead
         
         for line in result:
