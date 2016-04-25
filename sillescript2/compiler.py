@@ -247,7 +247,6 @@ def build(filename):
                     print('Error: Trailing "', KEYWORD_END, '"')
                     return
                 index = placeHolderIndexStack.pop()
-                #TODO:Not really working
                 result[index] += bitify(len(result), ADDRESS_WIDTH) #Append next line as argument (to jump to) 
                 #TODO: actual memory location instead
         
@@ -261,12 +260,12 @@ def fancifyForVHDL(lines):
     result = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
     result += "constant p_mem_c : p_mem_t :=\n"
     result += "    (\n"
-    result += "        --OP   GRx M  ADRESS\n"
+    result += "        --OP    GRx M  ADRESS\n"
     for line in lines:
         result += '        b"' + line + '",\n'
     result = result[:len(result)-2] #Remove last ,\n
     result += "\n"
-    result += "    );\n"
+    result += "    );"
     return result
 
 def main():
