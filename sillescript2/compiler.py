@@ -48,6 +48,7 @@ KEYWORD_END = "end"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
 
+#Instructions and the numbers for their respective instructions in bytecode
 INSTRUCTIONS = {
     "halt"        :0, 
     "load"        :1, 
@@ -69,8 +70,11 @@ INSTRUCTIONS = {
     "rti"         :22
 }
 
+#The compare instruction
 INSTR_CMP = 16 #TODO: Actual code
 
+#The characters for using different modes for the instructions, 
+#   and their respective mode number
 MODES = {
     "$"    :1, #Immediate
     "~"    :2, #Indirect
@@ -80,7 +84,9 @@ MODES = {
 for mode in MODES:
     assert (len(mode) == 1)
 
+#The mode used when no mode is specified
 MODE_DEFAULT = 0 #Direct
+#The mode that requires the address argument on the next line
 MODE_ADRESS_ON_NEXT_LINE = 1 #Immediate
 
 #Jump instructions for bool operators. Note that they are inverted; we jump if expression is false.
@@ -103,24 +109,21 @@ def bitify(num, bitcount):
     return bitstring[:bitcount]
 
 #Converts a full instruction to bytecode.
-#Placeholder instructions doesn't use these and only contain the instruction segment
 def completeInstruction(instruction, grx, mode, address):
     result = bitify(instruction, INSTRUCTION_WIDTH) +BITSEP+ bitify(grx, GRX_WIDTH) +BITSEP+ bitify(mode, MODE_WIDTH) +BITSEP+ bitify(address, ADDRESS_WIDTH)
     assert (len(result) == 3 + WORD_WIDTH)
     return result
 
+#Converts a full instruction to bytecode, minus the address.
 def placeholderInstruction(instruction, grx, mode):
     result = bitify(instruction, INSTRUCTION_WIDTH) +BITSEP+ bitify(grx, GRX_WIDTH) +BITSEP+ bitify(mode, MODE_WIDTH) +BITSEP
     assert (len(result) == 3 + WORD_WIDTH - ADDRESS_WIDTH)
     return result
 
-def arg(line, instructionString):
-    return int(line[len(instructionString):])
-
-#Parses a regular line to an instruction
+#Parses a non-loop, non-instruction to a bytecode instruction
 #Returns None if unsuccesful
 def lineToCompleteInstruction(line):
-    #Instructiom
+    #Instruction
     instr = -1
     instrLen = -1
     for instruction in INSTRUCTIONS:
@@ -202,19 +205,20 @@ def parseLine(line):
     return None
 
 #Removes comments from a line. Keeps trailing \n.
-#  Returns the string with removed comments
+#Returns the string with removed comments
 def withoutComment(line):
     if line == "": #No trailing \n => EOF => return as is
         return ""
     result = ""
     for char in line:
-        if char == KEYWORD_COMMENT:
+        if char == KEYWORD_COMMENT or char == "\n":
             break
         else:
             result += char
     return result + "\n"
             
-
+#Parses the contents of the given file and converts it to lines of bytecode
+#Returns a list of those lines
 def build(filename):
     with open(filename) as f: #Open file
         result = [] #Contains lines to be printed
@@ -227,7 +231,7 @@ def build(filename):
             #print("|",line, end="")
             if line == "": #End of file
                 break
-            elif line == "\n": #Empty line TODO: Isn't caught
+            if line == "\n": #Empty line TODO: Isn't caught
                 continue
             line = line.replace("\n", "") #Remove trailing \n
             
@@ -247,17 +251,16 @@ def build(filename):
                     print('Error: Trailing "', KEYWORD_END, '"')
                     return
                 index = placeHolderIndexStack.pop()
-                result[index] += bitify(len(result), ADDRESS_WIDTH) #Append next line as argument (to jump to) 
-                #TODO: actual memory location instead
+                result[index] += bitify(len(result), ADDRESS_WIDTH) #Append next line as argument (to jump to)
         
         return result
     print("Failed to open ", filename)
     return None
 
 #Adds some fluffs to lines to make them easy to copy-paste into program, and returns it.
-#Designed for this project, and this project only.
+#Formatting designed specifically for this project.
 def fancifyForVHDL(lines):
-    result = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
+    result  = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
     result += "constant p_mem_c : p_mem_t :=\n"
     result += "    (\n"
     result += "        --OP    GRx M  ADRESS\n"
@@ -270,7 +273,10 @@ def fancifyForVHDL(lines):
 
 def main():
     builded = build(sys.argv[1]) #Build file given by command line
-    print(fancifyForVHDL(builded))
+    if builded is None:
+        print("Stopped due to errors.")
+    else:
+        print(fancifyForVHDL(builded))
     
 
 if  __name__ =='__main__':
