@@ -1,9 +1,5 @@
-bra 0
-bra 0
-bra 0
-bra 0
-bra 0
-#I'm a comment!
-if #I'm also a comment!
-	bra 15
+load 1,0
+add$ 1,64
+if 1 = $25
+	sub 2,0
 end

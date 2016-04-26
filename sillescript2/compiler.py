@@ -48,6 +48,9 @@ KEYWORD_END = "end"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
 
+#Character used to denote literals in bool expressions
+LITERAL_DENOTER = "$"
+
 #Instructions and the numbers for their respective instructions in bytecode
 INSTRUCTIONS = {
     "halt"        :0, 
@@ -88,12 +91,20 @@ for mode in MODES:
 MODE_DEFAULT = 0 #Direct
 #The mode that requires the address argument on the next line
 MODE_ADRESS_ON_NEXT_LINE = 1 #Immediate
+#Needed for boolean evaluation
+MODE_IMMEDIATE = 1
+MODE_DIRECT = 0
+
+#An instruction that jumps to itself, without address.
+#The adress given will be the line it is on.
+#TODO: Replace logic using this with HALT.
+INSTRUCTION_JUMP_TO_SELF = "10001_000_00_"
 
 #Jump instructions for bool operators. Note that they are inverted; we jump if expression is false.
 BOOL_OPs = {
-    ">"     :5, #BMI
+    "<"     :5, #BMI --TODO: BPLUS for >
     "!"     :4, #BEQ
-    "="     :6,  #BNE
+    "="     :6  #BNE
 }
 
 #========================================================================================
@@ -151,7 +162,6 @@ def lineToCompleteInstruction(line):
     try:
         grx = int(restOfLine[:endIndex])
     except ValueError:
-        print("B")
         return None
     #Address
     restOfLine = restOfLine[endIndex+1:]
@@ -167,10 +177,10 @@ def lineToCompleteInstruction(line):
     else:
         return [completeInstruction(instr, grx, mode, 0), bitify(address, WORD_WIDTH)]
 
-
 #Parses a boolean expression to a conditional jump
 #Returns None if unsuccesful
 def parseBoolExpr(boolexpr):
+    #Splitting and finding jumpcode
     jumpcode = -1
     lhs = ""
     rhs = ""
@@ -181,11 +191,22 @@ def parseBoolExpr(boolexpr):
         if operatorIndex != -1:
             jumpcode = BOOL_OPs[op]
             lhs = boolexpr[:operatorIndex]
-            rhs = boolexpr[operatorIndex:]
+            rhs = boolexpr[operatorIndex+1:]
     if jumpcode == -1:
         return None #Error
+    #Checking if needed casts are possible
+    try:
+        int(lhs)
+    except ValueError:
+        return None #Error
+    #Evaluating to compare
     result = []
-    result.append(completeInstruction(INSTR_CMP, 0, 0, 0)) #TODO: LHS
+    if rhs.startswith(LITERAL_DENOTER): #If RHS is literal
+        result.append(completeInstruction(INSTR_CMP, MODE_IMMEDIATE, int(lhs), 0))
+        result.append(bitify(int(rhs[1:]), WORD_WIDTH))
+    else:
+        result.append(completeInstruction(INSTR_CMP, MODE_DIRECT, int(lhs), int(rhs)))
+    #Adding jump
     result.append(placeholderInstruction(jumpcode, 0, 0))
     return result
 
@@ -260,13 +281,15 @@ def build(filename):
 #Adds some fluffs to lines to make them easy to copy-paste into program, and returns it.
 #Formatting designed specifically for this project.
 def fancifyForVHDL(lines):
-    result  = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
+    result  = "type p_mem_t is array (0 to " + str(len(lines)) + ") of unsigned(31 downto 0);\n"
     result += "constant p_mem_c : p_mem_t :=\n"
     result += "    (\n"
     result += "        --OP    GRx M  ADRESS\n"
     for line in lines:
         result += '        b"' + line + '",\n'
-    result = result[:len(result)-2] #Remove last ,\n
+    #Extra instruction preventing going out of bounds
+    #TODO: Replace with HALT
+    result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH) + '"\n'
     result += "\n"
     result += "    );"
     return result
