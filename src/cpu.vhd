@@ -12,14 +12,15 @@ entity cpu is
         we1      : out std_logic;                         -- write enable
         data_in1 : out std_logic_vector(7 downto 0);      -- data in
         save_at  : out integer range 0 to 1200;           -- save data_in1 on adress
-	kb_data  : in std_logic_vector(7 downto 0)
+	kb_data  : in std_logic_vector(7 downto 0);
+    read_confirm : out std_logic
     );
 end cpu;
 
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 42) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 44) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -41,13 +42,13 @@ constant u_mem_c : u_mem_t :=
         b"00110_0010_0000_0_0001_00000000001011",   -- 15 AND AR := AR and PM(A) then GRx := AR
         b"00000_0000_0000_1_0000_00000000000000",   -- 16 BRA PC := PC+1
         b"00001_0011_0000_0_0000_00000000000000",   -- 17 BRA AR := PC
-        b"00100_0010_0000_0_0000_00000000000000",   -- 18 BRA AR:= AR+IR
+        b"00100_0100_0000_0_0000_00000000000000",   -- 18 BRA AR:= AR+ASR
         b"00000_0101_0011_0_0001_00000000000000",   -- 19 BRA PC := AR, uPC := 0
-        b"00000_0000_0000_0_1010_00000000010101",   -- 20 BNE uPC := 21 if Z=1
-        b"00000_0000_0000_0_1001_00000000010000",   -- 21 BNE uPC := 16 (if Z=0 implied)
-        b"00000_0000_0000_1_0001_00000000000000",   -- 22 BNE uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_1010_00000000010110",   -- 20 BNE uPC := 22 if Z=1
+        b"00000_0000_0000_0_0001_00000000010000",   -- 21 BNE uPC := 16 (if Z=0 implied)
+        b"00000_0000_0000_0_0001_00000000000000",   -- 22 BNE uPC := 0, PC := PC+1
         b"00000_0000_0000_0_1010_00000000010000",   -- 23 BEQ uPC := 16 if Z=1
-        b"00000_0000_0000_1_0001_00000000000000",   -- 24 BEQ uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_0001_00000000000000",   -- 24 BEQ uPC := 0, PC := PC+1
         b"00000_0000_0000_0_1001_00000000010000",   -- 25 BMI uPC := 16 if N=1
         b"00000_0000_0000_1_0001_00000000000000",   -- 26 BMI uPC := 0, PC := PC+1
         b"00000_0000_0000_0_1100_00000000010000",   -- 27 BRF uPC := 16 if V=1
@@ -65,7 +66,9 @@ constant u_mem_c : u_mem_t :=
         b"00001_0110_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
         b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
         b"00000_0101_0110_0_0001_00000000000000",   -- 41 LSL GRx := AR
-	b"00000_0111_0110_0_0001_00000000000000"    -- 42 RC GRx := KB_DATA
+	    b"00000_0111_0110_0_0001_00000000000000",   -- 42 RC GRx := KB_DATA
+        b"00001_0110_0000_0_0000_00000000000000",   -- 43 CMP AR := GRx
+        b"00101_0010_0000_0_0001_00000000000000"   -- 44 CMP AR := AR-PM(A)
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -79,24 +82,45 @@ signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
 -- program Memory
-type p_mem_t is array (0 to 8) of unsigned(31 downto 0);
+type p_mem_t is array (0 to 18) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP   GRx M  ADRESS/LITERAL
-        b"10100_000_00_0000000000000000000000",
-	b"00010_000_00_0000000000001111101001",
-	b"10001_000_00_0000000000000000000000",
-	b"00000_000_00_0000000000000000000000",
-	b"00000_000_00_0000000000000000000000",
-	b"00000_000_00_0000000000000000000000",
+        --b"10100_000_00_0000000000000000000000",
+	--b"00010_000_00_0000000000001111101001",
+	--b"10001_000_00_0000000000000000000000",
+	--b"00000_000_00_0000000000000000000000",
+	--b"00000_000_00_0000000000000000000000",
 	-- Test program, not working
 	--b"01000_001_01_0000000000000000000000",
 	--b"00000_000_00_0000000000000000000001",
 	--b"00010_001_00_0000000000000000001000",
 	--b"00010_000_10_0000000000000000001000",
-        b"00000_000_00_0000000000000000000000",
-	b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000"
+        --b"10001_000_00_0000000000000000000000",
+	b"10100_000_00_0000000000000000000000",	-- Read char to GR0
+    	--b"00010_000_00_0000000000000000010001", -- Store GR0 to 10001
+    	--b"10101_010_00_0000000000000000010001", -- CMP GR2 to 10001 (GR0)
+    	--b"00110_000_00_0000000000000000000010",
+    	--b"10001_000_00_0000000000000000000000",
+	b"10101_000_01_0000000000000000000000",	-- CMP GR0 to xFF
+	b"00000_000_00_0000000000000011111111",
+	b"00110_000_00_0000000000000000000010", -- If GR0 - xFF != 0, jump to label JMP
+	b"10001_000_00_0000000000000000000000", -- Else, loop to beginning	
+	b"01000_001_01_0000000000000000000000", -- Add 1 to GR1
+	b"00000_000_00_0000000000000000000001",
+	b"00010_001_00_0000000000000000010010", -- Store GR1 to 10010 
+	b"00010_000_10_0000000000000000010010", -- Store GR0 to value at 10010
+    	--b"00001_010_00_0000000000000000010001", -- Load GR2 with value at 10001
+	b"10001_000_00_0000000000000000000000", -- Loop to beginning
+    	b"00000_000_00_0000000000000000000000",
+    b"00000_000_00_0000000000000000000000",
+    b"00000_000_00_0000000000000000000000",
+    b"00000_000_00_0000000000000000000000",
+    b"00000_000_00_0000000000000000000000",
+    b"00000_000_00_0000000000000000000000",
+     b"00000_000_00_0000000000000000000000",
+    b"00000_000_00_0000000000000000000000",
+    	b"00000_000_00_0000000000000000000000"
     );
 
 
@@ -128,7 +152,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 20) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 21) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -151,7 +175,8 @@ constant K1_mem_c : K1_mem_t :=
         b"100011",  -- JMP (u_mem(35))
         b"100100",  -- LSR (u_mem(36))
         b"100111",  -- LSL (u_mem(39))
-	b"101010"   -- RC (u_mem(41))
+	    b"101010",  -- RC (u_mem(41))
+        b"101011"  -- CMP (u_mem(43))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -285,11 +310,15 @@ begin
             if (FB = "0010") then
                 if ASR<1000 then
                     p_mem(to_integer(ASR)) <= DATA_BUS;
+                    we1 <= '0';
                 else
                     we1 <= '1';
                     data_in1 <= std_logic_vector(DATA_BUS(7 downto 0));
-                    save_at <= to_integer(ASR) - 1000;
+                    save_at <= (to_integer(ASR) - 1000) mod 1024;
+                    --read_confirm <= '1';
                 end if;
+            else
+                we1 <= '0';
             end if;
         end if;
     end process;
@@ -315,7 +344,75 @@ begin
 
             --Modes currently stolen from http://www.isy.liu.se/edu/kurs/TSEA83/tex/mikrokomp_2013.pdf
             --ALU=00000 has no effect
-            
+            elsif (ALU = "00001") then --AR:=bus
+                AR <= signed(DATA_BUS);
+            elsif (ALU = "00010") then --AR:=bus' (One's complement)
+                AR <= not signed(DATA_BUS);
+            elsif (ALU = "00011") then --AR:=0
+                AR <= (others => '0');
+            elsif ((ALU = "00100") or (ALU = "00101")) then --AR:=AR+buss (ints) || AR:=AR-buss
+                --In summary, we'll:
+                --  Extend argument size by 1 bit
+                --  Add those together
+                --  Remove MSB: the carry
+                --  The remaining number is the result
+                --Resizing args to length 33 and adding them
+                op_arg_1        := signed(AR(31) & AR(31 downto 0));
+                op_arg_2        := signed(DATA_BUS(31) & DATA_BUS(31 downto 0));
+                if (ALU = "00101") then --if AR:=AR-buss;
+			        op_arg_2 := -op_arg_2;
+                end if;
+                    op_part_result  := op_arg_1 + op_arg_2;
+                op_result       := signed(op_part_result(31 downto 0)); --overflow cut off
+                AR <= op_result;
+                --Doing flags
+                flag_X <= flag_C;
+                if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+
+                    --Is the sum of negative positive, or vice versa?
+                if ((op_arg_1>0 and op_arg_2>0 and op_result<=0) or
+                    (op_arg_1<0 and op_arg_2<0 and op_result>=0)) then
+
+                    flag_V <= '1'; else flag_V <= '0';
+                end if;
+
+                flag_C <= op_part_result(32);
+            elsif (ALU = "11111") then --CMP
+                --In summary, we'll:
+                --  Extend argument size by 1 bit
+                --  Add those together
+                --  Remove MSB: the carry
+                --  The remaining number is the result
+                --Resizing args to length 33 and adding them
+                op_arg_1        := signed(AR(31) & AR(31 downto 0));
+                op_arg_2        := signed(DATA_BUS(31) & DATA_BUS(31 downto 0));
+                --if (ALU = "00101") then --if AR:=AR-buss;
+			        op_arg_2 := -op_arg_2;
+                --end if;
+                    op_part_result  := op_arg_1 + op_arg_2;
+                op_result       := signed(op_part_result(31 downto 0)); --overflow cut off
+                --AR <= op_result;
+                --Doing flags
+                flag_X <= flag_C;
+                if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
+                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+
+                    --Is the sum of negative positive, or vice versa?
+                if ((op_arg_1>0 and op_arg_2>0 and op_result<=0) or
+                    (op_arg_1<0 and op_arg_2<0 and op_result>=0)) then
+
+                    flag_V <= '1'; else flag_V <= '0';
+                end if;
+
+                flag_C <= op_part_result(32);
+            elsif (ALU = "00110") then
+                op_result := signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS));
+                AR <= op_result;
+                flag_N <= op_result(31);
+                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_V <= '0';
+                flag_C <= '0';
             end if;
         end if;
     end process;
@@ -332,7 +429,9 @@ begin
     FB      <= uM(22 downto 19);
     TB      <= uM(26 downto 23);
     ALU     <= uM(31 downto 27);
-    PM      <= p_mem(to_integer(ASR)) when ASR < 10 else (others => '0');
+    PM      <= p_mem(to_integer(ASR)) when ASR < 20 else (others => '0');
+
+    read_confirm <= '0' when TB = "0111" else '0';
 
     DATA_BUS <= IR                      when (TB = "0001") else
                 PM                      when (TB = "0010") else
