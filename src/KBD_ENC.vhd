@@ -13,15 +13,14 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 
 -- entity
 entity KBD_ENC is
-  port ( 
+    port( 
         clk	                : in std_logic;			-- system clock (100 MHz)
 	    rst		            : in std_logic;			-- reset signal
         PS2KeyboardCLK	    : in std_logic; 		-- USB keyboard PS2 clock
         PS2KeyboardData	    : in std_logic;			-- USB keyboard PS2 data
         data			    : out std_logic_vector(7 downto 0);		-- tile data
-	    led                 : out std_logic;
-	    read_confirm		: in std_logic	
-);
+	    read_confirm	    : in std_logic	
+    );
 end KBD_ENC;
 
 -- architecture
@@ -62,7 +61,6 @@ begin
       PS2Data <= PS2KeyboardData;
     end if;
   end process;
-led <= '1' when (WRstate = STANDBY) else '0';
 	
   -- Generate one cycle pulse from PS2 clock, negative edge
 

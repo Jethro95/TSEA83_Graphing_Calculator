@@ -13,13 +13,14 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 
 -- entity
 entity PICT_MEM is
-    port (  clk		  : in std_logic;
-            we1       : in std_logic;
-            data_in1  : in std_logic_vector(7 downto 0);
-            save_at   : in integer range 0 to 3250;
-            data_out2 : out std_logic_vector(7 downto 0);
-            addr2     : in unsigned(12 downto 0));
-
+    port(
+        clk		  : in std_logic;
+        we1       : in std_logic;
+        data_in1  : in std_logic_vector(7 downto 0);
+        save_at   : in integer range 0 to 3250;
+        data_out2 : out std_logic_vector(7 downto 0);
+        addr2     : in unsigned(12 downto 0)
+    );
 end PICT_MEM;
 
 
