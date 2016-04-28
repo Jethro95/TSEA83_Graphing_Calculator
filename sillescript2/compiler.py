@@ -59,6 +59,8 @@ KEYWORD_END_WHILE = "endwhile"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
 
+KEYWORD_TRUE = "true"
+
 #Character used to denote literals in bool expressions
 LITERAL_DENOTER = "$"
 
@@ -112,7 +114,7 @@ MODE_DIRECT = 0
 #An instruction that jumps to itself, without address.
 #The adress given will be the line it is on.
 #TODO: Replace logic using this with HALT.
-INSTRUCTION_JUMP_TO_SELF = "10001_000_00_"
+INSTRUCTION_JUMP_TO_SELF = "10100_000_00_"
 
 #Jump instructions for bool operators. Note that they are inverted; we jump if expression is false.
 BOOL_OPs = {
@@ -120,6 +122,9 @@ BOOL_OPs = {
     "!"     :4, #BEQ
     "="     :6  #BNE
 }
+
+#For while-true loops
+INSTR_BRA = 3
 
 #Desired length for rows in output
 FANCIFY_DESIRED_LENGTH = 32 + 4
@@ -270,6 +275,12 @@ def lineToCompleteInstruction(line):
 #Parses a boolean expression
 #Returns (success, jumpcode, grx, isLiteral, literal/address)
 def parseBoolExpr(boolexpr):
+    #True is a special case...
+    if boolexpr == KEYWORD_TRUE:
+        #Return success, tell them to jump with INSTR_BRA
+        #TODO: GRx=0,arg=0 generates a useless CMP
+        #        Still works, but ineffiecent.
+        return (True, INSTR_BRA, 0, False, 0)
     #Splitting and finding jumpcode
     jumpcode = -1
     lhs = ""
@@ -302,7 +313,7 @@ def conditionCompare(grx, isLiteral, arg, comment):
         result.append(MachineLine(comment).setComplete(INSTR_CMP, MODE_IMMEDIATE, grx, 0))
         result.append(MachineLine(str(arg)).setLiteral(arg)) #RHS value
     else:
-        result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_DIRECT, grx, arg))
+        result.append(MachineLine(comment).setComplete(INSTR_CMP, MODE_DIRECT, grx, arg))
     return result
 
 #Parses a boolean expression to a conditional jump
