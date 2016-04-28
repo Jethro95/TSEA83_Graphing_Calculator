@@ -13,14 +13,11 @@ The argument is written in decimal.
 Control structures:
 if <comparison>
   <Do stuff>
-end
+endif
 
-loop
-  if <comparison>
-    break
-  end
+while <comparison>
   <Do stuff>
-end
+endwhile
 
 A comparison looks like:
 GRx OPERATOR LITERAL/ADDRESS
@@ -151,8 +148,9 @@ class MachineLine:
     comment = ""
     #Attempt to fill out the instruction based on previous line
     #Sourceline is the assembler line to react to, lineNum its bytecode line number
+    #Modifies itself, returns success, and new lines to insert at lineNum. None if no new.
     def attemptFix(self, sourceLine, lineNum):
-        return False
+        return False, None
 
     #Sets the line to a complete instruction, and returns itself
     def setComplete(self, instruction, grx, mode, address):
@@ -175,19 +173,25 @@ class MachineLine:
 
 class JumpIfLine(MachineLine):
     complete = False
+    lineDefinedAt = -1
 
     #Fills out instruction with a jump
     def attemptFix(self, sourceLine, lineNum):
         if not self.complete and sourceLine.startswith(KEYWORD_END_IF):
-            self.line += bitify(lineNum, ADDRESS_WIDTH)
+            self.line += bitify(lineNum-self.lineDefinedAt-1, ADDRESS_WIDTH)
             self.complete = True
-            return True
-        return False
+            return True, None
+        return False, None
 
-    def __init__(self, instruction, comment):
+    def __init__(self, instruction, comment, currentLine):
         MachineLine.__init__(self, comment)
         self.setIncomplete(instruction, 0, MODE_DIRECT)
         self.complete = False
+        self.lineDefinedAt = currentLine
+
+#class JumpWhileLine(MachineLine):
+#    complete = False
+    
 
 #Parses a non-loop, non-instruction to a bytecode instruction
 #Returns None if unsuccesful
@@ -238,7 +242,7 @@ def lineToCompleteInstruction(line):
 
 #Parses a boolean expression to a conditional jump
 #Returns None if unsuccesful
-def parseBoolExpr(boolexpr):
+def parseBoolExpr(boolexpr, currentBytecodeLinum):
     #Splitting and finding jumpcode
     jumpcode = -1
     lhs = ""
@@ -266,16 +270,16 @@ def parseBoolExpr(boolexpr):
     else:
         result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_DIRECT, int(lhs), int(rhs)))
     #Adding jump
-    result.append(JumpIfLine(jumpcode, "Conditional jump"))
+    result.append(JumpIfLine(jumpcode, "Conditional jump", currentBytecodeLinum+len(result)))
     return result
 
 #Returns a list of assembly lines
 #Parsing of "end" is handled separetly
 #Returns None if an illegal instruction was given
-def parseLine(line):
+def parseLine(line, currentBytecodeLinum):
     #IF:s
     if line.startswith(KEYWORD_IF):
-        return parseBoolExpr(line[len(KEYWORD_IF):])
+        return parseBoolExpr(line[len(KEYWORD_IF):], currentBytecodeLinum)
     #TODO: Loops
     #Others
     result = lineToCompleteInstruction(line)
@@ -317,13 +321,17 @@ def build(filename):
             #Find out if the line modifies a previous instruction, and do the mod
             modified = False
             for instruction in result:
-                if instruction.attemptFix(line, len(result)):
+                success, newlines = instruction.attemptFix(line, len(result))
+                if success:
                     modified = True
+                    #Insert new instructions
+                    if newlines is not None:
+                        result += newlines
                     break
 
             if not modified:
                 #It's a new instruction/control structure: eval and append.
-                instructions = parseLine(line)
+                instructions = parseLine(line, len(result))
                 if instructions is None:
                     print("Error: Illegal instruction '", line, "'.")
                     return
