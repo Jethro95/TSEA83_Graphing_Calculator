@@ -1,5 +1,6 @@
-load 1,0
-add$ 1,64
-if 1 = $25
-	sub 2,0
-end
+add$ 1,1
+while 1 = $322 #If contents at GR1 == 25
+       if 1 = $56
+	add$ 1,63
+	endif	
+endwhile

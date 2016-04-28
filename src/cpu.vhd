@@ -18,7 +18,7 @@ end cpu;
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 55) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 57) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -44,7 +44,7 @@ constant u_mem_c : u_mem_t :=
         b"00000_0101_0011_0_0001_00000000000000",   -- 19 BRA PC := AR, uPC := 0
         b"00000_0000_0000_0_1010_00000000010101",   -- 20 BNE uPC := 21 if Z=1
         b"00000_0000_0000_0_1001_00000000010000",   -- 21 BNE uPC := 16 (if Z=0 implied)
-        b"00000_0000_0000_1_0001_00000000000000",   -- 22 BNE uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_0001_00000000000000",   -- 22 BNE uPC := 0, PC := PC+1 --TODO: When I remove the PC+1 part from the microcode, test works as intended
         b"00000_0000_0000_0_1010_00000000010000",   -- 23 BEQ uPC := 16 if Z=1
         b"00000_0000_0000_1_0001_00000000000000",   -- 24 BEQ uPC := 0, PC := PC+1
         b"00000_0000_0000_0_1001_00000000010000",   -- 25 BMI uPC := 16 if N=1
@@ -77,7 +77,9 @@ constant u_mem_c : u_mem_t :=
         b"00001_1000_0000_0_0000_00000000000000",   -- 52 MULTF AR_f := GRx
         b"01101_0010_0000_0_0001_00000000101101",   -- 53 MULTF AR_f := AR_f*PM(A) then GRx := AR_f
         b"00001_1000_0000_0_0000_00000000000000",   -- 54 DIVF AR_f := GRx
-        b"01110_0010_0000_0_0001_00000000101101"    -- 55 DIVF AR_f := AR_f/PM(A) then GRx := AR_f
+        b"01110_0010_0000_0_0001_00000000101101",   -- 55 DIVF AR_f := AR_f/PM(A) then GRx := AR_f
+        b"00001_1000_0000_0_0000_00000000000000",   -- 56 CMP AR := GRx
+        b"00101_0010_0000_0_0001_00000000000000"    -- 57 CMP AR := AR-PM(A)
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -90,31 +92,23 @@ signal TB       : unsigned(3 downto 0);     -- To Bus field
 signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
--- program Memory
-type p_mem_t is array (0 to 18) of unsigned(31 downto 0);
+type p_mem_t is array (0 to 7) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
-        --OP   GRx M  ADRESS
-        b"10100_000_00_0000000000000000000001",
-        b"10100_001_00_0000000000000000000010",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"10001_001_00_0000000000000000000000", -- Convert value at gr1 to float
-        b"00001_010_01_0000000000000000000000", -- Store 8 at gr2
-        b"00000_000_00_0000000000000000001000", -- 8
-        b"10001_010_00_0000000000000000000000", -- Convert value at gr2 to float
-        b"00010_010_00_0000000000000000001010", -- Load Gr2 to adress 10
-        b"01001_001_01_0000000000000000000000", -- Add Gr2 value to gr1
-        b"01000_001_00_0000000000000000000000",
-        b"10010_001_00_0000000000000000000000", -- Covert gr1 to int
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000001",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000",
-        b"00000_000_00_0000000000000000000000"
+        --OP    GRx M  ADRESS
+        b"01000_001_01_0000000000000000000000",
+        b"00000000000000000000000000000001",
+        b"10111_001_01_0000000000000000000000",
+        b"00000000000000000000000000000001",
+        b"00110_000_00_0000000000000000000111",
+        b"01000_001_01_0000000000000000000000",
+        b"00000000000000000000000000111111",
+        b"10001_000_00_0000000000000000000111"
+
     );
+
+
+
 
 
 signal p_mem : p_mem_t := p_mem_c;
@@ -145,7 +139,7 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 22) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 23) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
         b"000000",  -- HALT
@@ -165,12 +159,13 @@ constant K1_mem_c : K1_mem_t :=
         b"000000",  -- AND (u_mem(14))
         b"100000",  -- ASL (u_mem(32))
         b"011101",  -- ASR (u_mem(29))
-        b"101011",  -- ITF (u_mem(43))
-        b"101110",  -- FTI (u_mem(46))
         b"100011",  -- JMP (u_mem(35))
         b"100100",  -- LSR (u_mem(36))
         b"100111",  -- LSL (u_mem(39))
-        b"101010"   -- STOREP (u_mem(39))
+        b"101010",  -- STOREP (u_mem(39))
+        b"101011",  -- ITF (u_mem(43))
+        b"101110",  -- FTI (u_mem(46))
+        b"111000"   -- CMP (u_mem(56))
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -185,7 +180,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000001",
+        x"00000000",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -443,7 +438,7 @@ begin
     FB      <= uM(22 downto 19);
     TB      <= uM(26 downto 23);
     ALU     <= uM(31 downto 27);
-    PM      <= p_mem(to_integer(ASR)) when ASR < 10 else (others => '0');
+    PM      <= p_mem(to_integer(ASR));
 
     DATA_BUS <= IR                      when (TB = "0001") else
                 PM                      when (TB = "0010") else
