@@ -159,11 +159,27 @@ FANCIFY_DESIRED_LENGTH = 32 + 4
 
 #Converts integer to bitstring of length bitCount
 def bitify(num, bitcount):
-    bitstring = bin(int(num))
-    bitstring = bitstring[bitstring.find("b")+1:] #Cutting of 0b and occasionally -0b. Dunno why - shows up.
-    while len(bitstring) < bitcount:
-        bitstring = "0" + bitstring
-    return bitstring[:bitcount]
+    if num >= 0:
+        bitstring = bin(int(num))
+        bitstring = bitstring[bitstring.find("b")+1:] #Cutting of 0b and occasionally -0b. Dunno why - shows up.
+        while len(bitstring) < bitcount:
+            bitstring = "0" + bitstring
+        return bitstring[:bitcount]
+    else:
+        #It's two's complement =>
+        #take abs(num), add one, get the bit representation of that
+        #  and then invert all bits in the resulting array. BAM.
+        inverted = bitify(abs(num) + 1, bitcount)
+        result = ""
+        for bit in inverted:
+            if bit == "0":
+                result += "1"
+            elif bit == "1":
+                result += "0"
+            else:
+                assert (False) #Unreachable, hopefully
+        return result
+        
 
 #Converts a full instruction to bytecode.
 def completeInstruction(instruction, grx, mode, address):
@@ -389,12 +405,12 @@ def parseBoolExpr(boolexpr):
 def conditionCompare(grx, isLiteral, isLabel, arg, comment):
     result = []
     if isLiteral: #If RHS is literal
-        result.append(MachineLine(comment).setComplete(INSTR_CMP, MODE_IMMEDIATE, grx, 0))
+        result.append(MachineLine(comment).setComplete(INSTR_CMP, grx, MODE_IMMEDIATE, 0))
         result.append(MachineLine(str(arg)).setLiteral(arg)) #RHS value
     elif isLabel:
-        result.append(MachineLine(comment).setIncompleteLabel(INSTR_CMP, MODE_DIRECT, grx, arg))
+        result.append(MachineLine(comment).setIncompleteLabel(INSTR_CMP, grx, MODE_DIRECT, arg))
     else: #It's address
-        result.append(MachineLine(comment).setComplete(INSTR_CMP, MODE_DIRECT, grx, arg))
+        result.append(MachineLine(comment).setComplete(INSTR_CMP, grx, MODE_DIRECT, arg))
     return result
 
 #Parses a boolean expression to a conditional jump
