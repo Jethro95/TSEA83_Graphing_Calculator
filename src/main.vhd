@@ -88,7 +88,7 @@ architecture Behavioral of main is
 
     begin
 
-    CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_out_picmem=>data_s, save_at=>save_at_s, kb_data=>data_cpu_kb, read_confirm=>rc); --kb_data=>data_cpu_kb
+    CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_out_picmem=>data_s, save_at=>save_at_s, kb_data=>data_cpu_kb, read_confirm=>rc);
 
     -- picture memory component connection
     PIC_MEM_UNIT       : PICT_MEM port map(we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
