@@ -80,7 +80,7 @@ constant u_mem_c : u_mem_t :=
         b"01101_0010_0000_0_0001_00000000101101",   -- 53 MULTF AR_f := AR_f*PM(A) then GRx := AR_f
         b"00001_1000_0000_0_0000_00000000000000",   -- 54 DIVF AR_f := GRx
         b"01110_0010_0000_0_0001_00000000101101",   -- 55 DIVF AR_f := AR_f/PM(A) then GRx := AR_f
-	    b"00000_0111_1000_0_0001_00000000000000",   -- 56 RC GRx := KB_DATA
+	    b"00000_1001_1000_0_0001_00000000000000",   -- 56 RC GRx := KB_DATA
         b"00001_1000_0000_0_0000_00000000000000",   -- 57 CMP AR := GRx
         b"00101_0010_0000_0_0001_00000000000000",   -- 58 CMP AR := AR-PM(A)
         b"00000_0000_0000_0_1010_00000000111110",   -- 59 BPL uPC := 62 if Z=1
@@ -470,7 +470,7 @@ begin
     ALU     <= uM(31 downto 27);
     PM      <= p_mem(to_integer(ASR));
 
-    read_confirm <= '1' when TB = "0111" else '0';
+    read_confirm <= '1' when TB = "1001" else '0';
 
     DATA_BUS <= IR                              when (TB = "0001") else
                 PM                              when (TB = "0010") else
@@ -479,6 +479,6 @@ begin
                 unsigned(AR)                    when (TB = "0101") else
                 --unsigned(to_slv(AR_f))          when (TB = "0110") else
                 g_reg(to_integer(GRx))          when (TB = "1000") else -- TODO: Is GRx updated yet?
-                unsigned(x"000000" & kb_data)   when (TB = "0111") else
+                unsigned(x"000000" & kb_data)   when (TB = "1001") else
                 (others => '0');
 end Behavioral;
