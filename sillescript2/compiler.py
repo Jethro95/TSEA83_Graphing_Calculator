@@ -112,7 +112,7 @@ MODE_DIRECT = 0
 #An instruction that jumps to itself, without address.
 #The adress given will be the line it is on.
 #TODO: Replace logic using this with HALT.
-INSTRUCTION_JUMP_TO_SELF = "10001_000_00_"
+INSTRUCTION_JUMP_TO_SELF = "10100_000_00_"
 
 #Jump instructions for bool operators. Note that they are inverted; we jump if expression is false.
 BOOL_OPs = {
