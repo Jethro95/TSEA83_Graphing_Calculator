@@ -27,28 +27,28 @@ end KBD_ENC;
 architecture behavioral of KBD_ENC is
   signal PS2Clk			: std_logic;			-- Synchronized PS2 clock
   signal PS2Data		: std_logic;			-- Synchronized PS2 data
-  signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;			-- PS2 clock one pulse flip flop
+  signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;	-- PS2 clock one pulse flip flop
   signal PS2Clk_op 		: std_logic;			-- PS2 clock one pulse 
 	
   signal PS2Data_sr 	: std_logic_vector(10 downto 0);-- PS2 data shift register
 	
-  signal PS2BitCounter  : unsigned(3 downto 0);		-- PS2 bit counter
+  signal PS2BitCounter  : unsigned(3 downto 0);	-- PS2 bit counter
   signal make_Q			: std_logic;			-- make one pulselse flip flop
   signal make_op		: std_logic;			-- make one pulse
 
-  type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
+  type state_type is (IDLE, MAKE, BREAK);		-- declare state types for PS2
   signal PS2state : state_type;					-- PS2 state
 
   signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
   signal TileIndex		: std_logic_vector(7 downto 0);	-- tile index
   
   type curmov_type is (FORWARD, BACKWARD, NEWLINE);		-- declare cursor movement types
-  signal curMovement : curmov_type;				-- cursor movement
+  signal curMovement : curmov_type;				        -- cursor movement
 	
   signal curposX		: unsigned(5 downto 0);		-- cursor X position
   signal curposY		: unsigned(4 downto 0);		-- cursor Y position
 	
-  type wr_type is (STANDBY, WRCHAR, WRCUR);			-- declare state types for write cycle
+  type wr_type is (STANDBY, WRCHAR, WRCUR);	-- declare state types for write cycle
   signal WRstate : wr_type;					-- write cycle state
 
 begin

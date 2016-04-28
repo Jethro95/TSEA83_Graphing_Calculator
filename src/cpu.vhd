@@ -7,13 +7,13 @@ use floatfixlib.float_pkg.all;
 --CPU interface
 entity cpu is
     port(
-        clk      : in std_logic;
-        rst      : in std_logic;
-        we1      : out std_logic;                         -- write enable
-        data_in1 : out std_logic_vector(7 downto 0);      -- data in
-        save_at  : out integer range 0 to 1200;           -- save data_in1 on adress
-	    kb_data  : in std_logic_vector(7 downto 0);
-    	read_confirm : out std_logic
+        clk             : in std_logic;
+        rst             : in std_logic;
+        we1             : out std_logic;                         -- write enable
+        data_in1        : out std_logic_vector(7 downto 0);      -- data in
+        save_at         : out integer range 0 to 1200;           -- save data_in1 on adress
+	    kb_data         : in std_logic_vector(7 downto 0);
+    	read_confirm    : out std_logic
     );
 end cpu;
 
@@ -108,7 +108,7 @@ signal ASR      : unsigned(21 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
 signal AR       : signed(31 downto 0);      -- Accumulator Register
-signal AR_f : float32;
+signal AR_f     : float32;
 
 -- Flags
 signal flag_X   : std_logic;                -- Extra carry flag
@@ -286,15 +286,11 @@ begin
             if (FB = "0010") then
                 if ASR<1000 then
                     p_mem(to_integer(ASR)) <= DATA_BUS;
-                    --we1 <= '0';
                 else
                     we1 <= '1';
                     data_in1 <= std_logic_vector(DATA_BUS(7 downto 0));
                     save_at <= (to_integer(ASR) - 1000) mod 1024;
-                    --read_confirm <= '1';
                 end if;
-            --else
-                --we1 <= '0';
             end if;
         end if;
     end process;
@@ -354,34 +350,6 @@ begin
                 end if;
 
                 flag_C <= op_part_result(32);
-            elsif (ALU = "11111") then --CMP
-                --In summary, we'll:
-                --  Extend argument size by 1 bit
-                --  Add those together
-                --  Remove MSB: the carry
-                --  The remaining number is the result
-                --Resizing args to length 33 and adding them
-                op_arg_1        := signed(AR(31) & AR(31 downto 0));
-                op_arg_2        := signed(DATA_BUS(31) & DATA_BUS(31 downto 0));
-                --if (ALU = "00101") then --if AR:=AR-buss;
-			        op_arg_2 := -op_arg_2;
-                --end if;
-                    op_part_result  := op_arg_1 + op_arg_2;
-                op_result       := signed(op_part_result(31 downto 0)); --overflow cut off
-                --AR <= op_result;
-                --Doing flags
-                flag_X <= flag_C;
-                if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
-                if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
-
-                    --Is the sum of negative positive, or vice versa?
-                if ((op_arg_1>0 and op_arg_2>0 and op_result<=0) or
-                    (op_arg_1<0 and op_arg_2<0 and op_result>=0)) then
-
-                    flag_V <= '1'; else flag_V <= '0';
-                end if;
-
-                flag_C <= op_part_result(32);
             elsif (ALU = "00110") then
                 op_result := signed(std_logic_vector(AR) AND std_logic_vector(DATA_BUS));
                 AR <= op_result;
@@ -409,12 +377,12 @@ begin
 
     read_confirm <= '1' when TB = "0111" else '0';
 
-    DATA_BUS <= IR                      when (TB = "0001") else
-                PM                      when (TB = "0010") else
-                "0000000000" & PC       when (TB = "0011") else
-                "0000000000" & ASR      when (TB = "0100") else
-                unsigned(AR)            when (TB = "0101") else
-                g_reg(to_integer(GRx))  when (TB = "0110") else -- TODO: Is GRx updated yet?
-		unsigned(x"000000" & kb_data)                 when (TB = "0111") else
+    DATA_BUS <= IR                              when (TB = "0001") else
+                PM                              when (TB = "0010") else
+                "0000000000" & PC               when (TB = "0011") else
+                "0000000000" & ASR              when (TB = "0100") else
+                unsigned(AR)                    when (TB = "0101") else
+                g_reg(to_integer(GRx))          when (TB = "0110") else -- TODO: Is GRx updated yet?
+	            unsigned(x"000000" & kb_data)   when (TB = "0111") else
                 (others => '0');
 end Behavioral;
