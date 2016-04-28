@@ -412,7 +412,19 @@ begin
                 if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_V <= '0';
                 flag_C <= '0';
-            elsif (ALU = "01111") then -- LSL
+            elsif (ALU = "01111") then -- LSR
+                if(to_integer(DATA_BUS) /= 0) then
+                    flag_X <= AR(to_integer(DATA_BUS) - 1);
+                    flag_C <= AR(to_integer(DATA_BUS) - 1);
+                else
+                    -- C cleared by a shift count of zero, X unaffected
+                    flag_C <= '0';
+                end if;
+                AR <= SHIFT_RIGHT(AR,to_integer(DATA_BUS));
+                if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
+                flag_N <= AR(31);
+                flag_V <= '0';
+            elsif (ALU = "10000") then -- LSL
                 if(to_integer(DATA_BUS) /= 0) then
                     flag_X <= AR(32 - to_integer(DATA_BUS));
                     flag_C <= AR(32 - to_integer(DATA_BUS));
