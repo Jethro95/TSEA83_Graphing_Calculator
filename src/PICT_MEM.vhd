@@ -30,7 +30,7 @@ architecture Behavioral of PICT_MEM is
     -- picture memory type
     type ram_t is array (0 to 3250) of std_logic_vector(7 downto 0);
     -- initiate picture memory to one cursor ("1F") followed by spaces ("00")
-    signal pictMem : ram_t := (others => (others => '0'));
+    signal pictMem : ram_t := (others => (x"30"));
 
 
 begin
