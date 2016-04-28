@@ -65,30 +65,29 @@ LITERAL_DENOTER = "$"
 #Instructions and the numbers for their respective instructions in bytecode
 #TODO: update
 INSTRUCTIONS = {
-    "halt"        :0, 
     "load"        :1, 
     "store"       :2, 
-    "add"         :8, 
-    "addf"        :9, 
-    "sub"         :10, 
-    "subf"        :11, 
-    "divf"        :12, 
-    "multf"       :13,
-    "and"         :14,
-    "asl"         :15,
-    "asr"         :16,
-    "jmp"         :17,
-    "lsl"         :18,
-    "lsr"         :19,
-    "storep"      :20,
-    "itr"         :21,
-    "rti"         :22
+    "add"         :9, 
+    "addf"        :10, 
+    "sub"         :11, 
+    "subf"        :12, 
+    "divf"        :13, 
+    "multf"       :14,
+    "and"         :15,
+    "asl"         :16,
+    "asr"         :17,
+    "itr"         :18,
+    "rti"         :19,
+    "lsr"         :21,
+    "lsl"         :22,
+    "storep"      :23,
+    "rc"          :24
 }
 
 #The compare instruction
-INSTR_CMP = 23 #TODO: Actual code
+INSTR_CMP = 25
 #The jump instruction
-INSTR_JMP = 17
+INSTR_JMP = 20
 
 #The characters for using different modes for the instructions, 
 #   and their respective mode number
@@ -121,6 +120,7 @@ BOOL_OPs = {
     "="     :6  #BNE
 }
 
+#Desired length for rows in output
 FANCIFY_DESIRED_LENGTH = 32 + 4
 
 #========================================================================================
