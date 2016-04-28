@@ -64,6 +64,7 @@ WORD_WIDTH = INSTRUCTION_WIDTH + GRX_WIDTH + MODE_WIDTH + ADDRESS_WIDTH
 KEYWORD_IF = "if"
 KEYWORD_WHILE = "while"
 KEYWORD_END_IF = "endif"
+#KEYWORD_ELSE = 
 KEYWORD_END_WHILE = "endwhile"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
@@ -519,7 +520,7 @@ def build(filename):
             
             #Find out if the line modifies a previous instruction, and do the mod
             modified = False
-            for instruction in result:
+            for instruction in reversed(result):
                 success, newlines = instruction.attemptFix(line, len(result))
                 if success:
                     modified = True
