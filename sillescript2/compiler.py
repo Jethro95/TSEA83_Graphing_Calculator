@@ -13,14 +13,11 @@ The argument is written in decimal.
 Control structures:
 if <comparison>
   <Do stuff>
-end
+end if
 
-loop
-  if <comparison>
-    break
-  end
+while <comparison>
   <Do stuff>
-end
+end while
 
 A comparison looks like:
 GRx OPERATOR LITERAL/ADDRESS
@@ -56,7 +53,9 @@ ADDRESS_WIDTH = 22 #Bits
 WORD_WIDTH = INSTRUCTION_WIDTH + GRX_WIDTH + MODE_WIDTH + ADDRESS_WIDTH
 
 KEYWORD_IF = "if"
+KEYWORD_WHILE = "while"
 KEYWORD_END_IF = "endif"
+KEYWORD_END_WHILE = "endwhile"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
 
@@ -64,6 +63,7 @@ assert len(KEYWORD_COMMENT) == 1
 LITERAL_DENOTER = "$"
 
 #Instructions and the numbers for their respective instructions in bytecode
+#TODO: update
 INSTRUCTIONS = {
     "halt"        :0, 
     "load"        :1, 
@@ -80,13 +80,15 @@ INSTRUCTIONS = {
     "jmp"         :17,
     "lsl"         :18,
     "lsr"         :19,
-    "storefp"     :20,
+    "storep"      :20,
     "itr"         :21,
     "rti"         :22
 }
 
 #The compare instruction
 INSTR_CMP = 23 #TODO: Actual code
+#The jump instruction
+INSTR_JMP = 17
 
 #The characters for using different modes for the instructions, 
 #   and their respective mode number
@@ -151,8 +153,9 @@ class MachineLine:
     comment = ""
     #Attempt to fill out the instruction based on previous line
     #Sourceline is the assembler line to react to, lineNum its bytecode line number
+    #Modifies itself, returns success, and new lines to insert at lineNum. None if no new.
     def attemptFix(self, sourceLine, lineNum):
-        return False
+        return False, None
 
     #Sets the line to a complete instruction, and returns itself
     def setComplete(self, instruction, grx, mode, address):
@@ -175,19 +178,47 @@ class MachineLine:
 
 class JumpIfLine(MachineLine):
     complete = False
+    lineDefinedAt = -1
+
+    #Fills out instruction with proper address
+    def fillOut(self, jumpTarget):
+        self.line += bitify(jumpTarget-self.lineDefinedAt-1, ADDRESS_WIDTH)
+        self.complete = True
 
     #Fills out instruction with a jump
     def attemptFix(self, sourceLine, lineNum):
         if not self.complete and sourceLine.startswith(KEYWORD_END_IF):
-            self.line += bitify(lineNum, ADDRESS_WIDTH)
-            self.complete = True
-            return True
-        return False
+            self.fillOut(lineNum)
+            return True, None
+        return False, None
 
-    def __init__(self, instruction, comment):
+    def __init__(self, instruction, comment, currentLine):
         MachineLine.__init__(self, comment)
         self.setIncomplete(instruction, 0, MODE_DIRECT)
         self.complete = False
+        self.lineDefinedAt = currentLine
+
+class JumpWhileLine(JumpIfLine):
+    #How many lines the respective compare takes
+    cmpOffset = -1
+
+    #Fills out instruction with a jump, and appends a jump to this line
+    #  at the next end
+    def attemptFix(self, sourceLine, lineNum):
+        #print(sourceLine)
+        if not self.complete and sourceLine.startswith(KEYWORD_END_WHILE):
+            print("hi")
+            self.fillOut(lineNum+1)#We will add an extra instruction: jump past it
+            #Instruction to jump to one line before the conditional jump; the compare.
+            newline = MachineLine("Jump to loop compare").setComplete(INSTR_JMP, 0, MODE_DIRECT, self.lineDefinedAt-self.cmpOffset)
+            return True, [newline]
+        return False, None
+
+    def __init__(self, instruction, comment, currentLine, cmpIsTwoLines):
+        print("hdwoh")
+        JumpIfLine.__init__(self, instruction, comment, currentLine)
+        self.cmpOffset = 2 if cmpIsTwoLines else 1
+    
 
 #Parses a non-loop, non-instruction to a bytecode instruction
 #Returns None if unsuccesful
@@ -233,11 +264,10 @@ def lineToCompleteInstruction(line):
     if not addressOnNextLine:
         return [MachineLine(line).setComplete(instr, grx, mode, address)]
     else:
-        #return MachineLine("foo")
         return [MachineLine(line).setComplete(instr, grx, mode,0), MachineLine(str(address)).setLiteral(address)]
 
-#Parses a boolean expression to a conditional jump
-#Returns None if unsuccesful
+#Parses a boolean expression
+#Returns (success, jumpcode, grx, isLiteral, literal/address)
 def parseBoolExpr(boolexpr):
     #Splitting and finding jumpcode
     jumpcode = -1
@@ -252,31 +282,63 @@ def parseBoolExpr(boolexpr):
             lhs = boolexpr[:operatorIndex]
             rhs = boolexpr[operatorIndex+1:]
     if jumpcode == -1:
-        return None #Error
+        return (False,0,0,False,0) #Error
     #Checking if needed casts are possible
     try:
         int(lhs)
     except ValueError:
-        return None #Error
-    #Evaluating to compare
-    result = []
-    if rhs.startswith(LITERAL_DENOTER): #If RHS is literal
-        result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_IMMEDIATE, int(lhs), 0))
-        result.append(MachineLine(rhs).setLiteral(int(rhs[1:]))) #RHS value
+        return (False,0,0,False,0) #Error
+    #Return result
+    if rhs.startswith(LITERAL_DENOTER):
+        return (True, jumpcode, int(lhs), True, int(rhs[1:]))
     else:
-        result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_DIRECT, int(lhs), int(rhs)))
+        return (True, jumpcode, int(lhs), False, int(rhs))
+
+#Returns the compare instructions for given inputs
+def conditionCompare(grx, isLiteral, arg, comment):
+    result = []
+    if isLiteral: #If RHS is literal
+        result.append(MachineLine(comment).setComplete(INSTR_CMP, MODE_IMMEDIATE, grx, 0))
+        result.append(MachineLine(str(arg)).setLiteral(arg)) #RHS value
+    else:
+        result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_DIRECT, grx, arg))
+    return result
+
+#Parses a boolean expression to a conditional jump
+#Returns None if unsuccesful
+def parseBoolExprForIf(boolexpr, currentBytecodeLinum):
+    success, jumpcode, grx, isLiteral, arg = parseBoolExpr(boolexpr)
+    if not success:
+        return None
+    #Evaluating to compare
+    result = conditionCompare(grx, isLiteral, arg, "cmp " + boolexpr)
     #Adding jump
-    result.append(JumpIfLine(jumpcode, "Conditional jump"))
+    result.append(JumpIfLine(jumpcode, "Conditional jump for if", currentBytecodeLinum+len(result)))
+    return result
+
+#Parses a boolean expression to a conditional jump for a while-structure
+#Returns None if unsuccesful
+def parseBoolExprForWhile(boolexpr, currentBytecodeLinum):
+    print(boolexpr)
+    success, jumpcode, grx, isLiteral, arg = parseBoolExpr(boolexpr)
+    if not success:
+        return None
+    #Evaluating to compare
+    result = conditionCompare(grx, isLiteral, arg, "cmp " + boolexpr)
+    #Adding jump
+    result.append(JumpWhileLine(jumpcode, "Conditional jump for while", currentBytecodeLinum+len(result), len(result) == 2))
     return result
 
 #Returns a list of assembly lines
 #Parsing of "end" is handled separetly
 #Returns None if an illegal instruction was given
-def parseLine(line):
+def parseLine(line, currentBytecodeLinum):
     #IF:s
     if line.startswith(KEYWORD_IF):
-        return parseBoolExpr(line[len(KEYWORD_IF):])
-    #TODO: Loops
+        return parseBoolExprForIf(line[len(KEYWORD_IF):], currentBytecodeLinum)
+    #Loops
+    if line.startswith(KEYWORD_WHILE):
+        return parseBoolExprForWhile(line[len(KEYWORD_WHILE):], currentBytecodeLinum)
     #Others
     result = lineToCompleteInstruction(line)
     if result is not None:
@@ -317,13 +379,17 @@ def build(filename):
             #Find out if the line modifies a previous instruction, and do the mod
             modified = False
             for instruction in result:
-                if instruction.attemptFix(line, len(result)):
+                success, newlines = instruction.attemptFix(line, len(result))
+                if success:
                     modified = True
+                    #Insert new instructions
+                    if newlines is not None:
+                        result += newlines
                     break
 
             if not modified:
                 #It's a new instruction/control structure: eval and append.
-                instructions = parseLine(line)
+                instructions = parseLine(line, len(result))
                 if instructions is None:
                     print("Error: Illegal instruction '", line, "'.")
                     return

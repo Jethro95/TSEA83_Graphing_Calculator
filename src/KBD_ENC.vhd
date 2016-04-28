@@ -354,3 +354,4 @@ process(clk)
   -- data output is set to be x"1F" (cursor tile index) during WRCUR state, otherwise set as scan code tile index
 
 end behavioral;
+
