@@ -31,11 +31,20 @@ Operators are:
 If you want to compare with contents at an address, simply write the address on the rhs.
 If you want to compare with a literal, write $ before the literal.
 
+You can also use labels.
+Define a label by writing "LABEL_BAME :" at the start of your line to label
+  that line with the given name
+To reference a label in an instruction or a boolean expression, use & as a prefix.
+Note that trying to use labels with immediate addresses is currently unimplemented
+  and will therefore yield and error.
+
 Comments are written after #'s
 
-
-
-
+SLI is an additional supported instruction. It only takes one argument, as opposed
+  to all others. It sets the line to the value given.
+Example usage
+  SLI 0 #Sets the line to all zeroes
+  SLI 1337 #Sets the line to the unsigned representation of 1337
 """
 
 #========================================================================================
@@ -55,15 +64,31 @@ WORD_WIDTH = INSTRUCTION_WIDTH + GRX_WIDTH + MODE_WIDTH + ADDRESS_WIDTH
 KEYWORD_IF = "if"
 KEYWORD_WHILE = "while"
 KEYWORD_END_IF = "endif"
+KEYWORD_ELSE = "else" 
 KEYWORD_END_WHILE = "endwhile"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
 
+#A list of keywords that will produce an error if they 
+#  do not complete the argument of a previous line
+KEYWORDS_MUST_MODIFY = [KEYWORD_END_IF, KEYWORD_ELSE, KEYWORD_END_WHILE]
+
+#Boolean expression evaluated to BRA
+KEYWORD_TRUE = "true"
+
 #Character used to denote literals in bool expressions
 LITERAL_DENOTER = "$"
+#Character used to denote label names anywhere
+LABEL_DENOTER = "&"
+
+assert (len(LITERAL_DENOTER) == len(LABEL_DENOTER) == 1)
+
+#Char used for label definitions
+LABEL_DEFINITION = ":"
+
+assert (len(LABEL_DEFINITION) == 1)
 
 #Instructions and the numbers for their respective instructions in bytecode
-#TODO: update
 INSTRUCTIONS = {
     "load"        :1, 
     "store"       :2, 
@@ -89,6 +114,10 @@ INSTR_CMP = 25
 #The jump instruction
 INSTR_JMP = 20
 
+#A special instruction that sets the bytecode line to the single
+#   value given as an argument. Only takes one argument; no commas.
+SPECIAL_INSTR_SET_LINE = "sli"
+
 #The characters for using different modes for the instructions, 
 #   and their respective mode number
 MODES = {
@@ -108,20 +137,25 @@ MODE_ADRESS_ON_NEXT_LINE = 1 #Immediate
 MODE_IMMEDIATE = 1
 MODE_DIRECT = 0
 
-#An instruction that jumps to itself, without address.
-#The adress given will be the line it is on.
-#TODO: Replace logic using this with HALT.
-INSTRUCTION_JUMP_TO_SELF = "10001_000_00_"
-
 #Jump instructions for bool operators. Note that they are inverted; we jump if expression is false.
 BOOL_OPs = {
-    "<"     :5, #BMI --TODO: BPLUS for >
+    "<"     :8, #BPL
+    ">"     :5, #BMI
     "!"     :4, #BEQ
     "="     :6  #BNE
 }
 
+for op in BOOL_OPs:
+    assert (len(op) == 1)
+
+#For while-true loops
+INSTR_BRA = 3
+
 #Desired length for rows in output
-FANCIFY_DESIRED_LENGTH = 32 + 4
+#Recommended to be larger than 47
+#Lines will only be extended; a value of 0 will not remove lines.
+FANCIFY_DESIRED_LENGTH = 50
+
 
 #========================================================================================
 #   CODE
@@ -129,11 +163,27 @@ FANCIFY_DESIRED_LENGTH = 32 + 4
 
 #Converts integer to bitstring of length bitCount
 def bitify(num, bitcount):
-    bitstring = bin(int(num))
-    bitstring = bitstring[bitstring.find("b")+1:] #Cutting of 0b and occasionally -0b. Dunno why - shows up.
-    while len(bitstring) < bitcount:
-        bitstring = "0" + bitstring
-    return bitstring[:bitcount]
+    if num >= 0:
+        bitstring = bin(int(num))
+        bitstring = bitstring[bitstring.find("b")+1:] #Cutting of 0b and occasionally -0b. Dunno why - shows up.
+        while len(bitstring) < bitcount:
+            bitstring = "0" + bitstring
+        return bitstring[:bitcount]
+    else:
+        #It's two's complement =>
+        #take abs(num), add one, get the bit representation of that
+        #  and then invert all bits in the resulting array. BAM.
+        inverted = bitify(abs(num) + 1, bitcount)
+        result = ""
+        for bit in inverted:
+            if bit == "0":
+                result += "1"
+            elif bit == "1":
+                result += "0"
+            else:
+                assert (False) #Unreachable, hopefully
+        return result
+        
 
 #Converts a full instruction to bytecode.
 def completeInstruction(instruction, grx, mode, address):
@@ -149,8 +199,42 @@ def placeholderInstruction(instruction, grx, mode):
 
 #The representation for 
 class MachineLine:
+
+    #The bytecode
     line = ""
+    #Comment after the bytecode
     comment = ""
+    #The alias of this line
+    label = ""
+    #The label the argument part is targetting
+    #  While "", this is not looking for a label
+    labelArgument = ""
+
+    #Returns True if the line is waiting for replacing
+    #  it's argument with a label
+    def waitingForLabelExpansion(self):
+        return self.labelArgument != ""
+
+    #Replaces label-arguments with actual addresses
+    #dictionary is a dict from label names (str) to bytecode addresses (int)
+    #Returns false if label-argument was not in dict, true otherwise
+    def expandLabels(self, dictionary):
+        if not self.waitingForLabelExpansion():
+            return True
+        elif self.labelArgument not in dictionary:
+            return False
+        else:
+            address = dictionary[self.labelArgument]
+            self.line = self.line + bitify(address, ADDRESS_WIDTH)
+            labelArgument = ""
+            return True
+
+    #Returns a label the line wants to have expanded, or None
+    #  if it is not waiting to expand any.
+    def getLabelArgument():
+        return labelArgument if labelArgument != "" else None
+        
+
     #Attempt to fill out the instruction based on previous line
     #Sourceline is the assembler line to react to, lineNum its bytecode line number
     #Modifies itself, returns success, and new lines to insert at lineNum. None if no new.
@@ -172,32 +256,76 @@ class MachineLine:
         self.line = placeholderInstruction(instruction, grx, mode)
         return self
 
+    #Sets the line to a complete instruction with label address argument
+    def setIncompleteLabel(self, instruction, grx, mode, label):
+        self.line = placeholderInstruction(instruction, grx, mode)
+        self.labelArgument = label
+        return self
+
     def __init__(self, comment):
         self.line = ""
+        self.label = ""
+        self.labelArgument = ""
         self.comment = comment
 
-class JumpIfLine(MachineLine):
+#Represents a line with an incomplete jump, to be completed by a later keyword
+class IncompleteJumpLine(MachineLine):
     complete = False
     lineDefinedAt = -1
 
-    #Fills out instruction with proper address
+     #Fills out instruction with proper address
     def fillOut(self, jumpTarget):
         self.line += bitify(jumpTarget-self.lineDefinedAt-1, ADDRESS_WIDTH)
         self.complete = True
 
+    def __init__(self, comment, currentLine):
+        MachineLine.__init__(self, comment)
+        self.complete = False
+        self.lineDefinedAt = currentLine
+
+#The incomplete line that takes the place of an "else"
+class JumpElseLine(IncompleteJumpLine):
+
     #Fills out instruction with a jump
     def attemptFix(self, sourceLine, lineNum):
         if not self.complete and sourceLine.startswith(KEYWORD_END_IF):
+            #Jump to keywords next line, no new lines
             self.fillOut(lineNum)
             return True, None
         return False, None
 
+    def __init__(self, comment, currentLine):
+        IncompleteJumpLine.__init__(self, comment, currentLine)
+        self.setIncomplete(INSTR_BRA, 0, MODE_DIRECT)
+        self.complete = False
+        self.lineDefinedAt = currentLine
+
+#The incomplete line that takes the place of an "if"
+class JumpIfLine(IncompleteJumpLine):
+
+    #Fills out instruction with a jump
+    def attemptFix(self, sourceLine, lineNum):
+        if not self.complete:
+            if sourceLine.startswith(KEYWORD_END_IF):
+                #Jump to keywords next line, no new lines
+                self.fillOut(lineNum)
+                return True, None
+            elif sourceLine.startswith(KEYWORD_ELSE):
+                #Add a line that jumps to the next end.
+                #Evertything below that will be the else.
+                #Make sure this line jumps one below that line on False.
+                self.fillOut(lineNum+1)
+                newline = JumpElseLine("Else section below. Jump past.", lineNum)
+                return True, [newline]
+        return False, None
+
     def __init__(self, instruction, comment, currentLine):
-        MachineLine.__init__(self, comment)
+        IncompleteJumpLine.__init__(self, comment, currentLine)
         self.setIncomplete(instruction, 0, MODE_DIRECT)
         self.complete = False
         self.lineDefinedAt = currentLine
 
+#The incomplete line that takes the place of a "while"
 class JumpWhileLine(JumpIfLine):
     #How many lines the respective compare takes
     cmpOffset = -1
@@ -207,7 +335,6 @@ class JumpWhileLine(JumpIfLine):
     def attemptFix(self, sourceLine, lineNum):
         #print(sourceLine)
         if not self.complete and sourceLine.startswith(KEYWORD_END_WHILE):
-            print("hi")
             self.fillOut(lineNum+1)#We will add an extra instruction: jump past it
             #Instruction to jump to one line before the conditional jump; the compare.
             newline = MachineLine("Jump to loop compare").setComplete(INSTR_JMP, 0, MODE_DIRECT, self.lineDefinedAt-self.cmpOffset)
@@ -215,7 +342,6 @@ class JumpWhileLine(JumpIfLine):
         return False, None
 
     def __init__(self, instruction, comment, currentLine, cmpIsTwoLines):
-        print("hdwoh")
         JumpIfLine.__init__(self, instruction, comment, currentLine)
         self.cmpOffset = 2 if cmpIsTwoLines else 1
     
@@ -256,19 +382,38 @@ def lineToCompleteInstruction(line):
     restOfLine = restOfLine[endIndex+1:]
     if restOfLine == "":
         return None
-    try:
-        address = int(restOfLine)
-    except ValueError:
-        return None
+    #Checking for label or literal/address
+    addressUsesLabel = False
+    address = None
+    if restOfLine.startswith(LABEL_DENOTER):
+        #Label
+        addressUsesLabel = True
+        address = restOfLine[1:]
+    else:
+        #Actual address
+        try:
+            address = int(restOfLine)
+        except ValueError:
+            return None
     #Putting together
-    if not addressOnNextLine:
+    if addressUsesLabel:
+        if mode == MODE_ADRESS_ON_NEXT_LINE:
+            return None #Labels incompatible with adress on next line
+        return [MachineLine(line).setIncompleteLabel(instr, grx, mode, address)]
+    elif not addressOnNextLine:
         return [MachineLine(line).setComplete(instr, grx, mode, address)]
     else:
         return [MachineLine(line).setComplete(instr, grx, mode,0), MachineLine(str(address)).setLiteral(address)]
 
 #Parses a boolean expression
-#Returns (success, jumpcode, grx, isLiteral, literal/address)
+#Returns (success, jumpcode, grx, isLiteral, isLabel, literal/address/label)
 def parseBoolExpr(boolexpr):
+    #True is a special case...
+    if boolexpr == KEYWORD_TRUE:
+        #Return success, tell them to jump with INSTR_BRA
+        #TODO: GRx=0,arg=0 generates a useless CMP
+        #        Still works, but ineffiecent.
+        return (True, INSTR_BRA, 0, False, False, 0)
     #Splitting and finding jumpcode
     jumpcode = -1
     lhs = ""
@@ -282,36 +427,40 @@ def parseBoolExpr(boolexpr):
             lhs = boolexpr[:operatorIndex]
             rhs = boolexpr[operatorIndex+1:]
     if jumpcode == -1:
-        return (False,0,0,False,0) #Error
+        return (False,0,0,False,False,0) #Error
     #Checking if needed casts are possible
     try:
         int(lhs)
     except ValueError:
-        return (False,0,0,False,0) #Error
+        return (False,0,0,False,False,0) #Error
     #Return result
     if rhs.startswith(LITERAL_DENOTER):
-        return (True, jumpcode, int(lhs), True, int(rhs[1:]))
+        return (True, jumpcode, int(lhs), True, False, int(rhs[1:]))
+    elif rhs.startswith(LABEL_DENOTER):
+        return (True, jumpcode, int(lhs), True, True, int(rhs[1:]))
     else:
-        return (True, jumpcode, int(lhs), False, int(rhs))
+        return (True, jumpcode, int(lhs), False, False, int(rhs))
 
 #Returns the compare instructions for given inputs
-def conditionCompare(grx, isLiteral, arg, comment):
+def conditionCompare(grx, isLiteral, isLabel, arg, comment):
     result = []
     if isLiteral: #If RHS is literal
-        result.append(MachineLine(comment).setComplete(INSTR_CMP, MODE_IMMEDIATE, grx, 0))
+        result.append(MachineLine(comment).setComplete(INSTR_CMP, grx, MODE_IMMEDIATE, 0))
         result.append(MachineLine(str(arg)).setLiteral(arg)) #RHS value
-    else:
-        result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_DIRECT, grx, arg))
+    elif isLabel:
+        result.append(MachineLine(comment).setIncompleteLabel(INSTR_CMP, grx, MODE_DIRECT, arg))
+    else: #It's address
+        result.append(MachineLine(comment).setComplete(INSTR_CMP, grx, MODE_DIRECT, arg))
     return result
 
 #Parses a boolean expression to a conditional jump
 #Returns None if unsuccesful
 def parseBoolExprForIf(boolexpr, currentBytecodeLinum):
-    success, jumpcode, grx, isLiteral, arg = parseBoolExpr(boolexpr)
+    success, jumpcode, grx, isLiteral, isLabel, arg = parseBoolExpr(boolexpr)
     if not success:
         return None
     #Evaluating to compare
-    result = conditionCompare(grx, isLiteral, arg, "cmp " + boolexpr)
+    result = conditionCompare(grx, isLiteral, isLabel, arg, "cmp " + boolexpr)
     #Adding jump
     result.append(JumpIfLine(jumpcode, "Conditional jump for if", currentBytecodeLinum+len(result)))
     return result
@@ -319,16 +468,16 @@ def parseBoolExprForIf(boolexpr, currentBytecodeLinum):
 #Parses a boolean expression to a conditional jump for a while-structure
 #Returns None if unsuccesful
 def parseBoolExprForWhile(boolexpr, currentBytecodeLinum):
-    print(boolexpr)
-    success, jumpcode, grx, isLiteral, arg = parseBoolExpr(boolexpr)
+    success, jumpcode, grx, isLiteral, isLabel, arg = parseBoolExpr(boolexpr)
     if not success:
         return None
     #Evaluating to compare
-    result = conditionCompare(grx, isLiteral, arg, "cmp " + boolexpr)
+    result = conditionCompare(grx, isLiteral, isLabel, arg, "cmp " + boolexpr)
     #Adding jump
     result.append(JumpWhileLine(jumpcode, "Conditional jump for while", currentBytecodeLinum+len(result), len(result) == 2))
     return result
 
+#Input is a line without any label definitions
 #Returns a list of assembly lines
 #Parsing of "end" is handled separetly
 #Returns None if an illegal instruction was given
@@ -339,12 +488,29 @@ def parseLine(line, currentBytecodeLinum):
     #Loops
     if line.startswith(KEYWORD_WHILE):
         return parseBoolExprForWhile(line[len(KEYWORD_WHILE):], currentBytecodeLinum)
+    #Special instructions
+    if line.startswith(SPECIAL_INSTR_SET_LINE):
+        try:
+            value = int(line[len(SPECIAL_INSTR_SET_LINE):])
+        except ValueError:
+            return None
+        return [MachineLine("Line initialized to " + str(value)).setLiteral(value)]
     #Others
     result = lineToCompleteInstruction(line)
     if result is not None:
         return result
     #Unrecognized instruction
     return None
+
+#Removes the label portion of a line.
+#Returns (newline, label) where newline is the line without the label.
+#label is a string, though None if non-existant
+def extractLabel(line):
+    if LABEL_DEFINITION not in line:
+        return (line, None)
+    index = line.find(LABEL_DEFINITION)
+    return (line[index+1:], line[:index])
+
 
 #Removes comments from a line. Keeps trailing \n.
 #Returns the string with removed comments
@@ -364,6 +530,7 @@ def withoutComment(line):
 def build(filename):
     with open(filename) as f: #Open file
         result = [] #Contains lines to be printed
+        labels = {} #Contains found label definitions
         while True:
             line = f.readline().lower()
             line = line.replace("\t", "")
@@ -375,10 +542,24 @@ def build(filename):
             if line == "\n": #Empty line TODO: Isn't caught
                 continue
             line = line.replace("\n", "") #Remove trailing \n
+            line, label = extractLabel(line)
+
+            if line == "":
+                print("Error: Empty line after label", label, "definition.")
+                return
+            elif label == "":
+                print("Error: Empty label on line", line,".")
+                return
+            elif label is not None:
+                if label in labels:
+                    print("Error: Multiple definitions of label", label, ".")
+                    return
+                #Associate next bytecode line with given label
+                labels[label] = len(result)
             
             #Find out if the line modifies a previous instruction, and do the mod
             modified = False
-            for instruction in result:
+            for instruction in reversed(result):
                 success, newlines = instruction.attemptFix(line, len(result))
                 if success:
                     modified = True
@@ -386,6 +567,11 @@ def build(filename):
                     if newlines is not None:
                         result += newlines
                     break
+
+            #If the line SHOULD'VE changed a previous line argument
+            if not modified and line in KEYWORDS_MUST_MODIFY:
+                print("Error: trailing", line, ".")
+                return
 
             if not modified:
                 #It's a new instruction/control structure: eval and append.
@@ -395,6 +581,12 @@ def build(filename):
                     return
                 result += instructions
         
+        #Replace label references with actual addresses
+        for line in result:
+            if not line.expandLabels(labels):
+                print("Error: label '", line.getLabelArgument(), "' referenced but not defined.")
+                return
+
         return result
     print("Failed to open ", filename)
     return None
@@ -408,16 +600,18 @@ def fancifyForVHDL(lines):
     result += "        --OP    GRx M  ADRESS\n"
     i = 0
     for line in lines:
-        prefix = '        b"' + line.line + '", --'
+        prefix = '        b"' + line.line + '"'
+        #Add comma unless we are on last line
+        prefix += " " if i+1 == len(lines) else ","
         newline = prefix
-        #TODO: Extend so everyone has the same length
-        newline = newline + str(i) + ": " + line.comment + '\n'
+        #Extend newline to desired length
+        while len(newline) < FANCIFY_DESIRED_LENGTH:
+            newline += " "
+        #Add comment and \n
+        newline += " --" + str(i) + ": " + line.comment + '\n'
+        #Append to result
         result += newline
         i += 1
-    #Extra instruction preventing going out of bounds
-    #TODO: Replace with HALT
-    result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH) + '"\n'
-    result += "\n"
     result += "    );"
     return result
 
