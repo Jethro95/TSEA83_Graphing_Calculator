@@ -42,7 +42,7 @@ architecture Behavioral of VGA_MOTOR is
 
     -- Tile memory type
     type ram_t is array (0 to 6143) of std_logic;
-    signal tileMem : ram_t (
+    signal tileMem : ram_t :=(
         -- 0
         '0','0','0','0','0','0','0','0',
         '0','0','0','0','0','0','0','0',
