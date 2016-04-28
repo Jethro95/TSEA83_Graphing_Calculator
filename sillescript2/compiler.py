@@ -22,6 +22,18 @@ loop
   <Do stuff>
 end
 
+A comparison looks like:
+GRx OPERATOR LITERAL/ADDRESS
+
+GRx is written like an integer
+Operators are:
+    = : equals
+    ! : not equals
+    > : GRx larger than
+    < : GRx smaller than
+If you want to compare with contents at an address, simply write the address on the rhs.
+If you want to compare with a literal, write $ before the literal.
+
 Comments are written after #'s
 
 
@@ -44,7 +56,7 @@ ADDRESS_WIDTH = 22 #Bits
 WORD_WIDTH = INSTRUCTION_WIDTH + GRX_WIDTH + MODE_WIDTH + ADDRESS_WIDTH
 
 KEYWORD_IF = "if"
-KEYWORD_END = "end"
+KEYWORD_END_IF = "endif"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
 
@@ -74,7 +86,7 @@ INSTRUCTIONS = {
 }
 
 #The compare instruction
-INSTR_CMP = 16 #TODO: Actual code
+INSTR_CMP = 23 #TODO: Actual code
 
 #The characters for using different modes for the instructions, 
 #   and their respective mode number
@@ -107,6 +119,8 @@ BOOL_OPs = {
     "="     :6  #BNE
 }
 
+FANCIFY_DESIRED_LENGTH = 32 + 4
+
 #========================================================================================
 #   CODE
 #========================================================================================
@@ -130,6 +144,50 @@ def placeholderInstruction(instruction, grx, mode):
     result = bitify(instruction, INSTRUCTION_WIDTH) +BITSEP+ bitify(grx, GRX_WIDTH) +BITSEP+ bitify(mode, MODE_WIDTH) +BITSEP
     assert (len(result) == 3 + WORD_WIDTH - ADDRESS_WIDTH)
     return result
+
+#The representation for 
+class MachineLine:
+    line = ""
+    comment = ""
+    #Attempt to fill out the instruction based on previous line
+    #Sourceline is the assembler line to react to, lineNum its bytecode line number
+    def attemptFix(self, sourceLine, lineNum):
+        return False
+
+    #Sets the line to a complete instruction, and returns itself
+    def setComplete(self, instruction, grx, mode, address):
+        self.line = completeInstruction(instruction, grx, mode, address)
+        return self
+
+    #Sets the line to a literal, and returns itself
+    def setLiteral(self, literal):
+        self.line = bitify(literal, WORD_WIDTH)
+        return self
+
+    #Sets the line to a complete instruction without address, and returns itself
+    def setIncomplete(self, instruction, grx, mode):
+        self.line = placeholderInstruction(instruction, grx, mode)
+        return self
+
+    def __init__(self, comment):
+        self.line = ""
+        self.comment = comment
+
+class JumpIfLine(MachineLine):
+    complete = False
+
+    #Fills out instruction with a jump
+    def attemptFix(self, sourceLine, lineNum):
+        if not self.complete and sourceLine.startswith(KEYWORD_END_IF):
+            self.line += bitify(lineNum, ADDRESS_WIDTH)
+            self.complete = True
+            return True
+        return False
+
+    def __init__(self, instruction, comment):
+        MachineLine.__init__(self, comment)
+        self.setIncomplete(instruction, 0, MODE_DIRECT)
+        self.complete = False
 
 #Parses a non-loop, non-instruction to a bytecode instruction
 #Returns None if unsuccesful
@@ -173,9 +231,10 @@ def lineToCompleteInstruction(line):
         return None
     #Putting together
     if not addressOnNextLine:
-        return [completeInstruction(instr, grx, mode, address)]
+        return [MachineLine(line).setComplete(instr, grx, mode, address)]
     else:
-        return [completeInstruction(instr, grx, mode, 0), bitify(address, WORD_WIDTH)]
+        #return MachineLine("foo")
+        return [MachineLine(line).setComplete(instr, grx, mode,0), MachineLine(str(address)).setLiteral(address)]
 
 #Parses a boolean expression to a conditional jump
 #Returns None if unsuccesful
@@ -202,12 +261,12 @@ def parseBoolExpr(boolexpr):
     #Evaluating to compare
     result = []
     if rhs.startswith(LITERAL_DENOTER): #If RHS is literal
-        result.append(completeInstruction(INSTR_CMP, MODE_IMMEDIATE, int(lhs), 0))
-        result.append(bitify(int(rhs[1:]), WORD_WIDTH))
+        result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_IMMEDIATE, int(lhs), 0))
+        result.append(MachineLine(rhs).setLiteral(int(rhs[1:]))) #RHS value
     else:
-        result.append(completeInstruction(INSTR_CMP, MODE_DIRECT, int(lhs), int(rhs)))
+        result.append(MachineLine(boolexpr).setComplete(INSTR_CMP, MODE_DIRECT, int(lhs), int(rhs)))
     #Adding jump
-    result.append(placeholderInstruction(jumpcode, 0, 0))
+    result.append(JumpIfLine(jumpcode, "Conditional jump"))
     return result
 
 #Returns a list of assembly lines
@@ -243,7 +302,6 @@ def withoutComment(line):
 def build(filename):
     with open(filename) as f: #Open file
         result = [] #Contains lines to be printed
-        placeHolderIndexStack = [] #Contains indexes to lines that needs to change when reaching an "END" line
         while True:
             line = f.readline().lower()
             line = line.replace("\t", "")
@@ -256,23 +314,20 @@ def build(filename):
                 continue
             line = line.replace("\n", "") #Remove trailing \n
             
-            if not line.startswith(KEYWORD_END): #If instruction can be parsed by parseLine()...
+            #Find out if the line modifies a previous instruction, and do the mod
+            modified = False
+            for instruction in result:
+                if instruction.attemptFix(line, len(result)):
+                    modified = True
+                    break
+
+            if not modified:
+                #It's a new instruction/control structure: eval and append.
                 instructions = parseLine(line)
                 if instructions is None:
                     print("Error: Illegal instruction '", line, "'.")
                     return
-                #If we were given an instruction missing argument...
-                for i, instruction in enumerate(instructions):
-                    if len(instruction) < WORD_WIDTH: #Still works with a few "_" thrown in, luckily. TODO: Somehow make finding these spots not depend on string length
-                        placeHolderIndexStack.append(len(result) + i) #Append index of coming instruction
-                result += (instructions)
-            else:
-                #We've got an "end". Append next line as argument for placeholder instruction on stack.
-                if len(placeHolderIndexStack) == 0:
-                    print('Error: Trailing "', KEYWORD_END, '"')
-                    return
-                index = placeHolderIndexStack.pop()
-                result[index] += bitify(len(result), ADDRESS_WIDTH) #Append next line as argument (to jump to)
+                result += instructions
         
         return result
     print("Failed to open ", filename)
@@ -285,8 +340,14 @@ def fancifyForVHDL(lines):
     result += "constant p_mem_c : p_mem_t :=\n"
     result += "    (\n"
     result += "        --OP    GRx M  ADRESS\n"
+    i = 0
     for line in lines:
-        result += '        b"' + line + '",\n'
+        prefix = '        b"' + line.line + '", --'
+        newline = prefix
+        #TODO: Extend so everyone has the same length
+        newline = newline + str(i) + ": " + line.comment + '\n'
+        result += newline
+        i += 1
     #Extra instruction preventing going out of bounds
     #TODO: Replace with HALT
     result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH) + '"\n'
