@@ -12,14 +12,17 @@ ARCHITECTURE behavior OF main_tb IS
 	-- Component Declaration for the Unit Under Test (UUT)
 	COMPONENT main
 	PORT(
-		clk            : IN std_logic;
-		rst            : IN std_logic;
-        -- VGA
-        Hsync    : out std_logic;                        -- horizontal sync
-        Vsync    : out std_logic;                        -- vertical sync
-        vgaRed   : out	std_logic_vector(2 downto 0);   -- VGA red
-        vgaGreen : out std_logic_vector(2 downto 0);     -- VGA green
-        vgaBlue  : out std_logic_vector(2 downto 1)     -- VGA blue
+		clk         : in std_logic;
+    rst         : in std_logic;
+    -- VGA
+    Hsync       : out std_logic;                        -- horizontal sync
+    Vsync       : out std_logic;                        -- vertical sync
+    vgaRed      : out  std_logic_vector(2 downto 0);    -- VGA red
+    vgaGreen    : out std_logic_vector(2 downto 0);     -- VGA green
+    vgaBlue     : out std_logic_vector(2 downto 1);     -- VGA blue
+    -- KB
+    PS2KeyboardClk    : in std_logic;                         -- PS2 clock
+    PS2KeyboardData   : in std_logic                          -- PS2 data                     -- PS2 data
 	);
 	END COMPONENT;
 
@@ -33,6 +36,8 @@ ARCHITECTURE behavior OF main_tb IS
     signal vgaBlue  :  std_logic_vector(2 downto 1);     -- VGA blue
     signal ClkDiv : unsigned(1 downto 0);		-- Clock divisor, to generate 25 MHz signal
     signal Clk25  : std_logic;			-- One pulse width 25 MHz signal
+	signal PS2KeyboardClk    : std_logic;                         -- PS2 clock
+    signal PS2KeyboardData   : std_logic;
 	-- Clock period definitions
 	constant clk_period : time := 10 ns;
 
@@ -45,7 +50,9 @@ ARCHITECTURE behavior OF main_tb IS
             vsync => vsync,
             vgaRed => vgaRed,
             vgaGreen => vgaGreen,
-            vgaBlue => vgaBlue
+            vgaBlue => vgaBlue,
+	PS2KeyboardClk => PS2KeyboardClk,
+	PS2KeyboardData => PS2KeyboardData
 	    );
 	    -- Clock process definitions
 	    clk_process :process
