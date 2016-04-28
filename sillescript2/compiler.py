@@ -157,7 +157,8 @@ for op in BOOL_OPs:
 INSTR_BRA = 3
 
 #Desired length for rows in output
-FANCIFY_DESIRED_LENGTH = 32 + 4
+FANCIFY_DESIRED_LENGTH = 50 #Value obtained through testing
+
 
 #========================================================================================
 #   CODE
@@ -602,15 +603,18 @@ def fancifyForVHDL(lines):
     result += "        --OP    GRx M  ADRESS\n"
     i = 0
     for line in lines:
-        prefix = '        b"' + line.line + '", --'
+        prefix = '        b"' + line.line + '",'
         newline = prefix
+        while len(newline) < FANCIFY_DESIRED_LENGTH:
+            newline += " "
         #TODO: Extend so everyone has the same length
-        newline = newline + str(i) + ": " + line.comment + '\n'
+        newline = newline + " --" + str(i) + ": " + line.comment + '\n'
         result += newline
         i += 1
     #Extra instruction preventing going out of bounds
     #TODO: Replace with HALT
-    result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH) + '"  --Jump to self; pause.\n'
+    result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH)
+    result += '"     --Jump to self; pause.\n'
     result += "\n"
     result += "    );"
     return result
