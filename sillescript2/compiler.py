@@ -137,11 +137,6 @@ MODE_ADRESS_ON_NEXT_LINE = 1 #Immediate
 MODE_IMMEDIATE = 1
 MODE_DIRECT = 0
 
-#An instruction that jumps to itself, without address.
-#The adress given will be the line it is on.
-#TODO: Replace logic using this with HALT.
-INSTRUCTION_JUMP_TO_SELF = "10100_000_00_"
-
 #Jump instructions for bool operators. Note that they are inverted; we jump if expression is false.
 BOOL_OPs = {
     "<"     :8, #BPL
@@ -157,7 +152,9 @@ for op in BOOL_OPs:
 INSTR_BRA = 3
 
 #Desired length for rows in output
-FANCIFY_DESIRED_LENGTH = 50 #Value obtained through testing
+#Recommended to be larger than 47
+#Lines will only be extended; a value of 0 will not remove lines.
+FANCIFY_DESIRED_LENGTH = 50
 
 
 #========================================================================================
@@ -603,19 +600,18 @@ def fancifyForVHDL(lines):
     result += "        --OP    GRx M  ADRESS\n"
     i = 0
     for line in lines:
-        prefix = '        b"' + line.line + '",'
+        prefix = '        b"' + line.line + '"'
+        #Add comma unless we are on last line
+        prefix += " " if i+1 == len(lines) else ","
         newline = prefix
+        #Extend newline to desired length
         while len(newline) < FANCIFY_DESIRED_LENGTH:
             newline += " "
-        #TODO: Extend so everyone has the same length
-        newline = newline + " --" + str(i) + ": " + line.comment + '\n'
+        #Add comment and \n
+        newline += " --" + str(i) + ": " + line.comment + '\n'
+        #Append to result
         result += newline
         i += 1
-    #Extra instruction preventing going out of bounds
-    #TODO: Replace with HALT
-    result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH)
-    result += '"     --Jump to self; pause.\n'
-    result += "\n"
     result += "    );"
     return result
 
