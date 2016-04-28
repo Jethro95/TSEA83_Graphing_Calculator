@@ -64,11 +64,16 @@ WORD_WIDTH = INSTRUCTION_WIDTH + GRX_WIDTH + MODE_WIDTH + ADDRESS_WIDTH
 KEYWORD_IF = "if"
 KEYWORD_WHILE = "while"
 KEYWORD_END_IF = "endif"
-#KEYWORD_ELSE = 
+KEYWORD_ELSE = "else" 
 KEYWORD_END_WHILE = "endwhile"
 KEYWORD_COMMENT = "#"
 assert len(KEYWORD_COMMENT) == 1
 
+#A list of keywords that will produce an error if they 
+#  do not complete the argument of a previous line
+KEYWORDS_MUST_MODIFY = [KEYWORD_END_IF, KEYWORD_ELSE, KEYWORD_END_WHILE]
+
+#Boolean expression evaluated to BRA
 KEYWORD_TRUE = "true"
 
 #Character used to denote literals in bool expressions
@@ -265,28 +270,64 @@ class MachineLine:
         self.labelArgument = ""
         self.comment = comment
 
-class JumpIfLine(MachineLine):
+#Represents a line with an incomplete jump, to be completed by a later keyword
+class IncompleteJumpLine(MachineLine):
     complete = False
     lineDefinedAt = -1
 
-    #Fills out instruction with proper address
+     #Fills out instruction with proper address
     def fillOut(self, jumpTarget):
         self.line += bitify(jumpTarget-self.lineDefinedAt-1, ADDRESS_WIDTH)
         self.complete = True
 
+    def __init__(self, comment, currentLine):
+        MachineLine.__init__(self, comment)
+        self.complete = False
+        self.lineDefinedAt = currentLine
+
+#The incomplete line that takes the place of an "else"
+class JumpElseLine(IncompleteJumpLine):
+
     #Fills out instruction with a jump
     def attemptFix(self, sourceLine, lineNum):
         if not self.complete and sourceLine.startswith(KEYWORD_END_IF):
+            #Jump to keywords next line, no new lines
             self.fillOut(lineNum)
             return True, None
         return False, None
 
+    def __init__(self, comment, currentLine):
+        IncompleteJumpLine.__init__(self, comment, currentLine)
+        self.setIncomplete(INSTR_BRA, 0, MODE_DIRECT)
+        self.complete = False
+        self.lineDefinedAt = currentLine
+
+#The incomplete line that takes the place of an "if"
+class JumpIfLine(IncompleteJumpLine):
+
+    #Fills out instruction with a jump
+    def attemptFix(self, sourceLine, lineNum):
+        if not self.complete:
+            if sourceLine.startswith(KEYWORD_END_IF):
+                #Jump to keywords next line, no new lines
+                self.fillOut(lineNum)
+                return True, None
+            elif sourceLine.startswith(KEYWORD_ELSE):
+                #Add a line that jumps to the next end.
+                #Evertything below that will be the else.
+                #Make sure this line jumps one below that line on False.
+                self.fillOut(lineNum+1)
+                newline = JumpElseLine("Else section below. Jump past.", lineNum)
+                return True, [newline]
+        return False, None
+
     def __init__(self, instruction, comment, currentLine):
-        MachineLine.__init__(self, comment)
+        IncompleteJumpLine.__init__(self, comment, currentLine)
         self.setIncomplete(instruction, 0, MODE_DIRECT)
         self.complete = False
         self.lineDefinedAt = currentLine
 
+#The incomplete line that takes the place of a "while"
 class JumpWhileLine(JumpIfLine):
     #How many lines the respective compare takes
     cmpOffset = -1
@@ -528,6 +569,11 @@ def build(filename):
                     if newlines is not None:
                         result += newlines
                     break
+
+            #If the line SHOULD'VE changed a previous line argument
+            if not modified and line in KEYWORDS_MUST_MODIFY:
+                print("Error: trailing", line, ".")
+                return
 
             if not modified:
                 #It's a new instruction/control structure: eval and append.
