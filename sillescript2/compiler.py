@@ -61,10 +61,9 @@ assert len(KEYWORD_COMMENT) == 1
 
 #Character used to denote literals in bool expressions
 LITERAL_DENOTER = "$"
-#Character used to denote label names anywhere
-LABEL_DENOTER = "&"
 
 #Instructions and the numbers for their respective instructions in bytecode
+#TODO: update
 INSTRUCTIONS = {
     "load"        :1, 
     "store"       :2, 
@@ -82,7 +81,8 @@ INSTRUCTIONS = {
     "lsr"         :21,
     "lsl"         :22,
     "storep"      :23,
-    "rc"          :24
+    "rc"          :24,
+    "jmp"         :20
 }
 
 #The compare instruction
@@ -116,8 +116,7 @@ INSTRUCTION_JUMP_TO_SELF = "10001_000_00_"
 
 #Jump instructions for bool operators. Note that they are inverted; we jump if expression is false.
 BOOL_OPs = {
-    "<"     :8, #BPL
-    ">"     :5, #BMI
+    "<"     :5, #BMI --TODO: BPLUS for >
     "!"     :4, #BEQ
     "="     :6  #BNE
 }
@@ -151,22 +150,8 @@ def placeholderInstruction(instruction, grx, mode):
 
 #The representation for 
 class MachineLine:
-
-    #The bytecode
     line = ""
-    #Comment after the bytecode
     comment = ""
-    #The alias of this line
-    label = ""
-    #The label the argument part is targetting
-    #  While "", this is not looking for a label
-    labelArgument = ""
-
-    #Returns True if the line is waiting for replacing
-    #  it's argument with a label
-    def waitingForLabelExpansion():
-        return labelArgument != ""
-
     #Attempt to fill out the instruction based on previous line
     #Sourceline is the assembler line to react to, lineNum its bytecode line number
     #Modifies itself, returns success, and new lines to insert at lineNum. None if no new.
@@ -188,16 +173,8 @@ class MachineLine:
         self.line = placeholderInstruction(instruction, grx, mode)
         return self
 
-    #Sets the line to a complete instruction with label address argument
-    def setIncompleteLabel(self, instruction, grx, mode, label):
-        self.line = placeholderInstruction(instruction, grx, mode)
-        self.labelArgument = label
-        return self
-
     def __init__(self, comment):
         self.line = ""
-        self.label = ""
-        self.labelArgument = ""
         self.comment = comment
 
 class JumpIfLine(MachineLine):
@@ -231,6 +208,7 @@ class JumpWhileLine(JumpIfLine):
     def attemptFix(self, sourceLine, lineNum):
         #print(sourceLine)
         if not self.complete and sourceLine.startswith(KEYWORD_END_WHILE):
+            print("hi")
             self.fillOut(lineNum+1)#We will add an extra instruction: jump past it
             #Instruction to jump to one line before the conditional jump; the compare.
             newline = MachineLine("Jump to loop compare").setComplete(INSTR_JMP, 0, MODE_DIRECT, self.lineDefinedAt-self.cmpOffset)
@@ -238,6 +216,7 @@ class JumpWhileLine(JumpIfLine):
         return False, None
 
     def __init__(self, instruction, comment, currentLine, cmpIsTwoLines):
+        print("hdwoh")
         JumpIfLine.__init__(self, instruction, comment, currentLine)
         self.cmpOffset = 2 if cmpIsTwoLines else 1
     
@@ -341,6 +320,7 @@ def parseBoolExprForIf(boolexpr, currentBytecodeLinum):
 #Parses a boolean expression to a conditional jump for a while-structure
 #Returns None if unsuccesful
 def parseBoolExprForWhile(boolexpr, currentBytecodeLinum):
+    print(boolexpr)
     success, jumpcode, grx, isLiteral, arg = parseBoolExpr(boolexpr)
     if not success:
         return None
@@ -437,7 +417,7 @@ def fancifyForVHDL(lines):
         i += 1
     #Extra instruction preventing going out of bounds
     #TODO: Replace with HALT
-    result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH) + '"  --Jump to self; pause.\n'
+    result += '        b"' + INSTRUCTION_JUMP_TO_SELF + bitify(len(lines), ADDRESS_WIDTH) + '"\n'
     result += "\n"
     result += "    );"
     return result

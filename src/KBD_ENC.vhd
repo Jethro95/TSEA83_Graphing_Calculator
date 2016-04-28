@@ -196,10 +196,10 @@ begin
             x"1A" when x"1A",  -- Z
             x"1B" when x"54",  -- Å
             x"1C" when x"52",  -- Ä
-	        x"1D" when x"4C",  -- Ö
+            x"1D" when x"4C",  -- Ö
             x"1E" when x"16",  -- 1
             x"1E" when x"69",  -- KP 1
-		    x"1F" when x"1E",  -- 2
+	        x"1F" when x"1E",  -- 2
             x"1F" when x"72",  -- KP 2
             x"20" when x"26",  -- 3
             x"20" when x"7A",  -- KP 3
@@ -215,7 +215,7 @@ begin
             x"25" when x"75",  -- KP 8
             x"26" when x"46",  -- 9
             x"26" when x"7D",  -- KP 9
-	        x"27" when x"45",  -- 0
+            x"27" when x"45",  -- 0
 	        x"27" when x"70",  -- KP 0
             --x"28" when x"55",  -- π
             --x"29" when x"4A",  -- Ω
