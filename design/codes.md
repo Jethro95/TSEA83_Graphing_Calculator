@@ -33,6 +33,7 @@ Binary | Item
 0110   | AR_f
 0111   | Pict_mem
 1000   | GRx
+1001   | Kb
 
 ## PC
 
@@ -71,21 +72,24 @@ Binary | Operation
 00101  | BMI
 00110  | BNE
 00111  | BRF
-01000  | ADD
-01001  | ADDF
-01010  | SUB
-01011  | SUBF
-01100  | DIVF
-01101  | MULTF
-01110  | AND
-01111  | ASL
-10000  | ASR
-10001  | JMP
-10010  | LSL
-10011  | LSR
-10100  | STOREP
-10101  | ITF (Integer To Float)
-10110  | FTI (Float To Integer)
+01000  | BPL
+01001  | ADD
+01010  | ADDF
+01011  | SUB
+01100  | SUBF
+01101  | DIVF
+01110  | MULTF
+01111  | AND
+10000  | ASL
+10001  | ASR
+10010  | ITF (Integer To Float)
+10011  | FTI (Float To Integer)
+10100  | JMP
+10101  | LSR
+10110  | LSL
+10111  | STOREP
+11000  | RC
+11001  | CMP
 
 
 ## GRx

@@ -13,41 +13,42 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 
 -- entity
 entity KBD_ENC is
-  port ( clk	                : in std_logic;			-- system clock (100 MHz)
-	 rst		        : in std_logic;			-- reset signal
-         PS2KeyboardCLK	        : in std_logic; 		-- USB keyboard PS2 clock
-         PS2KeyboardData	: in std_logic;			-- USB keyboard PS2 data
-         data			: out std_logic_vector(7 downto 0);		-- tile data
-	led : out std_logic
-);
+    port( 
+        clk	                : in std_logic;			-- system clock (100 MHz)
+	    rst		            : in std_logic;			-- reset signal
+        PS2KeyboardCLK	    : in std_logic; 		-- USB keyboard PS2 clock
+        PS2KeyboardData	    : in std_logic;			-- USB keyboard PS2 data
+        data			    : out std_logic_vector(7 downto 0);		-- tile data
+        read_confirm	    : in std_logic	
+    );
 end KBD_ENC;
 
 -- architecture
 architecture behavioral of KBD_ENC is
   signal PS2Clk			: std_logic;			-- Synchronized PS2 clock
   signal PS2Data		: std_logic;			-- Synchronized PS2 data
-  signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;			-- PS2 clock one pulse flip flop
+  signal PS2Clk_Q1, PS2Clk_Q2 	: std_logic;	-- PS2 clock one pulse flip flop
   signal PS2Clk_op 		: std_logic;			-- PS2 clock one pulse 
 	
-  signal PS2Data_sr 		: std_logic_vector(10 downto 0);-- PS2 data shift register
+  signal PS2Data_sr 	: std_logic_vector(10 downto 0);-- PS2 data shift register
 	
-  signal PS2BitCounter	        : unsigned(3 downto 0);		-- PS2 bit counter
+  signal PS2BitCounter  : unsigned(3 downto 0);	-- PS2 bit counter
   signal make_Q			: std_logic;			-- make one pulselse flip flop
   signal make_op		: std_logic;			-- make one pulse
 
-  type state_type is (IDLE, MAKE, BREAK);			-- declare state types for PS2
+  type state_type is (IDLE, MAKE, BREAK);		-- declare state types for PS2
   signal PS2state : state_type;					-- PS2 state
 
   signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
   signal TileIndex		: std_logic_vector(7 downto 0);	-- tile index
   
   type curmov_type is (FORWARD, BACKWARD, NEWLINE);		-- declare cursor movement types
-  signal curMovement : curmov_type;				-- cursor movement
+  signal curMovement : curmov_type;				        -- cursor movement
 	
   signal curposX		: unsigned(5 downto 0);		-- cursor X position
   signal curposY		: unsigned(4 downto 0);		-- cursor Y position
 	
-  type wr_type is (STANDBY, WRCHAR, WRCUR);			-- declare state types for write cycle
+  type wr_type is (STANDBY, WRCHAR, WRCUR);	-- declare state types for write cycle
   signal WRstate : wr_type;					-- write cycle state
 
 begin
@@ -60,7 +61,6 @@ begin
       PS2Data <= PS2KeyboardData;
     end if;
   end process;
-led <= '1' when (WRstate = STANDBY) else '0';
 	
   -- Generate one cycle pulse from PS2 clock, negative edge
 
@@ -125,8 +125,7 @@ led <= '1' when (WRstate = STANDBY) else '0';
         PS2BitCounter <= PS2BitCounter + 1;
       end if;
       end if;
-  end process;
-	
+  end process;	
 	
 
   -- PS2 state
@@ -167,37 +166,68 @@ led <= '1' when (WRstate = STANDBY) else '0';
 
   -- Scan Code -> Tile Index mapping
   with ScanCode select
-    TileIndex <= x"00" when x"29",	-- space
-                 x"01" when x"1C",	-- A
-                 x"02" when x"32",	-- B
-		 x"03" when x"21",	-- C
-		 x"04" when x"23",	-- D
-		 x"05" when x"24",	-- E
-		 x"06" when x"2B",	-- F
-		 x"07" when x"34",	-- G
-		 x"08" when x"33",	-- H
-		 x"09" when x"43",	-- I
-		 x"0A" when x"3B",	-- J
-		 x"0B" when x"42",	-- K
-		 x"0C" when x"4B",	-- L
-		 x"0D" when x"3A",	-- M
-		 x"0E" when x"31",	-- N
-		 x"0F" when x"44",	-- O
-		 x"10" when x"4D",	-- P
-		 x"11" when x"15",	-- Q
-		 x"12" when x"2D",	-- R
-		 x"13" when x"1B",	-- S
-		 x"14" when x"2C",	-- T
-		 x"15" when x"3C",	-- U
-		 x"16" when x"2A",	-- V
-		 x"17" when x"1D",	-- W
-		 x"18" when x"22",	-- X
-		 x"19" when x"35",	-- Y
-		 x"1A" when x"1A",	-- Z
-                 x"1B" when x"54",      -- Å
-                 x"1C" when x"52",      -- Ä
-                 x"1D" when x"4C",      -- Ö
-		 x"00" when others;
+    TileIndex <= 
+            x"00" when x"29",  -- space
+            x"01" when x"1C",  -- A
+            x"02" when x"32",  -- B
+            x"03" when x"21",  -- C
+            x"04" when x"23",  -- D
+            x"05" when x"24",  -- E
+            x"06" when x"2B",  -- F
+            x"07" when x"34",  -- G
+            x"08" when x"33",  -- H
+            x"09" when x"43",  -- I
+            x"0A" when x"3B",  -- J
+            x"0B" when x"42",  -- K
+            x"0C" when x"4B",  -- L
+            x"0D" when x"3A",  -- M
+            x"0E" when x"31",  -- N
+            x"0F" when x"44",  -- O
+            x"10" when x"4D",  -- P
+            x"11" when x"15",  -- Q
+            x"12" when x"2D",  -- R
+            x"13" when x"1B",  -- S
+            x"14" when x"2C",  -- T
+            x"15" when x"3C",  -- U
+            x"16" when x"2A",  -- V
+            x"17" when x"1D",  -- W
+            x"18" when x"22",  -- X
+            x"19" when x"35",  -- Y
+            x"1A" when x"1A",  -- Z
+            x"1B" when x"54",  -- Ã…
+            x"1C" when x"52",  -- Ã„
+	        x"1D" when x"4C",  -- Ã–
+            x"1E" when x"16",  -- 1
+            x"1E" when x"69",  -- KP 1
+		    x"1F" when x"1E",  -- 2
+            x"1F" when x"72",  -- KP 2
+            x"20" when x"26",  -- 3
+            x"20" when x"7A",  -- KP 3
+            x"21" when x"25",  -- 4
+            x"21" when x"6B",  -- KP 4
+            x"22" when x"2E",  -- 5
+            x"22" when x"73",  -- KP 5
+            x"23" when x"36",  -- 6
+            x"23" when x"74",  -- KP 6
+            x"24" when x"3D",  -- 7
+            x"24" when x"6C",  -- KP 7
+            x"25" when x"3E",  -- 8
+            x"25" when x"75",  -- KP 8
+            x"26" when x"46",  -- 9
+            x"26" when x"7D",  -- KP 9
+	        x"27" when x"45",  -- 0
+	        x"27" when x"70",  -- KP 0
+            --x"28" when x"55",  -- Ï€
+            --x"29" when x"4A",  -- Î©
+            x"2A" when x"49",  -- .
+            x"2A" when x"71",  -- KP .
+            x"2B" when x"55",  -- =
+	        x"2B" when x"5A",  -- = (ENTER)
+            x"2C" when x"79",  -- +
+            x"2D" when x"7B",  -- -
+	        x"2E" when x"7C",  -- *
+            x"2F" when x"4A",  -- /
+            x"FF" when others;
 						 
 						 
   -- set cursor movement based on scan code
@@ -294,9 +324,18 @@ led <= '1' when (WRstate = STANDBY) else '0';
             WRstate <= WRCUR;
           when WRCUR =>
             WRstate <= STANDBY;
-          when others =>
-            WRstate <= STANDBY;
         end case;
+      end if;
+    end if;
+  end process;
+
+process(clk)
+  begin
+    if rising_edge(clk) then
+      if (rst = '1') or (read_confirm = '1') then
+        data <= x"FF";
+      elsif (WRstate = WRCHAR) then
+        data <= tileIndex;
       end if;
     end if;
   end process;
@@ -309,11 +348,10 @@ led <= '1' when (WRstate = STANDBY) else '0';
 
   -- memory address is a composite of curposY and curposX
   -- the "to_unsigned(20, 6)" is needed to generate a correct size of the resulting unsigned vector
---  addr <= to_unsigned(20, 6)*curposY + curposX;
+    --  addr <= to_unsigned(20, 6)*curposY + curposX;
 
   
   -- data output is set to be x"1F" (cursor tile index) during WRCUR state, otherwise set as scan code tile index
-  data <= x"02" when (WRstate =  WRCUR) else TileIndex;
 
-  
 end behavioral;
+

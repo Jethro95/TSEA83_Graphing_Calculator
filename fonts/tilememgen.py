@@ -19,16 +19,17 @@ for i in range(len(unicode_text)):
     canvas=canvas.crop((0,0,8,16))
     print("-- "+unicode_text[i])
     for y in range(16):
+	print('"',end='')
         for x in range(8):
             if x<text_width and y<text_height:
                 r,g,b = canvas.getpixel((x, y))
 
                 if r!=0:
-                    print("'0',", end='')
+                    print('0', end='')
                 else:
-                    print("'1',",end='')
+                    print('1',end='')
             else:
-                print ("'0',", end='')
-        print ()
+                print ('0', end='')
+        print ('",')
 
     #canvas.save(unicode_text[i]+".png")

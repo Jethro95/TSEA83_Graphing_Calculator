@@ -2,23 +2,25 @@ library IEEE;
 library floatfixlib;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use floatfixlib.math_utility_pkg.all;
-use floatfixlib.float_pkg.all;
+--use floatfixlib.math_utility_pkg.all;
+--use floatfixlib.float_pkg.all;
 --CPU interface
 entity cpu is
     port(
         clk             : in std_logic;
         rst             : in std_logic;
         we1             : out std_logic;                         -- write enable
-        data_out_picmem : out std_logic_vector(7 downto 0);      -- data out to pictmem
-        save_at         : out integer range 0 to 3250            -- save data_out_picmem on adress
+        data_out_picmem : out std_logic_vector(7 downto 0);      -- data in
+        save_at         : out integer range 0 to 1200;           -- save data_in1 on adress
+	    kb_data         : in std_logic_vector(7 downto 0);
+    	read_confirm    : out std_logic
     );
 end cpu;
 
 architecture Behavioral of cpu is
 
 -- micro Memory
-type u_mem_t is array (0 to 57) of unsigned(31 downto 0);
+type u_mem_t is array (0 to 62) of unsigned(31 downto 0);
 constant u_mem_c : u_mem_t :=
     (
         --ALU   TB   FB   PC SEQ  ADR
@@ -38,19 +40,19 @@ constant u_mem_c : u_mem_t :=
         b"00101_0010_0000_0_0001_00000000001011",   -- 13 SUB AR := AR-PM(A) then GRx := AR
         b"00001_1000_0000_0_0000_00000000000000",   -- 14 AND AR := GRx
         b"00110_0010_0000_0_0001_00000000001011",   -- 15 AND AR := AR and PM(A) then GRx := AR
-        b"00000_0000_0000_1_0000_00000000000000",   -- 16 BRA PC := PC+1
+        b"00000_0000_0000_0_0000_00000000000000",   -- 16 BRA --THIS LINE REMOVED--
         b"00001_0011_0000_0_0000_00000000000000",   -- 17 BRA AR := PC
-        b"00100_0010_0000_0_0000_00000000000000",   -- 18 BRA AR:= AR+IR
+        b"00100_0100_0000_0_0000_00000000000000",   -- 18 BRA AR:= AR+ASR
         b"00000_0101_0011_0_0001_00000000000000",   -- 19 BRA PC := AR, uPC := 0
-        b"00000_0000_0000_0_1010_00000000010101",   -- 20 BNE uPC := 21 if Z=1
-        b"00000_0000_0000_0_1001_00000000010000",   -- 21 BNE uPC := 16 (if Z=0 implied)
-        b"00000_0000_0000_0_0001_00000000000000",   -- 22 BNE uPC := 0, PC := PC+1 --TODO: When I remove the PC+1 part from the microcode, test works as intended
+        b"00000_0000_0000_0_1010_00000000010110",   -- 20 BNE uPC := 22 if Z=1
+        b"00000_0000_0000_0_0001_00000000010000",   -- 21 BNE uPC := 16 (if Z=0 implied)
+        b"00000_0000_0000_0_0001_00000000000000",   -- 22 BNE uPC := 0
         b"00000_0000_0000_0_1010_00000000010000",   -- 23 BEQ uPC := 16 if Z=1
-        b"00000_0000_0000_1_0001_00000000000000",   -- 24 BEQ uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_0001_00000000000000",   -- 24 BEQ uPC := 0
         b"00000_0000_0000_0_1001_00000000010000",   -- 25 BMI uPC := 16 if N=1
-        b"00000_0000_0000_1_0001_00000000000000",   -- 26 BMI uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_0001_00000000000000",   -- 26 BMI uPC := 0
         b"00000_0000_0000_0_1100_00000000010000",   -- 27 BRF uPC := 16 if V=1
-        b"00000_0000_0000_1_0001_00000000000000",   -- 28 BRF uPC := 0, PC := PC+1
+        b"00000_0000_0000_0_0001_00000000000000",   -- 28 BRF uPC := 0
         b"00001_1000_0000_0_0000_00000000000000",   -- 29 ASR AR := GRx
         b"01001_0100_0000_0_0000_00000000000000",   -- 30 ASR AR := AR >> ASR
         b"00000_0101_1000_0_0001_00000000000000",   -- 31 ASR GRx := AR
@@ -64,7 +66,7 @@ constant u_mem_c : u_mem_t :=
         b"00001_1000_0000_0_0000_00000000000000",   -- 39 LSL AR := GRx
         b"10000_0100_0000_0_0000_00000000000000",   -- 40 LSL AR := AR <<< ASR
         b"00000_0101_1000_0_0001_00000000000000",   -- 41 LSL GRx := AR
-        b"00000_1000_0111_0_0001_00000000000000",    -- 42 STOREP pict_mem(A) := GRx
+        b"00000_1000_0111_0_0001_00000000000000",   -- 42 STOREP pict_mem(A) := GRx
         b"00001_1000_0000_0_0000_00000000000000",   -- 43 ITF AR := GRx
         b"00111_0000_0000_0_0000_00000000001011",   -- 44 ITF AR_f := float(AR)
         b"00000_0110_1000_0_0001_00000000000000",   -- 45 ITF GRx := AR_f
@@ -78,8 +80,13 @@ constant u_mem_c : u_mem_t :=
         b"01101_0010_0000_0_0001_00000000101101",   -- 53 MULTF AR_f := AR_f*PM(A) then GRx := AR_f
         b"00001_1000_0000_0_0000_00000000000000",   -- 54 DIVF AR_f := GRx
         b"01110_0010_0000_0_0001_00000000101101",   -- 55 DIVF AR_f := AR_f/PM(A) then GRx := AR_f
-        b"00001_1000_0000_0_0000_00000000000000",   -- 56 CMP AR := GRx
-        b"00101_0010_0000_0_0001_00000000000000"    -- 57 CMP AR := AR-PM(A)
+	b"00000_0111_1000_0_0001_00000000000000",   -- 56 RC GRx := KB_DATA
+        b"00001_1000_0000_0_0000_00000000000000",   -- 57 CMP AR := GRx
+        b"00101_0010_0000_0_0001_00000000000000",   -- 58 CMP AR := AR-PM(A)
+        b"00000_0000_0000_0_1010_00000000111110",   -- 59 BPL uPC := 62 if Z=1
+        b"00000_0000_0000_0_1001_00000000111110",   -- 60 BPL uPC := 62 if N=1
+        b"00000_0000_0000_0_0001_00000000010000",   -- 61 BPL uPC := 16 (Z!=1, N!=1 means AR is not zero, not negative. I.e. AR is positive)
+        b"00000_0000_0000_0_0001_00000000000000"    -- 62 BPL uPC := 0
     );
 --         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
 signal u_mem : u_mem_t := u_mem_c;
@@ -92,19 +99,43 @@ signal TB       : unsigned(3 downto 0);     -- To Bus field
 signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
-type p_mem_t is array (0 to 7) of unsigned(31 downto 0);
+-- program Memory
+type p_mem_t is array (0 to 11) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
-        --OP    GRx M  ADRESS
-        b"01000_001_01_0000000000000000000000",
-        b"00000000000000000000000000000001",
-        b"10111_001_01_0000000000000000000000",
-        b"00000000000000000000000000000001",
-        b"00110_000_00_0000000000000000000111",
-        b"01000_001_01_0000000000000000000000",
-        b"00000000000000000000000000111111",
-        b"10001_000_00_0000000000000000000111"
-
+        --OP   GRx M  ADRESS
+        --b"10100_000_00_0000000000000000000001",
+        --b"10100_001_00_0000000000000000000010",
+        --b"00000_000_00_0000000000000000000000",
+        --b"00000_000_00_0000000000000000000000",
+        --b"00000_000_00_0000000000000000000000",
+        --b"00000_000_00_0000000000000000000000",
+        --b"10001_001_00_0000000000000000000000", -- Convert value at gr1 to float
+        --b"00001_010_01_0000000000000000000000", -- Store 8 at gr2
+        --b"00000_000_00_0000000000000000001000", -- 8
+        --b"10001_010_00_0000000000000000000000", -- Convert value at gr2 to float
+        --b"00010_010_00_0000000000000000001010", -- Load Gr2 to adress 10
+        --b"01001_001_01_0000000000000000000000", -- Add Gr2 value to gr1
+        --b"01000_001_00_0000000000000000000000",
+        --b"10010_001_00_0000000000000000000000", -- Covert gr1 to int
+        --b"00000_000_00_0000000000000000000000",
+        --b"00000_000_00_0000000000000000000001",
+        --b"00000_000_00_0000000000000000000000",
+        --b"00000_000_00_0000000000000000000000",
+        --b"00000_000_00_0000000000000000000000"
+        --KB test program
+        b"11000_000_00_0000000000000000000000",	-- Read char to GR0
+	    b"11001_000_00_0000000000000000001001",	-- CMP GR0 to xFF
+	    b"00110_000_00_0000000000000000000001", -- If GR0 - xFF != 0, jump 2 steps forward
+	    b"10100_000_00_0000000000000000000000", -- Loop to beginning	
+	    b"01001_001_01_0000000000000000000000", -- Add 1 to GR1
+	    b"00000_000_00_0000000000000000000001", -- 1
+	    b"00010_001_00_0000000000000000001010", -- Store GR1 to 1010 
+	    b"10111_000_10_0000000000000000001010", -- Store GR0 to pictmem at address PM(1010)
+	    b"10100_000_00_0000000000000000000000", -- Loop to beginning
+    	b"00000_000_00_0000000000000011111111", -- xFF
+	    b"00000_000_00_0000000000000000000000",
+        b"00000_000_00_0000000000000000000000"
     );
 
 
@@ -119,7 +150,7 @@ signal ASR      : unsigned(21 downto 0);    -- Address Register
 signal IR       : unsigned(31 downto 0);    -- Instruction Register
 signal DATA_BUS : unsigned(31 downto 0);    -- Data Bus
 signal AR       : signed(31 downto 0);      -- Accumulator Register
-signal AR_f     : float32;
+--signal AR_f     : float32;
 
 -- Flags
 signal flag_X   : std_logic;                -- Extra carry flag
@@ -139,33 +170,35 @@ constant K2_mem_c : K2_mem_t :=
 signal K2_mem : K2_mem_t := K2_mem_c;
 
 -- K1 Memory (Operation => uPC address)
-type K1_mem_t is array (0 to 23) of unsigned(5 downto 0);
+type K1_mem_t is array (0 to 25) of unsigned(5 downto 0);
 constant K1_mem_c : K1_mem_t :=
     (
-        b"000000",  -- HALT
-        b"000111",  -- LOAD (u_mem(7))
-        b"001000",  -- STORE (u_mem(8))
-        b"010000",  -- BRA (u_mem(16))
-        b"010111",  -- BEQ (u_mem(23))
-        b"011001",  -- BMI (u_mem(25))
-        b"010100",  -- BNE (u_mem(20))
-        b"011011",  -- BRF (u_mem(27))
-        b"001001",  -- ADD (u_mem(9))
-        b"110000",  -- ADDF (u_mem(48))
-        b"001100",  -- SUB (u_mem(12))
-        b"110010",  -- SUBF (u_mem(50))
-        b"110100",  -- MULTF (u_mem(52))
-        b"110110",  -- DIVF (u_mem(54))
-        b"000000",  -- AND (u_mem(14))
-        b"100000",  -- ASL (u_mem(32))
-        b"011101",  -- ASR (u_mem(29))
-        b"100011",  -- JMP (u_mem(35))
-        b"100100",  -- LSR (u_mem(36))
-        b"100111",  -- LSL (u_mem(39))
-        b"101010",  -- STOREP (u_mem(39))
-        b"101011",  -- ITF (u_mem(43))
-        b"101110",  -- FTI (u_mem(46))
-        b"111000"   -- CMP (u_mem(56))
+        b"000000",  -- HALT                     (00000)
+        b"000111",  -- LOAD (u_mem(7))          (00001)
+        b"001000",  -- STORE (u_mem(8))         (00010)
+        b"010000",  -- BRA (u_mem(16))          (00011)
+        b"010111",  -- BEQ (u_mem(23))          (00100)              
+        b"011001",  -- BMI (u_mem(25))          (00101)
+        b"010100",  -- BNE (u_mem(20))          (00110)
+        b"011011",  -- BRF (u_mem(27))          (00111)
+        b"111011",  -- BPL (u_mem(59))          (01000)
+        b"001001",  -- ADD (u_mem(9))           (01001)
+        b"110000",  -- ADDF (u_mem(48))         (01010)
+        b"001100",  -- SUB (u_mem(12))          (01011)
+        b"110010",  -- SUBF (u_mem(50))         (01100)
+        b"110100",  -- MULTF (u_mem(52))        (01101)    
+        b"110110",  -- DIVF (u_mem(54))         (01110)
+        b"001110",  -- AND (u_mem(14))          (01111)
+        b"100000",  -- ASL (u_mem(32))          (10000)
+        b"011101",  -- ASR (u_mem(29))          (10001)    
+        b"101011",  -- ITF (u_mem(43))          (10010)
+        b"101110",  -- FTI (u_mem(46))          (10011)
+        b"100011",  -- JMP (u_mem(35))          (10100)    
+        b"100100",  -- LSR (u_mem(36))          (10101)
+        b"100111",  -- LSL (u_mem(39))          (10110)
+        b"101010",  -- STOREP (u_mem(42))       (10111)
+	    b"111000",  -- RC (u_mem(56))           (11000)
+        b"111001"   -- CMP (u_mem(57))          (11001)
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -180,7 +213,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000000",
+        x"FFFFFFFE", --KB test program
         x"00000000",
         x"00000000",
         x"00000000",
@@ -326,7 +359,7 @@ begin
         if rising_edge(clk) then
             if (rst = '1') then
                 AR <= (others => '0');
-                AR_f <= (others => '0');
+                --AR_f <= (others => '0');
                 flag_X <= '0';
                 flag_N <= '0';
                 flag_Z <= '0';
@@ -337,13 +370,13 @@ begin
             --ALU=00000 has no effect
             elsif (ALU = "00001") then --AR:=bus, AR_f:=bus
                 AR <= signed(DATA_BUS);
-                AR_f <= float(DATA_BUS);
+                --AR_f <= float(DATA_BUS);
             elsif (ALU = "00010") then --AR:=bus', AR_f:=bus' (One's complement)
                 AR <= not signed(DATA_BUS);
-                AR_f <= float(not DATA_BUS);
+                --AR_f <= float(not DATA_BUS);
             elsif (ALU = "00011") then --AR:=0, AR_f:=0
                 AR <= (others => '0');
-                AR_f <= (others => '0');
+                --AR_f <= (others => '0');
             elsif ((ALU = "00100") or (ALU = "00101")) then --AR:=AR+buss (ints) || AR:=AR-buss
                 --In summary, we'll:
                 --  Extend argument size by 1 bit
@@ -353,10 +386,10 @@ begin
                 --Resizing args to length 33 and adding them
                 op_arg_1        := signed(AR(31) & AR(31 downto 0));
                 op_arg_2        := signed(DATA_BUS(31) & DATA_BUS(31 downto 0));
-                if (ALU = "00101") then --if AR:=AR-buss
-                    op_arg_2 := -op_arg_2;
+                if (ALU = "00101") then --if AR:=AR-buss;
+			        op_arg_2 := -op_arg_2;
                 end if;
-                op_part_result  := op_arg_1 + op_arg_2;
+                    op_part_result  := op_arg_1 + op_arg_2;
                 op_result       := signed(op_part_result(31 downto 0)); --overflow cut off
                 AR <= op_result;
                 --Doing flags
@@ -392,10 +425,10 @@ begin
                 flag_N <= AR(31);
                 flag_V <= '0';
 
-            elsif (ALU = "00111") then --AR_f:=float(AR)
-                AR_f <= to_float(AR, AR_f);
-            elsif (ALU = "01000") then --AR:=signed(AR_f)
-                AR <= to_signed(AR_f, 32);
+           -- elsif (ALU = "00111") then --AR_f:=float(AR)
+             --   AR_f <= to_float(AR, AR_f);
+            --elsif (ALU = "01000") then --AR:=signed(AR_f)
+              --  AR <= to_signed(AR_f, 32);
             elsif (ALU = "01001") then -- ASR
                 if(to_integer(DATA_BUS) /= 0) then
                     -- C and X unaffected by a shift count of zero
@@ -414,14 +447,14 @@ begin
                 AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
-            elsif (ALU = "01011") then --AR_f:=AR_f+Buss (floats)
-                AR_f <= AR_f + float(DATA_BUS);
-            elsif (ALU = "01100") then --AR_f:=AR_f-Buss (floats)
-                AR_f <= AR_f - float(DATA_BUS);
-            elsif (ALU = "01101") then --AR_f:=AR_f*Buss (floats)
-                AR_f <= AR_f * float(DATA_BUS);
-            elsif (ALU = "01110") then --AR_f:=AR_f/Buss (floats)
-                AR_f <= AR_f / float(DATA_BUS);
+            --elsif (ALU = "01011") then --AR_f:=AR_f+Buss (floats)
+             --   AR_f <= AR_f + float(DATA_BUS);
+            --elsif (ALU = "01100") then --AR_f:=AR_f-Buss (floats)
+             --   AR_f <= AR_f - float(DATA_BUS);
+            --elsif (ALU = "01101") then --AR_f:=AR_f*Buss (floats)
+            --    AR_f <= AR_f * float(DATA_BUS);
+            --elsif (ALU = "01110") then --AR_f:=AR_f/Buss (floats)
+            --    AR_f <= AR_f / float(DATA_BUS);
             end if;
         end if;
     end process;
@@ -440,12 +473,15 @@ begin
     ALU     <= uM(31 downto 27);
     PM      <= p_mem(to_integer(ASR));
 
-    DATA_BUS <= IR                      when (TB = "0001") else
-                PM                      when (TB = "0010") else
-                "0000000000" & PC       when (TB = "0011") else
-                "0000000000" & ASR      when (TB = "0100") else
-                unsigned(AR)            when (TB = "0101") else
-                unsigned(to_slv(AR_f))  when (TB = "0110") else
-                g_reg(to_integer(GRx))  when (TB = "1000") else -- TODO: Is GRx updated yet?
+    read_confirm <= '1' when TB = "0111" else '0';
+
+    DATA_BUS <= IR                              when (TB = "0001") else
+                PM                              when (TB = "0010") else
+                "0000000000" & PC               when (TB = "0011") else
+                "0000000000" & ASR              when (TB = "0100") else
+                unsigned(AR)                    when (TB = "0101") else
+                --unsigned(to_slv(AR_f))          when (TB = "0110") else
+                g_reg(to_integer(GRx))          when (TB = "1000") else -- TODO: Is GRx updated yet?
+                unsigned(x"000000" & kb_data)   when (TB = "0111") else
                 (others => '0');
 end Behavioral;
