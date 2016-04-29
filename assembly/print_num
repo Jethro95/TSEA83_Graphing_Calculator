@@ -1,0 +1,38 @@
+# GR usage:
+# 0-Loop Counter
+# 1-Or map
+# 2-tileaddr
+# 3-number to display
+# 4-6 Unused
+# 7-Loop counter to move numbers
+load$ 0,8 #loop counter
+load$ 1,4026531840 #or-map
+load 2,&startat # Tile addr
+while 0>$0
+    load$ 3,98304 #number to gr3 (1.5 in fixed point)
+    store 1,&bitmap
+    and 3,&bitmap
+    lsr$ 1,4
+    store 0,&loopvar1
+    load 7,&loopvar1
+    while 7!$1 # Move resulting number over to end of gr3 (GR unsigned. Annoying)
+        lsr$ 3,4
+        sub$ 7,1
+    end while
+    storep~ 3,&startat
+    sub$ 0,1
+    add$ 2,1
+    store 2,&startat
+    if 0=$4
+        load$ 3,43 #plus sign
+        storep~ 3,&startat
+        add$ 2,1
+        store 2,&startat
+    end if
+end while
+
+here: jmp 0,&here
+bitmap: sli 0
+loopvar1: sli 0
+loopvar2: sli 0
+startat: sli 40 # Where to start placing numbers
