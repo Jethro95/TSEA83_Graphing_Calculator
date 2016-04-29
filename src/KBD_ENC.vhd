@@ -166,67 +166,67 @@ begin
 
   -- Scan Code -> Tile Index mapping
   with ScanCode select
-    TileIndex <= 
-            x"00" when x"29",  -- space
-            x"01" when x"1C",  -- A
-            x"02" when x"32",  -- B
-            x"03" when x"21",  -- C
-            x"04" when x"23",  -- D
-            x"05" when x"24",  -- E
-            x"06" when x"2B",  -- F
-            x"07" when x"34",  -- G
-            x"08" when x"33",  -- H
-            x"09" when x"43",  -- I
-            x"0A" when x"3B",  -- J
-            x"0B" when x"42",  -- K
-            x"0C" when x"4B",  -- L
-            x"0D" when x"3A",  -- M
-            x"0E" when x"31",  -- N
-            x"0F" when x"44",  -- O
-            x"10" when x"4D",  -- P
-            x"11" when x"15",  -- Q
-            x"12" when x"2D",  -- R
-            x"13" when x"1B",  -- S
-            x"14" when x"2C",  -- T
-            x"15" when x"3C",  -- U
-            x"16" when x"2A",  -- V
-            x"17" when x"1D",  -- W
-            x"18" when x"22",  -- X
-            x"19" when x"35",  -- Y
-            x"1A" when x"1A",  -- Z
-            x"1B" when x"54",  -- Å
-            x"1C" when x"52",  -- Ä
-            x"1D" when x"4C",  -- Ö
-            x"1E" when x"16",  -- 1
-            x"1E" when x"69",  -- KP 1
-	        x"1F" when x"1E",  -- 2
-            x"1F" when x"72",  -- KP 2
-            x"20" when x"26",  -- 3
-            x"20" when x"7A",  -- KP 3
-            x"21" when x"25",  -- 4
-            x"21" when x"6B",  -- KP 4
-            x"22" when x"2E",  -- 5
-            x"22" when x"73",  -- KP 5
-            x"23" when x"36",  -- 6
-            x"23" when x"74",  -- KP 6
-            x"24" when x"3D",  -- 7
-            x"24" when x"6C",  -- KP 7
-            x"25" when x"3E",  -- 8
-            x"25" when x"75",  -- KP 8
-            x"26" when x"46",  -- 9
-            x"26" when x"7D",  -- KP 9
-            x"27" when x"45",  -- 0
-	        x"27" when x"70",  -- KP 0
-            --x"28" when x"55",  -- π
-            --x"29" when x"4A",  -- Ω
-            x"2A" when x"49",  -- .
-            x"2A" when x"71",  -- KP .
-            x"2B" when x"55",  -- =
-	        x"2B" when x"5A",  -- = (ENTER)
-            x"2C" when x"79",  -- +
-            x"2D" when x"7B",  -- -
-	        x"2E" when x"7C",  -- *
-            x"2F" when x"4A",  -- /
+    TileIndex <=
+            x"00" when x"45",  -- 0
+            x"00" when x"70",  -- KP 0 
+            x"01" when x"16",  -- 1
+            x"01" when x"69",  -- KP 1
+            x"02" when x"1E",  -- 2
+            x"02" when x"72",  -- KP 2
+            x"03" when x"26",  -- 3
+            x"03" when x"7A",  -- KP 3
+            x"04" when x"25",  -- 4
+            x"04" when x"6B",  -- KP 4
+            x"05" when x"2E",  -- 5
+            x"05" when x"73",  -- KP 5
+            x"06" when x"36",  -- 6
+            x"06" when x"74",  -- KP 6
+            x"07" when x"3D",  -- 7
+            x"07" when x"6C",  -- KP 7
+            x"08" when x"3E",  -- 8
+            x"08" when x"75",  -- KP 8
+            x"09" when x"46",  -- 9
+            x"09" when x"7D",  -- KP 9
+            x"0A" when x"1C",  -- A
+            x"0B" when x"32",  -- B
+            x"0C" when x"21",  -- C
+            x"0D" when x"23",  -- D
+            x"0E" when x"24",  -- E
+            x"0F" when x"2B",  -- F
+            x"10" when x"34",  -- G
+            x"11" when x"33",  -- H
+            x"12" when x"43",  -- I
+            x"13" when x"3B",  -- J
+            x"14" when x"42",  -- K
+            x"15" when x"4B",  -- L
+            x"16" when x"3A",  -- M
+            x"17" when x"31",  -- N
+            x"18" when x"44",  -- O
+            x"19" when x"4D",  -- P
+            x"1A" when x"15",  -- Q
+            x"1B" when x"2D",  -- R
+            x"1C" when x"1B",  -- S
+            x"1D" when x"2C",  -- T
+            x"1E" when x"3C",  -- U
+            x"1F" when x"2A",  -- V
+            x"20" when x"1D",  -- W
+            x"21" when x"22",  -- X
+            x"22" when x"35",  -- Y
+            x"23" when x"1A",  -- Z
+            x"24" when x"54",  -- Å
+            x"25" when x"52",  -- Ä
+            x"26" when x"4C",  -- Ö
+            --x"27" when x"55",  -- π
+            --x"28" when x"4A",  -- Ω
+            x"29" when x"49",  -- .
+            x"29" when x"71",  -- KP .
+            x"2A" when x"55",  -- =
+	        x"2A" when x"5A",  -- = (ENTER)
+            x"2B" when x"79",  -- +
+            x"2C" when x"7B",  -- -
+	        x"2D" when x"7C",  -- *
+            x"2E" when x"4A",  -- /
+            x"2F" when x"29",  -- space
             x"FF" when others;
 						 
 						 
