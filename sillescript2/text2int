@@ -1,0 +1,29 @@
+#Reserved registers:
+#GR0 : input
+#GR1 : loop counter
+#GR3 : result
+
+RC 0,0	#Read input to GR0
+
+#Loop to beginning until input is a valid character
+if 0 = $255
+	JMP 0,0
+endif
+
+if 0 < $10		#If numerical
+	STORE 0,23
+	#____Multiply GR3 by 10____
+	STORE 3,25		#Store numerical to address 25
+	LOAD$ 1,1		#Initialise loop counter at GR1 to 0
+	#LOAD 3,25		#Get value to use for first iteration
+	while 1 < $9
+		ADD 3,25	#Add the numerical at address 25 to GR3
+		ADD$ 1,1	#Increment loop counter
+	endwhile
+	#____Add input to GR3____
+	ADD 3,23
+endif
+JMP 0,0
+#Empty rows for variables
+SLI 0
+SLI 0

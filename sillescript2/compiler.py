@@ -103,6 +103,7 @@ INSTRUCTIONS = {
     "asr"         :17,
     "itr"         :18,
     "rti"         :19,
+    "jmp"         :20,
     "lsr"         :21,
     "lsl"         :22,
     "storep"      :23,
