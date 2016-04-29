@@ -141,10 +141,10 @@ constant p_mem_c : p_mem_t :=
 --        b"11000_000_00_0000000000000000000000",	-- Read char to GR0
 --	    b"11001_000_00_0000000000000000001001",	-- CMP GR0 to xFF
 --	    b"00110_000_00_0000000000000000000001", -- If GR0 - xFF != 0, jump 2 steps forward
---	    b"10100_000_00_0000000000000000000000", -- Loop to beginning	
+--	    b"10100_000_00_0000000000000000000000", -- Loop to beginning
 --	    b"01001_001_01_0000000000000000000000", -- Add 1 to GR1
 --	    b"00000_000_00_0000000000000000000001", -- 1
---	    b"00010_001_00_0000000000000000001010", -- Store GR1 to 1010 
+--	    b"00010_001_00_0000000000000000001010", -- Store GR1 to 1010
 --	    b"10111_000_10_0000000000000000001010", -- Store GR0 to pictmem at address PM(1010)
 --	    b"10100_000_00_0000000000000000000000", -- Loop to beginning
 --        b"00000_000_00_0000000000000011111111", -- xFF
@@ -187,7 +187,7 @@ constant K1_mem_c : K1_mem_t :=
         b"000111",  -- LOAD (u_mem(7))          (00001)
         b"001000",  -- STORE (u_mem(8))         (00010)
         b"010000",  -- BRA (u_mem(16))          (00011)
-        b"010111",  -- BEQ (u_mem(23))          (00100)              
+        b"010111",  -- BEQ (u_mem(23))          (00100)
         b"011001",  -- BMI (u_mem(25))          (00101)
         b"010100",  -- BNE (u_mem(20))          (00110)
         b"011011",  -- BRF (u_mem(27))          (00111)
@@ -196,14 +196,14 @@ constant K1_mem_c : K1_mem_t :=
         b"110000",  -- ADDF (u_mem(48))         (01010)
         b"001100",  -- SUB (u_mem(12))          (01011)
         b"110010",  -- SUBF (u_mem(50))         (01100)
-        b"110100",  -- MULTF (u_mem(52))        (01101)    
+        b"110100",  -- MULTF (u_mem(52))        (01101)
         b"110110",  -- DIVF (u_mem(54))         (01110)
         b"001110",  -- AND (u_mem(14))          (01111)
         b"100000",  -- ASL (u_mem(32))          (10000)
-        b"011101",  -- ASR (u_mem(29))          (10001)    
+        b"011101",  -- ASR (u_mem(29))          (10001)
         b"101011",  -- ITF (u_mem(43))          (10010)
         b"101110",  -- FTI (u_mem(46))          (10011)
-        b"100011",  -- JMP (u_mem(35))          (10100)    
+        b"100011",  -- JMP (u_mem(35))          (10100)
         b"100100",  -- LSR (u_mem(36))          (10101)
         b"100111",  -- LSL (u_mem(39))          (10110)
         b"101010",  -- STOREP (u_mem(42))       (10111)
@@ -430,7 +430,7 @@ begin
                     -- C cleared by a shift count of zero, X unaffected
                     flag_C <= '0';
                 end if;
-                AR <= SHIFT_RIGHT(AR,to_integer(DATA_BUS));
+                AR <= AR srl to_integer(DATA_BUS);
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
                 flag_V <= '0';
@@ -442,7 +442,7 @@ begin
                     -- C cleared by a shift count of zero, X unaffected
                     flag_C <= '0';
                 end if;
-                AR <= SHIFT_LEFT(AR,to_integer(DATA_BUS));
+                AR <= AR sll to_integer(DATA_BUS);
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
                 flag_V <= '0';
