@@ -595,7 +595,7 @@ def build(filename):
 #Adds some fluffs to lines to make them easy to copy-paste into program, and returns it.
 #Formatting designed specifically for this project.
 def fancifyForVHDL(lines):
-    result  = "type p_mem_t is array (0 to " + str(len(lines)) + ") of unsigned(31 downto 0);\n"
+    result  = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
     result += "constant p_mem_c : p_mem_t :=\n"
     result += "    (\n"
     result += "        --OP    GRx M  ADRESS\n"
