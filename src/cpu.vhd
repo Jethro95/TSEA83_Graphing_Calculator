@@ -102,7 +102,8 @@ signal FB       : unsigned(3 downto 0);     -- From Bus field
 signal ALU      : unsigned(4 downto 0);     -- ALU mode
 
 -- program Memory
-type p_mem_t is array (0 to 15) of unsigned(31 downto 0);
+-- WARNING: Don't edit length of p_mem manually without updating PM-limit at end of file.
+type p_mem_t is array (0 to 16) of unsigned(31 downto 0);
 constant p_mem_c : p_mem_t :=
     (
         --OP    GRx M  ADRESS
@@ -121,8 +122,11 @@ constant p_mem_c : p_mem_t :=
         b"00000000000000000000000000000100",       --12: CMP address: 4
         b"10100_000_01_0000000000000000000000",    --13: jmp$0,&here
         b"00000000000000000000000000001101",       --14: here
-        b"00000000000000000000000000000000"        --15: Line initialized to 0
+        b"00000000000000000000000000000000",       --15: Line initialized to 0
+        b"00000000000000000000010100111001"        --16: Line initialized to 1337
     );
+-- WARNING: Don't edit length of p_mem manually without updating PM-limit at end of file.
+
 
 signal p_mem : p_mem_t := p_mem_c;
 signal PM       : unsigned(31  downto 0);   -- Program Memory output
@@ -469,7 +473,7 @@ begin
     FB      <= uM(22 downto 19);
     TB      <= uM(26 downto 23);
     ALU     <= uM(31 downto 27);
-    PM      <= p_mem(to_integer(ASR)) when ASR < 16 else (others => '0');
+    PM      <= p_mem(to_integer(ASR)) when ASR <17 else (others => '0');
 
     read_confirm <= '1' when TB = "1001" else '0';
 
