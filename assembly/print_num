@@ -2,8 +2,8 @@
 load$ 0,98304 # 1.5 in fixed point
 load$ 1,10 # We want the number to be displayed at tileaddr 10-18
 load 2,&getbackhere
-jmp 0,&printnum
-getbackhere: jmp 0,&getbackhere
+jmp$ 0,&printnum
+getbackhere: jmp$ 0,&getbackhere
 
 # Save number to gr0, tileaddr to gr1 and return addr to gr1 before running
 
@@ -14,7 +14,7 @@ getbackhere: jmp 0,&getbackhere
 # 3-number to display
 # 4-6 Unused
 # 7-Loop counter to move numbers
-
+sli 0
 
 # Load input data
 printnum: store 0,&number
@@ -69,7 +69,7 @@ store 2,&startat
 
 
 # FFFF
-load$ 0,1 #loop counter #TODO: Does while run the correct amount of times!?
+load$ 0,0 #loop counter #TODO: Does while run the correct amount of times!?
 while 0<$4
     load$ 3,15 # F
     storep~ 3,&startat
