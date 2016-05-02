@@ -401,6 +401,8 @@ begin
         if rising_edge(clk) then
 	    if (rst='1') then
                 we1 <= '0';
+                data_out_picmem <= x"00";
+		save_at <= 0;
             elsif (FB = "0111") then
                 we1 <= '1';
                 data_out_picmem <= std_logic_vector(DATA_BUS(7 downto 0));
