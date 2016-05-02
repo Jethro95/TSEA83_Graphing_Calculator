@@ -226,7 +226,11 @@ class MachineLine:
             return False
         else:
             address = dictionary[self.labelArgument]
-            self.line = self.line + bitify(address, ADDRESS_WIDTH)
+            #Line must only contain bits and seperators
+            for char in self.line:
+                assert(char in ["0", "1", BITSEP])
+            self.line = self.line + bitify(address, WORD_WIDTH + self.line.count(BITSEP) - len(self.line))
+            assert(len(self.line) == WORD_WIDTH + self.line.count(BITSEP))
             labelArgument = ""
             return True
 
@@ -260,6 +264,12 @@ class MachineLine:
     #Sets the line to a complete instruction with label address argument
     def setIncompleteLabel(self, instruction, grx, mode, label):
         self.line = placeholderInstruction(instruction, grx, mode)
+        self.labelArgument = label
+        return self
+
+    #Sets the line to an empty line to be completely filled out by the labeled address
+    def setLiteralLabel(self, label):
+        self.line = ""
         self.labelArgument = label
         return self
 
@@ -389,18 +399,19 @@ def lineToCompleteInstruction(line):
     if restOfLine.startswith(LABEL_DENOTER):
         #Label
         addressUsesLabel = True
-        address = restOfLine[1:]
+        address = restOfLine[1:] #A string; the label
     else:
         #Actual address
         try:
-            address = int(restOfLine)
+            address = int(restOfLine) #An int
         except ValueError:
             return None
     #Putting together
     if addressUsesLabel:
-        if mode == MODE_ADRESS_ON_NEXT_LINE:
-            return None #Labels incompatible with adress on next line
-        return [MachineLine(line).setIncompleteLabel(instr, grx, mode, address)]
+        if addressOnNextLine:
+            return [MachineLine(line).setComplete(instr, grx, mode, 0), MachineLine(str(address)).setLiteralLabel(address)]
+        else:
+            return [MachineLine(line).setIncompleteLabel(instr, grx, mode, address)]
     elif not addressOnNextLine:
         return [MachineLine(line).setComplete(instr, grx, mode, address)]
     else:
