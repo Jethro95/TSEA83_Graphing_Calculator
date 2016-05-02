@@ -348,8 +348,10 @@ class JumpWhileLine(JumpIfLine):
         if not self.complete and sourceLine.startswith(KEYWORD_END_WHILE):
             self.fillOut(lineNum+1)#We will add an extra instruction: jump past it
             #Instruction to jump to one line before the conditional jump; the compare.
-            newline = MachineLine("Jump to loop compare").setComplete(INSTR_JMP, 0, MODE_DIRECT, self.lineDefinedAt-self.cmpOffset)
-            return True, [newline]
+            lineInstr = MachineLine("Jump to loop compare").setComplete(INSTR_JMP, 0, MODE_IMMEDIATE, 0)
+            targetLine = self.lineDefinedAt-self.cmpOffset
+            lineLiteral = MachineLine("CMP address: " + str(targetLine)).setLiteral(targetLine)
+            return True, [lineInstr, lineLiteral]
         return False, None
 
     def __init__(self, instruction, comment, currentLine, cmpIsTwoLines):
