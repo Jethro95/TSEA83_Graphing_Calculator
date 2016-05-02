@@ -96,8 +96,8 @@ INSTRUCTIONS = {
     "addf"        :10, 
     "sub"         :11, 
     "subf"        :12, 
-    "divf"        :13, 
-    "multf"       :14,
+    "multf"       :13,
+    "divf"        :14, 
     "and"         :15,
     "asl"         :16,
     "asr"         :17,
@@ -232,8 +232,8 @@ class MachineLine:
 
     #Returns a label the line wants to have expanded, or None
     #  if it is not waiting to expand any.
-    def getLabelArgument(self):
-        return self.labelArgument if self.labelArgument != "" else None
+    def getLabelArgument():
+        return labelArgument if labelArgument != "" else None
         
 
     #Attempt to fill out the instruction based on previous line
