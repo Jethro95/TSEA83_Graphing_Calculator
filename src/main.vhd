@@ -22,13 +22,16 @@ end main;
 architecture Behavioral of main is
     component cpu
         port(
-		    clk             : in std_logic;
-		    rst             : in std_logic;
-		    we1             : buffer std_logic;                    -- write enable
-		    data_out_picmem : out std_logic_vector(7 downto 0);    -- data in
-            save_at         : out integer range 0 to 3250;         -- save data_in1 on adress
-		    kb_data         : in std_logic_vector(7 downto 0);
-		    read_confirm    : out std_logic
+            clk             : in std_logic;
+            rst             : in std_logic;
+            we1             : out std_logic;                         -- write enable
+            data_out_picmem : out std_logic_vector(7 downto 0);      -- data in
+            save_at         : out integer range 0 to 1200;           -- save data_in1 on adress
+            save_at_b   : out integer range 0 to 153600;
+	        kb_data         : in std_logic_vector(7 downto 0);
+        	read_confirm    : out std_logic;
+            web             : out std_logic;
+            data_out_bitmap : out std_logic
         );
     end component;
 
@@ -38,12 +41,15 @@ architecture Behavioral of main is
     port (  rst       : in std_logic;
 	        clk		  : in std_logic;
             we1       : in std_logic;
+            web       : in std_logic;
+            data_inb  : in std_logic;
             data_in1  : in std_logic_vector(7 downto 0);
-            save_at   : in integer range 0 to 3250;
+            save_at   : in integer range 0 to 1200;
+            save_at_b   : in integer range 0 to 153600;
             picmem_out : out std_logic_vector(7 downto 0);
             bitmem_out : out std_logic;
             Xpixel   : in unsigned(9 downto 0);         -- Horizontal pixel counter
-            Ypixel   : in unsigned(9 downto 0));       
+            Ypixel   : in unsigned(9 downto 0));      
     end component;
 
     -- VGA motor component
@@ -77,7 +83,10 @@ architecture Behavioral of main is
     -- intermediate signals between PICT_MEM and CPU
     signal data_s    : std_logic_vector(7 downto 0);        -- data
     signal we_s      : std_logic;                           -- write enable
-    signal save_at_s : integer range 0 to 3250;             -- write enable
+    signal web_s      : std_logic;                           -- write enable
+    signal data_b_s    : std_logic;        -- data
+    signal save_at_s : integer range 0 to 1200;             -- write enable
+    signal save_at_b_s : integer range 0 to 153600;             -- write enable
 
     -- intermediate signals between PICT_MEM and VGA_MOTOR
     signal	picmem_out_s : std_logic_vector(7 downto 0);         -- data
@@ -92,10 +101,10 @@ architecture Behavioral of main is
 
     begin
 
-    CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_out_picmem=>data_s, save_at=>save_at_s, kb_data=>data_cpu_kb, read_confirm=>rc);
+    CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_out_picmem=>data_s, save_at=>save_at_s, kb_data=>data_cpu_kb, read_confirm=>rc,web=>web_s,data_out_bitmap=>data_b_s, save_at_b=>save_at_b_s);
 
     -- picture memory component connection
-    PIC_MEM_UNIT       : PICT_MEM port map(rst=>rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, bitmem_out=>bitmem_out_s, picmem_out=>picmem_out_s, Xpixel=>Xpixel_s, Ypixel=>Ypixel_s);
+    PIC_MEM_UNIT       : PICT_MEM port map(rst=>rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, bitmem_out=>bitmem_out_s, picmem_out=>picmem_out_s, Xpixel=>Xpixel_s, Ypixel=>Ypixel_s, web=>web_s, data_inb=>data_b_s, save_at_b=>save_at_b_s);
 
     -- VGA driver component connection
     VGA_UNIT           : VGA_MOTOR port map(clk=>clk, rst=>rst, vgaRed=>vgaRed, vgaGreen=>vgaGreen, vgaBlue=>vgaBlue, Hsync=>Hsync, Vsync=>Vsync, Xpixel=>Xpixel_s, Ypixel=>Ypixel_s, bitmem_in=>bitmem_out_s, picmem_in =>picmem_out_s);

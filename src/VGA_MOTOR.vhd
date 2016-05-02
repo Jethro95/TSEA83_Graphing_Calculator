@@ -1,4 +1,3 @@
-
 --------------------------------------------------------------------------------
 -- VGA MOTOR
 -- Anders Nilsson
@@ -15,6 +14,7 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 -- entity
 entity VGA_MOTOR is
     port ( clk	  : in std_logic;
+    	 addr     : out unsigned(12 downto 0);
     	 rst      : in std_logic;
     	 vgaRed   : out std_logic_vector(2 downto 0);
     	 vgaGreen : out std_logic_vector(2 downto 0);
@@ -32,6 +32,7 @@ end VGA_MOTOR;
 -- architecture
 architecture Behavioral of VGA_MOTOR is
 
+
     signal ClkDiv : unsigned(1 downto 0);		-- Clock divisor, to generate 25 MHz signal
     signal Clk25  : std_logic;			-- One pulse width 25 MHz signal
 
@@ -43,7 +44,8 @@ architecture Behavioral of VGA_MOTOR is
 
     -- Tile memory type
     type ram_t is array (0 to 6143) of std_logic;
-    signal tileMem : ram_t :=(
+
+signal tileMem : ram_t :=(
         -- 0
         '0','0','0','0','0','0','0','0',
         '0','0','0','0','0','0','0','0',
@@ -988,29 +990,23 @@ begin
     begin
         if rising_edge(clk) then
             if (blank = '0') then
-            	if tileRow = '1' then
-		            tilepixel <= x"00";
+        		if tileRow = '1' and Xpixel>320 then
+        		   tilepixel <= x"00";
                 elsif Xpixel>320 then
-			        tilepixel <= x"ff";
+        			tilepixel <= x"ff";
                 elsif bitmem_in='1' then
                     tilepixel<=x"ff";
                 else
                     tilepixel <= x"00";
         		end if;
 
-
+                tileRow <= tileMem(to_integer(tileAddr));
             else
        		    tilePixel <= (others => '0');
-                --tileRow <= '0';
+                tileRow <= '0';
             end if;
         end if;
     end process;
-process(clk)
-begin
-if rising_edge(clk) then
-                tileRow <= tileMem(to_integer(tileAddr));
-end if;
-end process;
 
 
     --with tileRow select tilePixel <=
@@ -1023,7 +1019,7 @@ end process;
 
 
     -- Picture memory address composite
-    --addr <= to_unsigned(80, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3);
+    addr <= to_unsigned(80, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3);
 
 
     -- VGA generation
@@ -1038,3 +1034,4 @@ end process;
 
 
 end Behavioral;
+
