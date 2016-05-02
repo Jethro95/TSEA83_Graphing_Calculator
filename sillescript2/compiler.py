@@ -107,7 +107,8 @@ INSTRUCTIONS = {
     "lsr"         :21,
     "lsl"         :22,
     "storep"      :23,
-    "rc"          :24
+    "rc"          :24,
+    "storeb"      :26
 }
 
 #The compare instruction
