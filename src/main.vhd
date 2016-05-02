@@ -35,29 +35,31 @@ architecture Behavioral of main is
 
     -- picture memory component
     component PICT_MEM
-        port(
-            clk        : in std_logic;                          -- system clock
-            we1        : in std_logic;                          -- write enable
-            data_in1   : in std_logic_vector(7 downto 0);       -- data
-            save_at    : in integer range 0 to 3250;            -- save data_in1 on adress
-            data_out2  : out std_logic_vector(7 downto 0);      -- data out
-            addr2      : in unsigned(12 downto 0)               -- address
-        );            
+    port (  rst       : in std_logic;
+	        clk		  : in std_logic;
+            we1       : in std_logic;
+            data_in1  : in std_logic_vector(7 downto 0);
+            save_at   : in integer range 0 to 3250;
+            picmem_out : out std_logic_vector(7 downto 0);
+            bitmem_out : out std_logic;
+            Xpixel   : in unsigned(9 downto 0);         -- Horizontal pixel counter
+            Ypixel   : in unsigned(9 downto 0));       
     end component;
 
     -- VGA motor component
     component VGA_MOTOR
-        port (
-            clk         : in std_logic;                         -- system clock
-            rst         : in std_logic;                         -- reset
-            data        : in std_logic_vector(7 downto 0);      -- data
-            addr        : out unsigned(12 downto 0);            -- address
-            vgaRed      : out std_logic_vector(2 downto 0);     -- VGA red
-            vgaGreen    : out std_logic_vector(2 downto 0);     -- VGA green
-            vgaBlue     : out std_logic_vector(2 downto 1);     -- VGA blue
-            Hsync       : out std_logic;                        -- horizontal sync
-            Vsync       : out std_logic                       	-- vertical sync
-        );
+    port ( clk	  : in std_logic;
+    	 rst      : in std_logic;
+    	 vgaRed   : out std_logic_vector(2 downto 0);
+    	 vgaGreen : out std_logic_vector(2 downto 0);
+    	 vgaBlue  : out std_logic_vector(2 downto 1);
+    	 Hsync    : out std_logic;
+    	 Vsync    : out std_logic;
+         picmem_in      : in std_logic_vector(7 downto 0);      -- data
+         bitmem_in      : in std_logic;      -- data
+         Xpixel   : buffer unsigned(9 downto 0);         -- Horizontal pixel counter
+         Ypixel   : buffer unsigned(9 downto 0)
+         );
       end component;
 
     -- PS2 keyboard encoder component
@@ -78,8 +80,10 @@ architecture Behavioral of main is
     signal save_at_s : integer range 0 to 3250;             -- write enable
 
     -- intermediate signals between PICT_MEM and VGA_MOTOR
-    signal data_out2_s  : std_logic_vector(7 downto 0);     -- data
-    signal addr2_s      : unsigned(12 downto 0);            -- address
+    signal	picmem_out_s : std_logic_vector(7 downto 0);         -- data
+    signal	bitmem_out_s : std_logic;         -- data
+    signal	Xpixel_s     : unsigned(9 downto 0);
+    signal	Ypixel_s     : unsigned(9 downto 0);
 
     -- intermediate signals between KBD_ENC and CPU
     signal data_cpu_kb  : std_logic_vector(7 downto 0);     -- data
@@ -91,10 +95,10 @@ architecture Behavioral of main is
     CPU_UNIT        : cpu port map (clk, rst, we1=>we_s, data_out_picmem=>data_s, save_at=>save_at_s, kb_data=>data_cpu_kb, read_confirm=>rc);
 
     -- picture memory component connection
-    PIC_MEM_UNIT       : PICT_MEM port map(we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, data_out2=>data_out2_s, addr2=>addr2_s);
+    PIC_MEM_UNIT       : PICT_MEM port map(rst=>rst, we1=>we_s, data_in1=>data_s, save_at=>save_at_s, clk=>clk, bitmem_out=>bitmem_out_s, picmem_out=>picmem_out_s, Xpixel=>Xpixel_s, Ypixel=>Ypixel_s);
 
-    -- VGA motor component connection
-    VGA_UNIT        : VGA_MOTOR port map(clk=>clk, rst=>rst, data=>data_out2_s, addr=>addr2_s, vgaRed=>vgaRed, vgaGreen=>vgaGreen, vgaBlue=>vgaBlue, Hsync=>Hsync, Vsync=>Vsync);
+    -- VGA driver component connection
+    VGA_UNIT           : VGA_MOTOR port map(clk=>clk, rst=>rst, vgaRed=>vgaRed, vgaGreen=>vgaGreen, vgaBlue=>vgaBlue, Hsync=>Hsync, Vsync=>Vsync, Xpixel=>Xpixel_s, Ypixel=>Ypixel_s, bitmem_in=>bitmem_out_s, picmem_in =>picmem_out_s);
 
     -- keyboard encoder component connection
     KBD_ENC_UNIT    : KBD_ENC port map(clk=>clk, rst=>rst, PS2KeyboardCLK=>PS2KeyboardClk, PS2KeyboardData=>PS2KeyboardData, data=>data_cpu_kb, read_confirm=>rc);
