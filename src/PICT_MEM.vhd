@@ -15,8 +15,11 @@ entity PICT_MEM is
     port (  rst       : in std_logic;
 	        clk		  : in std_logic;
             we1       : in std_logic;
+            web       : in std_logic;
+            data_inb  : in std_logic;
             data_in1  : in std_logic_vector(7 downto 0);
-            save_at   : in integer range 0 to 3250;
+            save_at   : in integer range 0 to 1200;
+            save_at_b   : in integer range 0 to 153600;
             picmem_out : out std_logic_vector(7 downto 0);
             bitmem_out : out std_logic;
             Xpixel   : in unsigned(9 downto 0);         -- Horizontal pixel counter
@@ -37,14 +40,13 @@ architecture Behavioral of PICT_MEM is
     signal pictMem : ram_t := (others => (x"2F"));
     signal bitmapAddr : integer range 0 to 153600;
 
+
+
 begin
+    --bitmapAddr <= to_integer(Ypixel*to_unsigned(320,10)+Xpixel);
     process(clk)
     begin
         if rising_edge(clk) then
-            if rst='1' then
-                picmem_out <= x"00";
-                bitmem_out <= '0';
-            end if;
             if (we1 ='1') then
                 pictMem(save_at) <= data_in1;
             end if;
