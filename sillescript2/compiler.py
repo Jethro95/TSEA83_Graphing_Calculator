@@ -120,6 +120,9 @@ INSTR_JMP = 20
 #   value given as an argument. Only takes one argument; no commas.
 SPECIAL_INSTR_SET_LINE = "sli"
 
+#A special instruction that pastes the contents of a file into this one
+SPECIAL_INSTR_INCLUDE = "include"
+
 #The characters for using different modes for the instructions, 
 #   and their respective mode number
 MODES = {
@@ -494,7 +497,7 @@ def parseBoolExprForWhile(boolexpr, currentBytecodeLinum):
 
 #Input is a line without any label definitions
 #Returns a list of assembly lines
-#Parsing of "end" is handled separetly
+#Parsing of "include" is handles seperately
 #Returns None if an illegal instruction was given
 def parseLine(line, currentBytecodeLinum):
     #IF:s
@@ -503,13 +506,16 @@ def parseLine(line, currentBytecodeLinum):
     #Loops
     if line.startswith(KEYWORD_WHILE):
         return parseBoolExprForWhile(line[len(KEYWORD_WHILE):], currentBytecodeLinum)
-    #Special instructions
+    #Special instructions (excluding compare)
     if line.startswith(SPECIAL_INSTR_SET_LINE):
         try:
             value = int(line[len(SPECIAL_INSTR_SET_LINE):])
         except ValueError:
             return None
         return [MachineLine("Line initialized to " + str(value)).setLiteral(value)]
+    if line.startswith(SPECIAL_INSTR_INCLUDE):
+        print("Error: Include needs to be handled in an earlier compilation phase.")
+        return None
     #Others
     result = lineToCompleteInstruction(line)
     if result is not None:
@@ -539,72 +545,109 @@ def withoutComment(line):
         else:
             result += char
     return result + "\n"
-            
-#Parses the contents of the given file and converts it to lines of bytecode
-#Returns a list of those lines
-def build(filename):
-    with open(filename) as f: #Open file
-        result = [] #Contains lines to be printed
-        labels = {} #Contains found label definitions
-        while True:
-            line = f.readline().lower()
-            line = line.replace("\t", "")
-            line = line.replace(" ", "")
-            line = withoutComment(line)
-            #print("|",line, end="")
-            if line == "": #End of file
-                break
-            if line == "\n": #Empty line TODO: Isn't caught
-                continue
-            line = line.replace("\n", "") #Remove trailing \n
-            line, label = extractLabel(line)
 
-            if line == "":
-                print("Error: Empty line after label", label, "definition.")
+#Removes whitespace from a line. Keeps trailing \n.
+#Returns the string with removed whitespace
+def withoutWhitespace(line):
+    return line.replace("\t", "").replace(" ", "")
+
+#Parses the list of given lines and converts it to lines of bytecode
+#Can't handle "include"
+#Returns a list of those lines
+def buildLines(lines):
+    result = [] #Contains lines to be printed
+    labels = {} #Contains found label definitions
+    for line in lines:
+        line = line.lower()
+        line = withoutWhitespace(line)
+        line = withoutComment(line)
+        #print("|",line, end="")
+        if line == "": #End of file
+            break
+        if line == "\n": #Empty line TODO: Isn't caught
+            continue
+        line = line.replace("\n", "") #Remove trailing \n
+        line, label = extractLabel(line)
+
+        if line == "":
+            print("Error: Empty line after label", label, "definition.")
+            return
+        elif label == "":
+            print("Error: Empty label on line", line,".")
+            return
+        elif label is not None:
+            if label in labels:
+                print("Error: Multiple definitions of label", label, ".")
                 return
-            elif label == "":
-                print("Error: Empty label on line", line,".")
-                return
-            elif label is not None:
-                if label in labels:
-                    print("Error: Multiple definitions of label", label, ".")
-                    return
-                #Associate next bytecode line with given label
-                labels[label] = len(result)
+            #Associate next bytecode line with given label
+            labels[label] = len(result)
             
-            #Find out if the line modifies a previous instruction, and do the mod
-            modified = False
-            for instruction in reversed(result):
-                success, newlines = instruction.attemptFix(line, len(result))
-                if success:
-                    modified = True
-                    #Insert new instructions
-                    if newlines is not None:
-                        result += newlines
+        #Find out if the line modifies a previous instruction, and do the mod
+        modified = False
+        for instruction in reversed(result):
+            success, newlines = instruction.attemptFix(line, len(result))
+            if success:
+                modified = True
+                #Insert new instructions
+                if newlines is not None:
+                    result += newlines
                     break
 
-            #If the line SHOULD'VE changed a previous line argument
-            if not modified and line in KEYWORDS_MUST_MODIFY:
-                print("Error: trailing", line, ".")
-                return
+        #If the line SHOULD'VE changed a previous line argument
+        if not modified and line in KEYWORDS_MUST_MODIFY:
+            print("Error: trailing", line, ".")
+            return
 
-            if not modified:
-                #It's a new instruction/control structure: eval and append.
-                instructions = parseLine(line, len(result))
-                if instructions is None:
-                    print("Error: Illegal instruction '", line, "'.")
-                    return
-                result += instructions
-        
-        #Replace label references with actual addresses
-        for line in result:
-            if not line.expandLabels(labels):
-                print("Error: label '", line.getLabelArgument(), "' referenced but not defined.")
+        if not modified:
+            #It's a new instruction/control structure: eval and append.
+            instructions = parseLine(line, len(result))
+            if instructions is None:
+                print("Error: Illegal instruction '", line, "'.")
                 return
+            result += instructions
+    
+    #End of loop
+    
+    #Replace label references with actual addresses
+    for line in result:
+        if not line.expandLabels(labels):
+            print("Error: label '", line.getLabelArgument(), "' referenced but not defined.")
+            return
 
-        return result
+    return result
+
+#Converts a file to a lines of instructions.
+#Expands "include"
+def fileToLines(filename, alreadyIncluded=[]):
+    lines = []
+    with open(filename) as f: #Open file
+        for line in f:
+            line = withoutComment(withoutWhitespace(line))
+            if line.lower().startswith(SPECIAL_INSTR_INCLUDE):
+                rest = line[len(SPECIAL_INSTR_INCLUDE):]
+                rest = rest[:len(rest)-1] #Removes trailing endline
+                if rest in alreadyIncluded:
+                    print("Error: circular dependency between", filename,"and",rest,".")
+                    return None
+                r = fileToLines(rest, alreadyIncluded + [filename])
+                if r is None:
+                    return None
+                lines += r
+            else:
+                lines.append(line)
+        return lines
     print("Failed to open ", filename)
     return None
+
+#Parses the contents of the given file and converts it to lines of bytecode
+#Properly performs "include"
+#Returns a list of those lines
+def build(filename):
+    lines = fileToLines(filename)
+    if lines is not None:
+        return buildLines(lines)
+    else:
+        return None
 
 #Adds some fluffs to lines to make them easy to copy-paste into program, and returns it.
 #Formatting designed specifically for this project.
