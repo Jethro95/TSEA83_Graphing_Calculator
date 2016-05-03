@@ -1,0 +1,65 @@
+# Demo usage of script (x and y axis 0 to 1.8)
+load$ 0,0
+load$ 1,98304
+load$ 2,0
+load$ 3,98304
+
+# Save x-low to gr0, x-high to gr1, y-low to gr2, y-high to gr3 and return addr to gr4 before running
+
+
+load$ 0,0
+load$ 1,10
+
+
+# Vertical line top to bottom
+while 1<$153600
+    store 1,&location
+    storeb~ 0,&location
+    add$ 1,320
+end while
+
+# Horizontal line left to right
+load$ 1,0
+while 1<$320
+    # Move to bottom of display
+    add$ 1,150400
+    store 1,&location
+    storeb~ 0,&location
+    # Move back up
+    sub$ 1,150400
+    add$ 1,1
+end while
+
+# Arrow shape (top), left part
+load$ 1,10
+while 1<$3210
+    store 1,&location
+    storeb~ 0,&location
+    add$ 1,321
+end while
+
+# Arrow shape (top), right part 
+load$ 1,10
+while 1<$3210
+    store 1,&location
+    storeb~ 0,&location
+    add$ 1,319
+end while
+
+# Arrow shape (right), both parts
+load$ 1,147510
+while 1<$153600
+    store 1,&location
+    storeb~ 0,&location
+    if 1<$150400
+        add$ 1,321
+    end if
+    if 1>$150400
+        add$ 1,319
+    end if
+end while
+
+
+here:jmp$ 0,&here
+
+location: sli 0
