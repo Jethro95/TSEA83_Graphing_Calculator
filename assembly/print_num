@@ -1,11 +1,11 @@
 # Demo usage of script
-load$ 0,98304 # 1.5 in fixed point
+load$ 0,98304 # 1.5 in fixed point (use 4294868992 for negative 1.5)
 load$ 1,10 # We want the number to be displayed at tileaddr 10-18
 load$ 2,&getbackhere
 jmp$ 0,&printnum
 getbackhere: jmp$ 0,&getbackhere
 
-# Save number to gr0, tileaddr to gr1 and return addr to gr1 before running
+# Save number to gr0, tileaddr to gr1 and return addr to gr2 before running
 
 # GR usage:
 # 0-Loop Counter
@@ -25,6 +25,21 @@ store 2,&returnaddr
 load$ 0,8 #loop counter
 load$ 1,4026531840 #or-map
 load 2,&startat # Tile addr
+
+load 3,&number
+if 3<$0
+    # Display minus sign and move location one place
+    load$ 3,44 # minus tile
+    storep~ 3,&startat
+    add$ 2,1
+    store 2,&startat
+
+
+    # Get abs of number
+    load$ 4,0
+    sub 4,&number
+    store 4,&number
+end if
 
 # Run for all 8 hex digits
 while 0>$1
@@ -53,7 +68,7 @@ while 0>$1
 
     # Place a + sign where the decimal point is
     if 0=$4
-	load$ 3,41 # dot tile
+	    load$ 3,41 # dot tile
         storep~ 3,&startat
         add$ 2,1
         store 2,&startat
