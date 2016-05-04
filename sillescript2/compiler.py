@@ -42,9 +42,17 @@ Comments are written after #'s
 
 SLI is an additional supported instruction. It only takes one argument, as opposed
   to all others. It sets the line to the value given.
-Example usage
+Example usage:
   SLI 0 #Sets the line to all zeroes
   SLI 1337 #Sets the line to the unsigned representation of 1337
+
+INCLUDE is a special instruction that takes a single argument: a file name.
+  It takes the contents of that file and pastes them to the line where the
+  instruction was invoked.
+
+  Labels are shared between files.
+Example usage:
+  include myfile.txt
 """
 
 #========================================================================================
@@ -581,21 +589,22 @@ def buildLines(lines):
                 return
             #Associate next bytecode line with given label
             labels[label] = len(result)
-            
         #Find out if the line modifies a previous instruction, and do the mod
         modified = False
         for instruction in reversed(result):
             success, newlines = instruction.attemptFix(line, len(result))
             if success:
+                print(instruction.line)
                 modified = True
                 #Insert new instructions
                 if newlines is not None:
                     result += newlines
-                    break
+                break      
 
         #If the line SHOULD'VE changed a previous line argument
         if not modified and line in KEYWORDS_MUST_MODIFY:
-            print("Error: trailing", line, ".")
+            #print(len(result))
+            print("Error:", line, "closes non-existing scope.")
             return
 
         if not modified:
@@ -613,6 +622,8 @@ def buildLines(lines):
         if not line.expandLabels(labels):
             print("Error: label '", line.getLabelArgument(), "' referenced but not defined.")
             return
+
+    #TODO: Check for incomplete lines
 
     return result
 
