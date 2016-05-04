@@ -378,10 +378,11 @@ def lineToCompleteInstruction(line):
     instr = -1
     instrLen = -1
     for instruction in INSTRUCTIONS:
-        if line.startswith(instruction):
+        #By finding the longest matching instruction, we avoid problems with
+        #  instructions starting with a shorter instruction
+        if line.startswith(instruction) and len(instruction) > instrLen:
             instr = INSTRUCTIONS[instruction]
             instrLen = len(instruction)
-            break
     if instr == -1:
         return None
     #Mode
