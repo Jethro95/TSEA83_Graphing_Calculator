@@ -594,7 +594,7 @@ def buildLines(lines):
         for instruction in reversed(result):
             success, newlines = instruction.attemptFix(line, len(result))
             if success:
-                print(instruction.line)
+                #print(instruction.line)
                 modified = True
                 #Insert new instructions
                 if newlines is not None:
