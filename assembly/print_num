@@ -1,5 +1,5 @@
 # Demo usage of script
-load$ 0,498073 # (use 498073 for 7.62)
+load$ 0,4294469222 # -7.62 (almost) (use 498073 for 7.62)
 
 load$ 1,10 # We want the number to be displayed at tileaddr 10-18
 load$ 2,&getbackhere
@@ -20,7 +20,7 @@ sli 0
 # Load input data
 printnum: store 0,&number
 store 1,&startat
-store 2,&returnaddr
+store 2,&returnaddrPrinter
 
 
 # Make negative
@@ -90,11 +90,11 @@ end while
 
 
 # Jump to return adress specified by caller
-jmp 0,&returnaddr
+jmp 0,&returnaddrPrinter
 number: sli 0
 bitmap: sli 0
 loopvar1: sli 0
 loopvar2: sli 0
 startat: sli 40 # Where to start placing numbers
-returnaddr: sli 0
-#end: jmp 0,&returnaddr
+returnaddrPrinter: sli 0
+#end: jmp 0,&returnaddrPrinter
