@@ -1,5 +1,6 @@
 # Demo usage of script
-load$ 0,98304 # 1.5 in fixed point (use 4294868992 for negative 1.5)
+load$ 0,498073 # (use 498073 for 7.62)
+
 load$ 1,10 # We want the number to be displayed at tileaddr 10-18
 load$ 2,&getbackhere
 jmp$ 0,&printnum
@@ -21,6 +22,15 @@ printnum: store 0,&number
 store 1,&startat
 store 2,&returnaddr
 
+
+# Make negative
+#load$ 1,0
+#sub 1,&number
+#add$ 1,1
+#store 1,&number
+
+
+
 # Setup
 load$ 0,8 #loop counter
 load$ 1,4026531840 #or-map
@@ -36,6 +46,9 @@ if 3<$0
 
 
     # Get abs of number
+    load 4,&number
+    sub$ 4,1
+    store 4,&number
     load$ 4,0
     sub 4,&number
     store 4,&number
