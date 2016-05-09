@@ -1,11 +1,3 @@
-# Demo usage of script
-load$ 0,4294469222 # -7.62 (almost) (use 498073 for 7.62)
-
-load$ 1,10 # We want the number to be displayed at tileaddr 10-18
-load$ 2,&getbackhere
-jmp$ 0,&printnum
-getbackhere: jmp$ 0,&getbackhere
-
 # Save number to gr0, tileaddr to gr1 and return addr to gr2 before running
 
 # GR usage:
@@ -15,7 +7,6 @@ getbackhere: jmp$ 0,&getbackhere
 # 3-number to display
 # 4-6 Unused
 # 7-Loop counter to move numbers
-sli 0
 
 # Load input data
 printnum: store 0,&number
