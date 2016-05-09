@@ -1,6 +1,6 @@
 # GR usage
 # GR0 nämnare
-# GR1 täljare
+# GR1 divisiontäljare
 # GR2 Result
 
 load$ 0,458752 # 7 in sfixed
@@ -8,19 +8,56 @@ load$ 0,458752 # 7 in sfixed
 load$ 1,98304  # 1.5 in sfixed
 
 
+#
+store 0,&divisionnämnare
+store 1,&divisiontäljare
+
+# Improve precicion
+load$ 2,0 # How many shifts
+while 0<$1073741824
+	lsl$ 0,1
+	add$ 2,1
+end while
+store 2,&divisionshifted
+
+
 load$ 2,0
-store 1,&täljare
 while 0>$0
-    store 0,&last
-	sub 0,&täljare
+    store 0,&divisionlast
+	sub 0,&divisiontäljare
     add$ 2,65536
 end while
 sub$ 2,65536
-store 2,&firstresult
+lsr 2,&divisionshifted
+store 2,&divisionresult
 
-here :jmp$0,&here
+# Print division
 
-täljare: sli 0
-last:sli 0
-firstresult: sli 0
-secondresult: sli 0
+load 0,&divisionnämnare
+load$ 1,0
+load$ 2,&printtäljare
+jmp$ 0,&printnum
+
+printtäljare:load 0,&divisiontäljare
+load$ 1,10
+load$ 2,&printresult
+jmp$ 0,&printnum
+
+
+printresult: load 0,&divisionresult
+load$ 1,20
+load$ 2,&getbackhere
+jmp$ 0,&printnum
+getbackhere: jmp$ 0,&getbackhere
+
+
+divisionhere :jmp$0,&divisionhere
+
+divisiontäljare: sli 0
+divisionnämnare: sli 0
+divisionlast:sli 0
+divisionresult: sli 0
+divisionshifted: sli 0
+
+
+include print_num
