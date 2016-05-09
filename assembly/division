@@ -1,0 +1,26 @@
+# GR usage
+# GR0 nämnare
+# GR1 täljare
+# GR2 Result
+
+load$ 0,458752 # 7 in sfixed
+#load$ 1,196608 # 3 in sfixed
+load$ 1,98304  # 1.5 in sfixed
+
+
+load$ 2,0
+store 1,&täljare
+while 0>$0
+    store 0,&last
+	sub 0,&täljare
+    add$ 2,65536
+end while
+sub$ 2,65536
+store 2,&firstresult
+
+here :jmp$0,&here
+
+täljare: sli 0
+last:sli 0
+firstresult: sli 0
+secondresult: sli 0
