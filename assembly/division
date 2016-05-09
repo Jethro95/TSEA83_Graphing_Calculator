@@ -1,16 +1,14 @@
+# Save nämnare to gr0, täljare to gr1 and return addr to gr2 before running. Result will be in gr2
+
+
 # GR usage
 # GR0 nämnare
 # GR1 divisiontäljare
 # GR2 Result
 
-load$ 0,458752 # 7 in sfixed
-#load$ 1,196608 # 3 in sfixed
-load$ 1,98304  # 1.5 in sfixed
-
-
-#
-store 0,&divisionnämnare
-store 1,&divisiontäljare
+# Setup
+# GR0 and GR1 already as intended
+divide:store 2,&divisionreturnaddr
 
 # Improve precicion
 load$ 2,0 # How many shifts
@@ -22,42 +20,19 @@ store 2,&divisionshifted
 
 
 load$ 2,0
+store 1,&divisiontäljare
 while 0>$0
-    store 0,&divisionlast
 	sub 0,&divisiontäljare
     add$ 2,65536
 end while
 sub$ 2,65536
 lsr 2,&divisionshifted
-store 2,&divisionresult
 
-# Print division
-
-load 0,&divisionnämnare
-load$ 1,0
-load$ 2,&printtäljare
-jmp$ 0,&printnum
-
-printtäljare:load 0,&divisiontäljare
-load$ 1,10
-load$ 2,&printresult
-jmp$ 0,&printnum
+jmp 0,&divisionreturnaddr
 
 
-printresult: load 0,&divisionresult
-load$ 1,20
-load$ 2,&getbackhere
-jmp$ 0,&printnum
-getbackhere: jmp$ 0,&getbackhere
-
-
-divisionhere :jmp$0,&divisionhere
 
 divisiontäljare: sli 0
-divisionnämnare: sli 0
-divisionlast:sli 0
-divisionresult: sli 0
 divisionshifted: sli 0
+divisionreturnaddr: sli 0
 
-
-include print_num
