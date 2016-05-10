@@ -1,21 +1,4 @@
 
-load$ 0,&data
-load$ 1,&opv
-load$ 2,3
-load$ 3,&end
-jmp$ 0,&evaluate
-end:jmp$ 0,&end
-
-data: sli 1
-sli 2
-sli 43
-
-opv: sli 0
-sli 0
-sli 1
-
-#==============================
-
 # HOW TO USE:
 # Save start location of input to gr0, start of op-vector at gr1, number of input values to gr2 and return to gr3
 # Jump to &evaluate
