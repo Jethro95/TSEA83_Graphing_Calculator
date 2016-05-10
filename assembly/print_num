@@ -40,6 +40,12 @@ if 3<$0
     load$ 4,0
     sub 4,&number
     store 4,&number
+else
+    # Display minus sign and move location one place
+    load$ 3,47 # space tile
+    storep~ 3,&startat
+    add$ 2,1
+    store 2,&startat
 end if
 
 # Run for all 8 hex digits
