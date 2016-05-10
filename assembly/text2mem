@@ -28,8 +28,9 @@ JMP$ 0,&reset
 
 # Demo usage of script
 test: load$ 0,&memstart # start of input
-load 1,&loopcounter
-load$ 2,&getbackhere
+load$ 0,&op
+load 2,&loopcounter
+load$ 3,&getbackhere
 jmp$ 0,&evaluate
 getbackhere: load$ 1,10 # We want the number to be displayed at tileaddr 10-18
 # GR0 is already result
@@ -55,20 +56,6 @@ SLI 0
 SLI 0
 SLI 0
 SLI 0
+op:SLI 0    #TODO: generate automatically
 SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
-SLI 0
+SLI 1
