@@ -626,6 +626,7 @@ def buildLines(lines):
 #Converts a file to a lines of instructions.
 #Expands "include"
 def fileToLines(filename, alreadyIncluded=[]):
+    alreadyIncluded.append(filename)
     lines = []
     with open(filename) as f: #Open file
         for line in f:
@@ -636,7 +637,7 @@ def fileToLines(filename, alreadyIncluded=[]):
                 if rest in alreadyIncluded:
                     print("Warning:", rest,"included a multiple times. Ignoring occurence.")
                 else:
-                    r = fileToLines(rest, alreadyIncluded + [filename])
+                    r = fileToLines(rest, alreadyIncluded)
                     if r is None:
                         return None
                     lines += r
