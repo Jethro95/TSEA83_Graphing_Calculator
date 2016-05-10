@@ -102,9 +102,9 @@ while 6>$1 #While there are input tokens left
     end if
     if 2=$46 #Div
        # Backup grx
-       store 0,&gr0backup
-       store 1,&gr1backup
-       store 2,&gr2backup
+       store 0,&gr0backuprp
+       store 1,&gr1backuprp
+       store 2,&gr2backuprp
        # Save nämnare to gr0, täljare to gr1 and return addr to gr2 before running. Result will be in gr2
        store 4,&tmp
        load 1,&tmp
@@ -112,9 +112,9 @@ while 6>$1 #While there are input tokens left
        load$ 2,&returnfromdivision
        jmp$ 0,&divide
 
-returnfromdivision:load 0,&gr0backup
-       load 1,&gr1backup
-       load 2,&gr2backup
+returnfromdivision:load 0,&gr0backuprp
+       load 1,&gr1backuprp
+       load 2,&gr2backuprp
     end if
 
     # Save Gr4==result at the point in stack on which the second
@@ -183,8 +183,8 @@ nextIsOpLocation: sli 0
 nextInputLocation: sli 0
 inputcount: sli 3
 returnaddr: sli 0
-gr0backup:sli 0
-gr1backup:sli 0
-gr2backup:sli 0
+gr0backuprp:sli 0
+gr1backuprp:sli 0
+gr2backuprp:sli 0
 
 include division

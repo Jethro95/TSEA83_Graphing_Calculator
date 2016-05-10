@@ -1,4 +1,14 @@
 include drawaxis
+
+# GR usage (incomplete)
+# GR 0 tmp
+# GR 1 tmp2
+# GR 2 Unused
+# GR 3 Unused
+# GR 4 Unused
+# GR 5 zero, for writing to bitmap
+# GR 6 X-pixel counter
+# GR 7 Unused
 load$ 0,0
 load$ 1,1
 load$ 2,0
@@ -7,8 +17,6 @@ load$ 3,0
 load$ 0,20
 store 0,&y
 
-load$ 0,20
-store 0,&x
 
 load$ 5,0
 
@@ -16,17 +24,35 @@ load$ 5,0
 
 load$ 6,0
 while 6<$300
-        load 0,&x
-	    add$ 0,1
-        store 0,&x
+        store 0,&gr0backup
+        store 1,&gr1backup
+        store 2,&gr2backup
+        store 3,&gr3backup
+        store 4,&gr4backup
+        store 5,&gr5backup
+        store 6,&gr6backup
+        store 7,&gr7backup
 
-        #calculate new y
-        load 0,&y
-        add$ 0,1
+        # Get next y
+        load$ 0,&data
+        load$ 1,&type
+        load$ 2,3
+        load 3,&gr6backup
+        load$ 4,0
+        load$ 5,300
+        load$ 6,&returnfromeval
+        jmp$ 0,&evalFunction
+returnfromeval: lsr$ 0,16
         store 0,&y
-
+        load 0,&gr0backup
+        load 1,&gr1backup
+        load 2,&gr2backup
+        load 3,&gr3backup
+        load 4,&gr4backup
+        load 5,&gr5backup
+        load 6,&gr6backup
+        load 7,&gr7backup
         load$ 7,&here
-        store 7,&returnaddr
         jmp$ 0,&xytoaddr
         # &bitmapaddr is now set
 here:   storeb~ 5,&bitmapaddr
@@ -45,7 +71,7 @@ xytoaddr:load$ 0,320
 #	lsr$ 0,16
     lsr$ 1,16
     store 1,&ytmp
-	add 0,&x
+	add 0,&gr6backup
 	store 0,&bitmapaddr
 jmp$ 0,&here
 
@@ -53,4 +79,24 @@ x:sli 0
 y:sli 0
 ytmp:sli 0
 bitmapaddr: sli 0
-returnaddr: sli 0
+
+gr0backup:sli 0
+gr1backup:sli 0
+gr2backup:sli 0
+gr3backup:sli 0
+gr4backup:sli 0
+gr5backup:sli 0
+gr6backup:sli 0
+gr7backup:sli 0
+
+
+data: sli 0
+sli 1
+sli 43
+
+type: sli 2
+sli 0
+sli 1
+
+
+include eval_function
