@@ -5,10 +5,38 @@
 # GR0 nämnare
 # GR1 divisiontäljare
 # GR2 Result
+# GR3 Isnegative
+# GR4 For invertion
 
 # Setup
 # GR0 and GR1 already as intended
+
+
 divide:store 2,&divisionreturnaddr
+store 0,&divisionnämnare
+store 1,&divisiontäljare
+
+#Get abs of nämnare
+if 0<$0
+    load$ 4,0
+    sub 4,&divisionnämnare
+    store 4,&divisionnämnare
+    load 0,&divisionnämnare
+    load$ 3,1
+end if
+
+#Get abs of nämnare
+if 1<$0
+    load$ 4,0
+    sub 4,&divisiontäljare
+    store 4,&divisiontäljare
+    load 0,&divisiontäljare
+    if 3=$1
+        load$ 3,0
+    else
+        load$ 3,1
+    end if
+end if
 
 # Improve precicion
 load$ 2,0 # How many shifts
@@ -20,7 +48,7 @@ store 2,&divisionshifted
 
 
 load$ 2,0
-store 1,&divisiontäljare
+
 while 0>$0
 	sub 0,&divisiontäljare
     add$ 2,65536
@@ -28,11 +56,24 @@ end while
 sub$ 2,65536
 lsr 2,&divisionshifted
 
+
+# Is negative, invert
+if 3=$1
+    store 2,&divisiontäljare # Actually result, but stealing addr
+    load$ 4,0
+    sub 4,&divisiontäljare
+    store 4,&divisiontäljare
+    load 2,&divisiontäljare
+end if
+
+
+
 jmp 0,&divisionreturnaddr
 
 
 
 divisiontäljare: sli 0
+divisionnämnare: sli 0
 divisionshifted: sli 0
 divisionreturnaddr: sli 0
 
