@@ -464,7 +464,7 @@ def parseBoolExpr(boolexpr):
     if rhs.startswith(LITERAL_DENOTER):
         return (True, jumpcode, int(lhs), True, False, int(rhs[1:]))
     elif rhs.startswith(LABEL_DENOTER):
-        return (True, jumpcode, int(lhs), True, True, int(rhs[1:]))
+        return (True, jumpcode, int(lhs), False, True, rhs[1:])
     else:
         return (True, jumpcode, int(lhs), False, False, int(rhs))
 
