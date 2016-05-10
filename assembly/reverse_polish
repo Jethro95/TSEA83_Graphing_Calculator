@@ -101,11 +101,20 @@ while 6>$1 #While there are input tokens left
        multf~ 4,&stackpointer
     end if
     if 2=$46 #Div
-       # The same problem as with minus
-       store 4,&tmp # Gr4 -> p_mem
-       load~ 4,&stackpointer # p_mem (second operande) -> Gr4
-       #Perform the operation, now with proper ordering
-       divf 4,&tmp
+       # Backup grx
+       store 0,&gr0backup
+       store 1,&gr1backup
+       store 2,&gr2backup
+       # Save nämnare to gr0, täljare to gr1 and return addr to gr2 before running. Result will be in gr2
+       store 4,&tmp
+       load 1,&tmp
+       load~ 0,&stackpointer
+       load$ 2,&returnfromdivision
+       jmp$ 0,&divide
+
+returnfromdivision:load 0,&gr0backup
+       load 1,&gr1backup
+       load 2,&gr2backup
     end if
 
     # Save Gr4==result at the point in stack on which the second
@@ -174,3 +183,8 @@ nextIsOpLocation: sli 0
 nextInputLocation: sli 0
 inputcount: sli 3
 returnaddr: sli 0
+gr0backup:sli 0
+gr1backup:sli 0
+gr2backup:sli 0
+
+include division
