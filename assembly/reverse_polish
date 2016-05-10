@@ -2,7 +2,7 @@
 # HOW TO USE:
 # Save start location of input to gr0, start of op-vector at gr1, number of input values to gr2 and return to gr3
 # Jump to &evaluate
-# The op-vector is a series of zero or non-zero elements. A non-zero 
+# The op-vector is a series of zero or non-zero elements. A 1-valued 
 #   element implies that the input of the same index represents an operator.
 # Result will be put in gr0. See below for a list of modified GRx's
 # The routine was unsuccesful if Gr1 > 0 after running it.
@@ -50,10 +50,10 @@ while 6>$1 #While there are input tokens left
 
 
     # Check if token is a number or an operator and jump appropriately
-    if 7=$0
-       jmp$ 0,&processNumber
-    else
+    if 7=$1
        jmp$ 0,&processOperator
+    else
+       jmp$ 0,&processNumber
     end if
 
     #---------------------------------

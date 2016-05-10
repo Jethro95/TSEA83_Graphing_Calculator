@@ -1,0 +1,145 @@
+
+
+# Test program
+#load$ 0,&data
+#load$ 1,&type
+#load$ 2,3
+#load$ 3,1
+#load$ 4,0
+#load$ 5,320
+#load$ 6,&stop
+#jmp$ 0,&evalFunction
+#stop: jmp$0,&stop
+
+#data: sli 0
+#sli 1
+#sli 43
+
+#type: sli 2
+#sli 0
+#sli 1
+
+include reverse_polish
+include division
+
+# GR Usage:
+# GR0: pointer to value vector
+# GR1: pointer to IsOp vector
+#      0=isLiteral, 1=isOp, 2=isX
+# GR2: vector size
+# GR3: current X-pixel
+# GR4: starting X-pixel X-value
+# GR5: ending X-pixel X-value
+# GR6: return address
+#
+# Result is put on GR0
+# GR1==0 if succesful, GR1==1 otherwise
+#
+# To run, jmp to &evalFunction
+
+# Load input data
+evalFunction: store 0,&inpVectorStart
+store 1,&typeVectorStart
+store 2,&inputLength
+store 3,&pixelCurrent
+store 4,&valueStart
+store 5,&valueEnd
+store 6,&returnAddress
+store 0,&nextInput
+store 1,&nextInputType
+
+# Calculating limits
+
+# Pixelrange: GR0
+load 0,&pixelEnd
+sub 0,&pixelStart
+
+# Valuerange: GR1
+load 1,&valueEnd
+sub 1,&valueStart
+
+# ValuePerPixel
+asl$ 0,16 # Convert pixelrange to real
+asl$ 1,16 # Convert valuerange to real
+load$ 2,&endDiv
+jmp$ 0,&divide # GR2 := valuerange/pixelrange
+endDiv: store 2,&tmp_ef # Store result at tmp_ef
+load 1,&tmp_ef # Load result to GR1
+
+# Calculate value gain from movement from x=0
+# Store it at GR1
+load 0,&pixelCurrent
+asl$ 0,16 # Convert GR0==pixelcurrent to real
+store 0,&tmp_ef # Store it at tmp
+multf 1,&tmp_ef # Multiply pixel with value per pixel
+
+# Convert value at start to real
+# Store at &tmp
+load 0,&valueStart
+asl$ 0,16
+store 0,&tmp_ef
+
+# Add them together
+# Store at GR1
+add 1,&tmp_ef
+
+# Recap:
+# At this point, GR1 is the x-value to insert in function
+# All other GR's are unused
+
+# Modify function: Replace X'es
+load$ 0,0 # Loop counter
+while 0 < &inputLength # While GR0 > 0
+      
+      load~ 2,&nextInputType
+
+      if 2=$2 # If value is X
+      	 # Replace the X in the function with proper Xval
+      	 store~ 1,&nextInput
+      end if
+      
+      # Increment loop counter
+      add$ 0,1
+      #Increment input ptr
+      load 2,&nextInput
+      add$ 2,1
+      store 2,&nextInput
+      #Increment input type
+      load 2,&nextInputType
+      add$ 2,1
+      store 2,&nextInputType
+
+end while
+
+# Call reverse polish with new function
+load 0,&inpVectorStart
+load 1,&typeVectorStart
+load 2,&inputLength
+load$ 3,&endEval
+jmp$ 0,&evaluate # Run polish
+
+# Return to caller
+endEval: load$ 1,0
+jmp 0,&returnAddress
+
+#=========================================================
+
+# CONSTANTS
+pixelStart    : sli 0
+pixelEnd      : sli 320
+
+# VARIABLES
+
+# Input data
+inpVectorStart  : sli 0
+typeVectorStart : sli 0
+nextInput       : sli 0
+nextInputType   : sli 0
+inputLength     : sli 0
+pixelCurrent    : sli 0
+valueStart      : sli 0
+valueEnd        : sli 0
+returnAddress   : sli 0
+
+# Locals
+tmp_ef          : sli 0
