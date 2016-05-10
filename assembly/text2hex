@@ -5,7 +5,16 @@
 #GR3 : dot shift amount
 #GR4 : final result
 #GR5 : isnegative
+
+#OUTPUT:
+#GR2 : result
  
+reset: LOAD$ 0,0
+LOAD$ 1,0
+LOAD$ 2,0
+LOAD$ 3,0
+LOAD$ 4,0
+LOAD$ 5,0
 start: RC 0,0	#Read input to GR0
 LOAD$ 3,12
 STORE 3,&shift
@@ -15,7 +24,19 @@ if 0 = $255
 	JMP$ 0,&start
 endif
 
-if 0 = $44
+if 0 = $42  # '='
+    STORE 0,&result
+	JMP$ 0,&enter
+endif
+
+if 0 > $42
+    if 0 < $47
+        STORE 0,&result
+	    JMP$ 0,&enter
+    endif
+endif
+
+if 0 = $23  #Input = 'N' (negative)
     LOAD$ 5,1
     JMP$ 0,&start
 endif
@@ -54,15 +75,12 @@ endif
 
 if 0 = $47
     if 5 = $1
-        LOAD$ 6,0
-        SUB 6,&heltal
-        STORE 6,&heltal
-
-        STORE 1,&dec
-        LOAD$ 6,0
-        SUB 6,&dec
-        STORE 6,&dec
-        LOAD 1,&dec
+        ADD 1,&heltal  #Add whole number to decimal part
+        STORE 1,&result
+        LOAD$ 1,0
+        SUB 1,&result
+        STORE 1,&result
+        JMP$ 0,&done
     endif
     
     ADD 1,&heltal
@@ -79,103 +97,18 @@ endif
 JMP$ 0,&dot
 
 done: STORE 1,&result
-LOAD 4,&result
+enter: LOAD 2,&result
 
 
+#load 0,&result # 1.5 in fixed point
+#load$ 1,100
+#load$ 2,&reset
+#jmp$ 0,&printnum
 
-##########################
-#    display result      #
-##########################
-
-load 0,&result # 1.5 in fixed point
-load$ 1,100
-load$ 2,&start
-jmp$ 0,&printnum
-
-# Save number to gr0, tileaddr to gr1 and return addr to gr2 before running
-
-# GR usage:
-# 0-Loop Counter
-# 1-Or map
-# 2-tileaddr
-# 3-number to display
-# 4-6 Unused
-# 7-Loop counter to move numbers
-sli 0
-
-# Load input data
-printnum: store 0,&number
-store 1,&startat
-store 2,&returnaddr
-
-# Setup
-load$ 0,8 #loop counter
-load$ 1,4026531840 #or-map
-load 2,&startat # Tile addr
-
-load 3,&number
-if 3<$0
-    # Display minus sign and move location one place
-    load$ 3,44 # minus tile
-    storep~ 3,&startat
-    add$ 2,1
-    store 2,&startat
-
-
-    # Get abs of number
-    load$ 4,0
-    sub 4,&number
-    store 4,&number
-end if
-
-# Run for all 8 hex digits
-while 0>$1
-    load 3,&number # Set gr3 to &number
-
-    # Filter out current nibble
-    store 1,&bitmap
-    and 3,&bitmap
-    lsr$ 1,4 # Move bitmap
-
-    # Move resulting number over to end of gr3
-    store 0,&loopvar1
-    load 7,&loopvar1
-    while 7>$2
-        lsr$ 3,4
-        sub$ 7,1
-    end while
-
-    # Store final number to display
-    storep~ 3,&startat
-
-    # Prepare next loop
-    sub$ 0,1
-    add$ 2,1
-    store 2,&startat
-
-    # Place a + sign where the decimal point is
-    if 0=$4
-	    load$ 3,41 # dot tile
-        storep~ 3,&startat
-        add$ 2,1
-        store 2,&startat
-    end if
-end while
-
-
-# Jump to return adress specified by caller
-jmp 0,&returnaddr
-number: sli 0
-bitmap: sli 0
-loopvar1: sli 0
-loopvar2: sli 0
-startat: sli 40 # Where to start placing numbers
-returnaddr: sli 0
-#end: jmp 0,&returnaddr
+#include print_num
 
 #Empty rows for variables
 input: SLI 0
 heltal: SLI 0
 shift: SLI 0
 result: SLI 0
-dec: SLI 0
