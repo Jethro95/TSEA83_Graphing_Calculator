@@ -15,7 +15,7 @@ if 0 = $255
 	JMP$ 0,&start
 endif
 
-if 0 = $23
+if 0 = $44
     LOAD$ 5,1
     JMP$ 0,&start
 endif
@@ -57,7 +57,14 @@ if 0 = $47
         LOAD$ 6,0
         SUB 6,&heltal
         STORE 6,&heltal
+
+        STORE 1,&dec
+        LOAD$ 6,0
+        SUB 6,&dec
+        STORE 6,&dec
+        LOAD 1,&dec
     endif
+    
     ADD 1,&heltal
     JMP$ 0,&done
 endif
@@ -106,6 +113,21 @@ load$ 0,8 #loop counter
 load$ 1,4026531840 #or-map
 load 2,&startat # Tile addr
 
+load 3,&number
+if 3<$0
+    # Display minus sign and move location one place
+    load$ 3,44 # minus tile
+    storep~ 3,&startat
+    add$ 2,1
+    store 2,&startat
+
+
+    # Get abs of number
+    load$ 4,0
+    sub 4,&number
+    store 4,&number
+end if
+
 # Run for all 8 hex digits
 while 0>$1
     load 3,&number # Set gr3 to &number
@@ -133,30 +155,13 @@ while 0>$1
 
     # Place a + sign where the decimal point is
     if 0=$4
-        load$ 3,43 #plus sign
+	    load$ 3,41 # dot tile
         storep~ 3,&startat
         add$ 2,1
         store 2,&startat
     end if
 end while
 
-
-# Display /FFFF
-load$ 3,46 # /
-storep~ 3,&startat
-add$ 2,1
-store 2,&startat
-
-
-# FFFF
-load$ 0,0 #loop counter #TODO: Does while run the correct amount of times!?
-while 0<$4
-    load$ 3,15 # F
-    storep~ 3,&startat
-    add$ 2,1
-    store 2,&startat
-    add$ 0,1
-end while
 
 # Jump to return adress specified by caller
 jmp 0,&returnaddr
@@ -173,3 +178,4 @@ input: SLI 0
 heltal: SLI 0
 shift: SLI 0
 result: SLI 0
+dec: SLI 0
