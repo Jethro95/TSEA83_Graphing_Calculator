@@ -52,6 +52,9 @@ while 6>$1 #While there are input tokens left
     if 2=$45 # Mult
        jmp$ 0,&processOperator
     end if;
+    if 2=$46 # Div
+       jmp$ 0,&processOperator
+    end if
     #Not an operator...
     jmp$ 0,&processNumber
 
@@ -77,7 +80,6 @@ while 6>$1 #While there are input tokens left
     store 0,&stackpointer #Have &stackpointer point to arg number 2
 
     #Perform appropriate operation
-    #TODO: Doesn't work with addf
     if 2=$43 # plus 
        addf~ 7,&stackpointer
     end if
@@ -98,7 +100,14 @@ while 6>$1 #While there are input tokens left
     end if
     if 2=$45 # Mult
        multf~ 7,&stackpointer
-    end if;
+    end if
+    if 2=$46 #Div
+       # The same problem as with minus
+       store 7,&tmp # Gr7 -> p_mem
+       load~ 7,&stackpointer # p_mem (second operande) -> Gr7
+       #Perform the operation, now with proper ordering
+       divf 7,&tmp
+    end if
 
     # Save Gr7==result at the point in stack on which the second
     #    arg resided
