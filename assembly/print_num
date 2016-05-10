@@ -37,9 +37,6 @@ if 3<$0
 
 
     # Get abs of number
-    load 4,&number
-    sub$ 4,1
-    store 4,&number
     load$ 4,0
     sub 4,&number
     store 4,&number
