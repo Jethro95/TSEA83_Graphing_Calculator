@@ -1,0 +1,26 @@
+
+#======================
+#   TESTS
+#======================
+
+# Demo usage of script
+load$ 0,&data # start of input
+load$ 1,3 # TODO: Change to 3 if other tests
+load$ 2,&getbackhere
+jmp$ 0,&evaluate
+getbackhere: load$ 1,10 # We want the number to be displayed at tileaddr 10-18
+# GR0 is already result
+load$ 2,&end
+jmp$ 0,&printnum
+
+
+end:jmp$ 0,&end
+
+# Test -7.62(slightly wrong)*2=-15.24 
+data: sli 4294469222
+sli 131072
+sli 45 # mult
+
+
+include reverse_polish
+include print_num

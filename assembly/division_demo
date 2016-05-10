@@ -1,0 +1,42 @@
+# Load data
+load 0,&nämnare
+#load$ 1,196608 # 3 in sfixed (Täljare)
+load 1,&täljare  # 1.5 in sfixed (Täljare)
+load$ 2,&getbackhere
+
+# Run division
+jmp$ 0,&divide
+getbackhere: store 2,&result
+
+
+
+# Print division
+
+load 0,&nämnare
+load$ 1,0
+load$ 2,&printtäljare
+jmp$ 0,&printnum
+
+printtäljare:load 0,&täljare
+load$ 1,10
+load$ 2,&printresult
+jmp$ 0,&printnum
+
+
+printresult: load 0,&result
+load$ 1,20
+load$ 2,&divisionhere
+jmp$ 0,&printnum
+
+
+divisionhere :jmp$0,&divisionhere
+
+
+
+
+result: sli 0
+täljare: sli 98304 # 1.5 fixed point
+nämnare: sli 458752 # 7 fixed point
+
+include print_num
+include division

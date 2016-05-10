@@ -1,41 +1,4 @@
 
-#======================
-#   TESTS
-#======================
-
-# Demo usage of script
-load$ 0,&data # start of input
-load$ 1,9 # TODO: Change to 3 if other tests
-load$ 2,&getbackhere
-jmp$ 0,&evaluate
-getbackhere: jmp$ 0,&getbackhere
-
-# Test 1+2=3
-#data: sli 2
-#sli 1
-#sli 43 # Plus
-
-# Test 3-1=2
-#data: sli 1
-#sli 3
-#sli 44 # Minus
-
-# Test 2*2=4
-#data: sli 131072 #2.0
-#sli 131072 #2.0
-#sli 45 # Mult
-
-# Test 5 1 2 + 4 * + 3 − = 14
-# (the one from https://en.wikipedia.org/wiki/Reverse_Polish_notation)
-data: sli 5
-sli 1
-sli 2
-sli 43 # Plus
-sli 262144 # 4.0
-sli 45 # Mult
-sli 43 # Plus
-sli 3
-sli 44 # Minus
 
 #==============================
 
