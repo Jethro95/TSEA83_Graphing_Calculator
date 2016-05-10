@@ -1,0 +1,56 @@
+include drawaxis
+load$ 0,0
+load$ 1,1
+load$ 2,0
+load$ 3,0
+
+load$ 0,20
+store 0,&y
+
+load$ 0,20
+store 0,&x
+
+load$ 5,0
+
+
+
+load$ 6,0
+while 6<$300
+        load 0,&x
+	    add$ 0,1
+        store 0,&x
+
+        #calculate new y
+        load 0,&y
+        add$ 0,1
+        store 0,&y
+
+        load$ 7,&here
+        store 7,&returnaddr
+        jmp$ 0,&xytoaddr
+        # &bitmapaddr is now set
+here:   storeb~ 5,&bitmapaddr
+        add$ 6,1
+end while
+back:jmp$ 0,&back
+
+
+# x,y=>bitmapaddr y*320+x
+xytoaddr:load$ 0,320
+	load$ 1,480
+    sub 1,&y
+	lsl$ 1,16
+	store 1,&ytmp
+	multf 0,&ytmp
+#	lsr$ 0,16
+    lsr$ 1,16
+    store 1,&ytmp
+	add 0,&x
+	store 0,&bitmapaddr
+jmp$ 0,&here
+
+x:sli 0
+y:sli 0
+ytmp:sli 0
+bitmapaddr: sli 0
+returnaddr: sli 0
