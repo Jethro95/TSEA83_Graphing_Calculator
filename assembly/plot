@@ -39,7 +39,7 @@ while 6<$300
         load$ 2,3
         load 3,&gr6backup
         load$ 4,0
-        load$ 5,300
+        load$ 5,19660800 #300
         load$ 6,&returnfromeval
         jmp$ 0,&evalFunction
 returnfromeval: lsr$ 0,16
@@ -91,11 +91,11 @@ gr7backup:sli 0
 
 
 data: sli 0
-sli 1
-sli 43
-
-type: sli 2
 sli 0
+sli 44
+
+type: sli 0
+sli 2
 sli 1
 
 

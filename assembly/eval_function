@@ -26,10 +26,10 @@ include division
 # GR0: pointer to value vector
 # GR1: pointer to IsOp vector
 #      0=isLiteral, 1=isOp, 2=isX
-# GR2: vector size
-# GR3: current X-pixel
-# GR4: starting X-pixel X-value
-# GR5: ending X-pixel X-value
+# GR2: vector size (int)
+# GR3: current X-pixel (int)
+# GR4: starting X-pixel X-value (real)
+# GR5: ending X-pixel X-value (real)
 # GR6: return address
 #
 # Result is put on GR0
@@ -56,11 +56,10 @@ sub 0,&pixelStart
 
 # Valuerange: GR1
 load 1,&valueEnd
-sub 1,&valueStart
+subf 1,&valueStart
 
 # ValuePerPixel
 asl$ 0,16 # Convert pixelrange to real
-asl$ 1,16 # Convert valuerange to real
 load$ 2,&endDiv
 jmp$ 0,&divide # GR2 := valuerange/pixelrange
 endDiv: store 2,&tmp_ef # Store result at tmp_ef
@@ -73,15 +72,9 @@ asl$ 0,16 # Convert GR0==pixelcurrent to real
 store 0,&tmp_ef # Store it at tmp
 multf 1,&tmp_ef # Multiply pixel with value per pixel
 
-# Convert value at start to real
-# Store at &tmp
-load 0,&valueStart
-asl$ 0,16
-store 0,&tmp_ef
-
-# Add them together
+# Add valuestart
 # Store at GR1
-add 1,&tmp_ef
+add 1,&valueStart
 
 # Recap:
 # At this point, GR1 is the x-value to insert in function
