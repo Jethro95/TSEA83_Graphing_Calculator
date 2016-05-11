@@ -4,10 +4,14 @@ load$ 1,&opv
 load$ 2,3
 load$ 3,&end
 jmp$ 0,&evaluate
-end:jmp$ 0,&end
 
-data: sli 4294744473
-sli 98304
+end:load$ 1,20
+load$ 2,&end2
+jmp$ 0,&printnum
+end2:jmp$ 0,&end2
+
+data: sli 524288
+sli 131072
 sli 46
 
 opv: sli 0
@@ -15,3 +19,5 @@ sli 0
 sli 1
 
 include reverse_polish
+include print_num
+result: sli 0

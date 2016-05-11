@@ -111,13 +111,13 @@ while 6>$1 #While there are input tokens left
        store 6,&gr6backuprp
        store 7,&gr7backuprp   
        # Save nämnare to gr0, täljare to gr1 and return addr to gr2 before running. Result will be in gr2
-       store 4,&tmp
-       load 1,&tmp
+       load 1,&gr4backuprp
        load~ 0,&stackpointer
        load$ 2,&returnfromdivision
        jmp$ 0,&divide
 
-returnfromdivision:load 0,&gr0backuprp
+returnfromdivision:store 2,&tmp
+       load 0,&gr0backuprp
        load 1,&gr1backuprp
        load 2,&gr2backuprp
        load 3,&gr3backuprp
@@ -125,6 +125,7 @@ returnfromdivision:load 0,&gr0backuprp
        load 5,&gr5backuprp 
        load 6,&gr6backuprp
        load 7,&gr7backuprp
+       load 4,&tmp
     end if
 
     # Save Gr4==result at the point in stack on which the second
