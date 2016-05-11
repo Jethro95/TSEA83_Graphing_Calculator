@@ -8,6 +8,15 @@
 
 #OUTPUT:
 #GR2 : result
+
+ultrareset: LOAD$ 0,0
+STORE 0,&input
+STORE 0,&heltal
+STORE 0,&shift
+STORE 0,&result
+STORE 0,&opaddr
+STORE 0,&curaddr
+STORE 0,&loopcounter
  
 reset: LOAD$ 0,0
 LOAD$ 1,0
@@ -15,6 +24,7 @@ LOAD$ 2,0
 LOAD$ 3,0
 LOAD$ 4,0
 LOAD$ 5,0
+LOAD$ 6,0
 start: RC 0,0	#Read input to GR0
 LOAD$ 3,12
 STORE 3,&shift
