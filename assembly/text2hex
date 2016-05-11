@@ -8,15 +8,30 @@
 
 #OUTPUT:
 #GR2 : result
+
+#resets program for new calculation loop
+ultrareset: LOAD$ 0,0
+STORE 0,&input
+STORE 0,&heltal
+STORE 0,&shift
+STORE 0,&result
+STORE 0,&opaddr
+STORE 0,&curaddr
+STORE 0,&loopcounter
  
+#resets registers for new input
 reset: LOAD$ 0,0
 LOAD$ 1,0
 LOAD$ 2,0
 LOAD$ 3,0
 LOAD$ 4,0
 LOAD$ 5,0
-start: RC 0,0	#Read input to GR0
-LOAD$ 3,12
+LOAD$ 6,0
+
+#read input
+start: RC 0,0
+
+LOAD$ 3,12  #shift amount for whole number part of fixed point numbers
 STORE 3,&shift
 
 #Loop to beginning until input is a valid character
@@ -29,6 +44,7 @@ if 0 = $42  # '='
 	JMP$ 0,&enter
 endif
 
+#input is operator
 if 0 > $42
     if 0 < $47
         STORE 0,&result
@@ -36,15 +52,18 @@ if 0 > $42
     endif
 endif
 
+#use the 'N' modifier to make input negative (e.g. input 'N5' will save '-5' to memory)
 if 0 = $23  #Input = 'N' (negative)
     LOAD$ 5,1
     JMP$ 0,&start
 endif
 
+#dot input
 if 0 = $41
     JMP$ 0,&dotfirst
 endif
 
+#space -> process input
 if 0 = $47
     if 5 = $1
         STORE 1,&result
@@ -64,6 +83,7 @@ JMP$ 0,&start
 
 #___DOT___
 
+#save whole number part, this will be added back in the end
 dotfirst: STORE 1,&heltal
 LOAD$ 1,0
 dot: RC 0,0	#Read input to GR0
@@ -73,6 +93,7 @@ if 0 = $255
 	JMP$ 0,&dot
 endif
 
+#space -> process input
 if 0 = $47
     if 5 = $1
         ADD 1,&heltal  #Add whole number to decimal part
@@ -98,14 +119,6 @@ JMP$ 0,&dot
 
 done: STORE 1,&result
 enter: LOAD 2,&result
-
-
-#load 0,&result # 1.5 in fixed point
-#load$ 1,100
-#load$ 2,&reset
-#jmp$ 0,&printnum
-
-#include print_num
 
 #Empty rows for variables
 input: SLI 0
