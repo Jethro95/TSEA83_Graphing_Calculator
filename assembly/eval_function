@@ -60,7 +60,7 @@ sub 1,&valueStart
 
 # ValuePerPixel
 asl$ 0,16 # Convert pixelrange to real
-asl$ 1,16 # Convert valuerange to real
+#asl$ 1,16 # Convert valuerange to real (should come from input)
 load$ 2,&endDiv
 jmp$ 0,&divide # GR2 := valuerange/pixelrange
 endDiv: store 2,&tmp_ef # Store result at tmp_ef
@@ -76,7 +76,7 @@ multf 1,&tmp_ef # Multiply pixel with value per pixel
 # Convert value at start to real
 # Store at &tmp
 load 0,&valueStart
-asl$ 0,16
+#asl$ 0,16 #(should come from input)
 store 0,&tmp_ef
 
 # Add them together

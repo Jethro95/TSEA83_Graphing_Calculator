@@ -38,8 +38,8 @@ while 6<$300
         load$ 1,&type
         load$ 2,3
         load 3,&gr6backup
-        load$ 4,0
-        load$ 5,300
+        load$ 4,65536 #1.
+        load$ 5,20971520 #320.
         load$ 6,&returnfromeval
         jmp$ 0,&evalFunction
 returnfromeval: lsr$ 0,16
@@ -63,19 +63,32 @@ back:jmp$ 0,&back
 
 # x,y=>bitmapaddr y*320+x
 xytoaddr:load$ 0,320
-	load$ 1,480
+    load$ 1,480
     sub 1,&y
 	lsl$ 1,16
-	store 1,&ytmp
-	multf 0,&ytmp
-#	lsr$ 0,16
+    store 1,&ytmp
+    multf 0,&ytmp
     lsr$ 1,16
     store 1,&ytmp
-	add 0,&gr6backup
-	store 0,&bitmapaddr
+    add 0,&gr6backup
+    load 1,&y
+    
+    if 1<$480
+        if 1>$0
+            load 1,&gr6backup
+            if 1<$320
+                if 1>$0
+                    if 0<$153600
+                        store 0,&bitmapaddr
+                    end if
+                end if
+            end if
+        end if
+    end if
+
+
 jmp$ 0,&here
 
-x:sli 0
 y:sli 0
 ytmp:sli 0
 bitmapaddr: sli 0
@@ -92,10 +105,10 @@ gr7backup:sli 0
 
 data: sli 0
 sli 1
-sli 43
+sli 45
 
-type: sli 2
-sli 0
+type: sli 2 
+sli 2
 sli 1
 
 
