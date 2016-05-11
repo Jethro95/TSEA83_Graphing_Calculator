@@ -105,12 +105,9 @@ INSTRUCTIONS = {
     "sub"         :11, 
     "subf"        :12, 
     "multf"       :13,
-    "divf"        :14, 
     "and"         :15,
     "asl"         :16,
     "asr"         :17,
-    "itr"         :18,
-    "rti"         :19,
     "jmp"         :20,
     "lsr"         :21,
     "lsl"         :22,
@@ -464,7 +461,7 @@ def parseBoolExpr(boolexpr):
     if rhs.startswith(LITERAL_DENOTER):
         return (True, jumpcode, int(lhs), True, False, int(rhs[1:]))
     elif rhs.startswith(LABEL_DENOTER):
-        return (True, jumpcode, int(lhs), True, True, int(rhs[1:]))
+        return (True, jumpcode, int(lhs), False, True, rhs[1:])
     else:
         return (True, jumpcode, int(lhs), False, False, int(rhs))
 
@@ -573,7 +570,7 @@ def buildLines(lines):
         #print("|",line, end="")
         if line == "": #End of file
             break
-        if line == "\n": #Empty line TODO: Isn't caught
+        if line == "\n": #Empty line
             continue
         line = line.replace("\n", "") #Remove trailing \n
         line, label = extractLabel(line)
@@ -624,13 +621,12 @@ def buildLines(lines):
             print("Error: label '", line.getLabelArgument(), "' referenced but not defined.")
             return
 
-    #TODO: Check for incomplete lines
-
     return result
 
 #Converts a file to a lines of instructions.
 #Expands "include"
 def fileToLines(filename, alreadyIncluded=[]):
+    alreadyIncluded.append(filename)
     lines = []
     with open(filename) as f: #Open file
         for line in f:
@@ -639,12 +635,12 @@ def fileToLines(filename, alreadyIncluded=[]):
                 rest = line[len(SPECIAL_INSTR_INCLUDE):]
                 rest = rest[:len(rest)-1] #Removes trailing endline
                 if rest in alreadyIncluded:
-                    print("Error: circular dependency between", filename,"and",rest,".")
-                    return None
-                r = fileToLines(rest, alreadyIncluded + [filename])
-                if r is None:
-                    return None
-                lines += r
+                    print("Warning:", rest,"included a multiple times. Ignoring occurence.")
+                else:
+                    r = fileToLines(rest, alreadyIncluded)
+                    if r is None:
+                        return None
+                    lines += r
             else:
                 lines.append(line)
         return lines
@@ -664,7 +660,7 @@ def build(filename):
 #Adds some fluffs to lines to make them easy to copy-paste into program, and returns it.
 #Formatting designed specifically for this project.
 def fancifyForVHDL(lines):
-    result  = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
+    result = "type p_mem_t is array (0 to " + str(len(lines)-1) + ") of unsigned(31 downto 0);\n"
     result += "constant p_mem_c : p_mem_t :=\n"
     result += "    (\n"
     result += "        --OP    GRx M  ADRESS\n"

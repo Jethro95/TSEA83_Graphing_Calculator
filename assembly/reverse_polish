@@ -2,7 +2,7 @@
 # HOW TO USE:
 # Save start location of input to gr0, start of op-vector at gr1, number of input values to gr2 and return to gr3
 # Jump to &evaluate
-# The op-vector is a series of zero or non-zero elements. A non-zero 
+# The op-vector is a series of zero or non-zero elements. A 1-valued 
 #   element implies that the input of the same index represents an operator.
 # Result will be put in gr0. See below for a list of modified GRx's
 # The routine was unsuccesful if Gr1 > 0 after running it.
@@ -50,10 +50,10 @@ while 6>$1 #While there are input tokens left
 
 
     # Check if token is a number or an operator and jump appropriately
-    if 7=$0
-       jmp$ 0,&processNumber
-    else
+    if 7=$1
        jmp$ 0,&processOperator
+    else
+       jmp$ 0,&processNumber
     end if
 
     #---------------------------------
@@ -101,11 +101,20 @@ while 6>$1 #While there are input tokens left
        multf~ 4,&stackpointer
     end if
     if 2=$46 #Div
-       # The same problem as with minus
-       store 4,&tmp # Gr4 -> p_mem
-       load~ 4,&stackpointer # p_mem (second operande) -> Gr4
-       #Perform the operation, now with proper ordering
-       divf 4,&tmp
+       # Backup grx
+       store 0,&gr0backuprp
+       store 1,&gr1backuprp
+       store 2,&gr2backuprp
+       # Save nämnare to gr0, täljare to gr1 and return addr to gr2 before running. Result will be in gr2
+       store 4,&tmp
+       load 1,&tmp
+       load~ 0,&stackpointer
+       load$ 2,&returnfromdivision
+       jmp$ 0,&divide
+
+returnfromdivision:load 0,&gr0backuprp
+       load 1,&gr1backuprp
+       load 2,&gr2backuprp
     end if
 
     # Save Gr4==result at the point in stack on which the second
@@ -174,3 +183,8 @@ nextIsOpLocation: sli 0
 nextInputLocation: sli 0
 inputcount: sli 3
 returnaddr: sli 0
+gr0backuprp:sli 0
+gr1backuprp:sli 0
+gr2backuprp:sli 0
+
+include division

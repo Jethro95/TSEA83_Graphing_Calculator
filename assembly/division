@@ -15,6 +15,7 @@
 divide:store 2,&divisionreturnaddr
 store 0,&divisionnämnare
 store 1,&divisiontäljare
+load$ 3,0
 
 #Get abs of nämnare
 if 0<$0
