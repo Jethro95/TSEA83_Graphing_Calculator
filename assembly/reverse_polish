@@ -105,6 +105,11 @@ while 6>$1 #While there are input tokens left
        store 0,&gr0backuprp
        store 1,&gr1backuprp
        store 2,&gr2backuprp
+       store 3,&gr3backuprp
+       store 4,&gr4backuprp
+       store 5,&gr5backuprp 
+       store 6,&gr6backuprp
+       store 7,&gr7backuprp   
        # Save nämnare to gr0, täljare to gr1 and return addr to gr2 before running. Result will be in gr2
        store 4,&tmp
        load 1,&tmp
@@ -115,6 +120,11 @@ while 6>$1 #While there are input tokens left
 returnfromdivision:load 0,&gr0backuprp
        load 1,&gr1backuprp
        load 2,&gr2backuprp
+       load 3,&gr3backuprp
+       load 4,&gr4backuprp
+       load 5,&gr5backuprp 
+       load 6,&gr6backuprp
+       load 7,&gr7backuprp
     end if
 
     # Save Gr4==result at the point in stack on which the second
@@ -186,5 +196,9 @@ returnaddr: sli 0
 gr0backuprp:sli 0
 gr1backuprp:sli 0
 gr2backuprp:sli 0
-
+gr3backuprp:sli 0
+gr4backuprp:sli 0
+gr5backuprp:sli 0
+gr6backuprp:sli 0
+gr7backuprp:sli 0
 include division
