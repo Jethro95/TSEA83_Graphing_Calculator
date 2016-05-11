@@ -1,0 +1,114 @@
+#Reserved registers:
+#GR0 : input
+#GR1 : result
+#GR2 : temp shift register
+#GR3 : dot shift amount
+#GR4 : final result
+#GR5 : isnegative
+
+#OUTPUT:
+#GR2 : result
+ 
+reset: LOAD$ 0,0
+LOAD$ 1,0
+LOAD$ 2,0
+LOAD$ 3,0
+LOAD$ 4,0
+LOAD$ 5,0
+start: RC 0,0	#Read input to GR0
+LOAD$ 3,12
+STORE 3,&shift
+
+#Loop to beginning until input is a valid character
+if 0 = $255
+	JMP$ 0,&start
+endif
+
+if 0 = $42  # '='
+    STORE 0,&result
+	JMP$ 0,&enter
+endif
+
+if 0 > $42
+    if 0 < $47
+        STORE 0,&result
+	    JMP$ 0,&enter
+    endif
+endif
+
+if 0 = $23  #Input = 'N' (negative)
+    LOAD$ 5,1
+    JMP$ 0,&start
+endif
+
+if 0 = $41
+    JMP$ 0,&dotfirst
+endif
+
+if 0 = $47
+    if 5 = $1
+        STORE 1,&result
+        LOAD$ 1,0
+        SUB 1,&result
+    endif
+    JMP$ 0,&done
+endif
+
+if 0 < $16		#If numerical
+    LSL$ 0,16
+	STORE 0,&input
+    LSL$ 1,4
+    ADD 1,&input
+endif
+JMP$ 0,&start
+
+#___DOT___
+
+dotfirst: STORE 1,&heltal
+LOAD$ 1,0
+dot: RC 0,0	#Read input to GR0
+
+#Loop to beginning until input is a valid character
+if 0 = $255
+	JMP$ 0,&dot
+endif
+
+if 0 = $47
+    if 5 = $1
+        ADD 1,&heltal  #Add whole number to decimal part
+        STORE 1,&result
+        LOAD$ 1,0
+        SUB 1,&result
+        STORE 1,&result
+        JMP$ 0,&done
+    endif
+    
+    ADD 1,&heltal
+    JMP$ 0,&done
+endif
+
+if 0 < $16		#If numerical
+    LSL 0,&shift
+	STORE 0,&input
+    ADD 1,&input
+    SUB$ 3,4
+    STORE 3,&shift
+endif
+JMP$ 0,&dot
+
+done: STORE 1,&result
+enter: LOAD 2,&result
+
+
+#load 0,&result # 1.5 in fixed point
+#load$ 1,100
+#load$ 2,&reset
+#jmp$ 0,&printnum
+
+#include print_num
+
+#Empty rows for variables
+input: SLI 0
+heltal: SLI 0
+shift: SLI 0
+result: SLI 0

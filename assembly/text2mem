@@ -1,0 +1,91 @@
+#REGISTER USAGE:
+#GR0 : start address
+#GR1 : length of 'array'
+#GR2 : input (from text2hex)
+#GR3 : current address
+#GR4 : op vector address
+#GR5 : temp register
+
+include text2hex
+
+if 2 = $42
+    JMP$ 0,&test
+endif
+
+#if input is operator
+if 2 > $42
+    if 2 < $47
+        LOAD$ 4,&op
+	    ADD 4,&loopcounter
+        STORE 4,&opaddr
+        LOAD$ 5,1
+        STORE~ 5,&opaddr
+    endif
+endif
+
+LOAD$ 3,&memstart
+ADD 3,&loopcounter
+STORE 3,&curaddr
+STORE~ 2,&curaddr
+LOAD 1,&loopcounter
+ADD$ 1,1
+STORE 1,&loopcounter
+
+JMP$ 0,&reset
+
+#======================
+#   TESTS
+#======================
+
+
+test: load$ 0,&memstart # start of input
+load$ 1,&op
+load 2,&loopcounter
+load$ 3,&getbackhere
+jmp$ 0,&evaluate
+
+getbackhere: load$ 1,10 # We want the number to be displayed at tileaddr 10-18
+# GR0 is already result
+load$ 2,&end
+jmp$ 0,&printnum
+
+include reverse_polish
+include print_num
+
+end: JMP$ 0,&reset
+
+opaddr: SLI 0
+curaddr: SLI 0
+loopcounter: SLI 0
+memstart: sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+op: sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0

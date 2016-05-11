@@ -127,9 +127,7 @@ data: sli 0
 sli 0
 sli 43
 
-
-
-type: sli 0
+type: sli 2
 sli 2
 sli 1
 
