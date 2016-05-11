@@ -42,8 +42,23 @@ while 6<$300
         load$ 5,20971520 #320.
         load$ 6,&returnfromeval
         jmp$ 0,&evalFunction
-returnfromeval: lsr$ 0,16
-        store 0,&y
+returnfromeval:store 0,&y
+
+	# Scale
+	# Calculate pixel per value
+	load 1,&ymaxVal
+	subf 1,&yminVal
+	load 0,&pixelrangeReal
+	load$ 2,&divdone
+	jmp$ 0,&divide # pixelrange / valuerange
+divdone:multf 2,&y
+	# Add min val
+	addf 2,&yminVal
+	# Round to int
+	lsr$ 2,16
+	# Put back
+	store 2,&y
+
         load 0,&gr0backup
         load 1,&gr1backup
         load 2,&gr2backup
@@ -93,6 +108,11 @@ y:sli 0
 ytmp:sli 0
 bitmapaddr: sli 0
 
+yminVal: sli 0 #Real
+ymaxVal: sli 31457280 #480 as real
+#ymaxVal: sli 125829120 #480 * 4 as real
+pixelrangeReal: sli 31457280 #480 as real
+
 gr0backup:sli 0
 gr1backup:sli 0
 gr2backup:sli 0
@@ -104,10 +124,8 @@ gr7backup:sli 0
 
 
 data: sli 0
-sli 1
-sli 45
-
-
+sli 0
+sli 43
 
 type: sli 2
 sli 2

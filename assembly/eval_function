@@ -51,17 +51,17 @@ store 1,&nextInputType
 # Calculating limits
 
 # Pixelrange: GR0
-load 0,&pixelEnd
-sub 0,&pixelStart
+load 1,&pixelEnd
+sub 1,&pixelStart
 
 # Valuerange: GR1
-load 1,&valueEnd
-subf 1,&valueStart
+load 0,&valueEnd
+subf 0,&valueStart
 
 # ValuePerPixel
-asl$ 0,16 # Convert pixelrange to real
+asl$ 1,16 # Convert pixelrange to real
 load$ 2,&endDiv
-jmp$ 0,&divide # GR2 := valuerange/pixelrange
+jmp$ 0,&divide # GR2 := pixelrange/valuerange
 endDiv: store 2,&tmp_ef # Store result at tmp_ef
 load 1,&tmp_ef # Load result to GR1
 
