@@ -35,8 +35,8 @@ divisionhere :jmp$0,&divisionhere
 
 
 result: sli 0
-täljare: sli 98304 # 1.5 fixed point
-nämnare: sli 4294744473 # -3.4 fixed point
+täljare: sli 131072 # 2 fixed point
+nämnare: sli 524288 # 8 fixed point
 
 include print_num
 include division
