@@ -8,6 +8,7 @@
 
 include text2hex
 
+#if enter, perform calculation and show result
 if 2 = $42
     JMP$ 0,&test
 endif
@@ -24,13 +25,14 @@ if 2 > $42
     endif
 endif
 
+#update data stack
 LOAD$ 4,&memstart
 ADD 4,&loopcounter
 STORE 4,&curaddr
 LOAD$ 5,0
 STORE~ 5,&curaddr
 
-
+#if operator, update op vector
 isop: LOAD$ 3,&memstart
 ADD 3,&loopcounter
 STORE 3,&curaddr
@@ -39,6 +41,7 @@ LOAD 1,&loopcounter
 ADD$ 1,1
 STORE 1,&loopcounter
 
+#accept new input
 JMP$ 0,&reset
 
 #======================
