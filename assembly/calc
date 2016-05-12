@@ -61,6 +61,8 @@ STORE 1,&loopcounter
 #LOAD$ 2,&continue
 #JMP$ 0,&printnum
 
+#TODO: print input
+
 #continue here
 #continue: ADD$ 1,40
 #STORE 1,&tileaddr
@@ -85,6 +87,7 @@ jmp$ 0,&printnum
 include reverse_polish
 include print_num
 
+#update tileaddr
 end: LOAD 1,&tileaddr 
 ADD$ 1,40
 STORE 1,&tileaddr
