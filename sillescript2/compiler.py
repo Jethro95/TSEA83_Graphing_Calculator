@@ -181,9 +181,9 @@ def bitify(num, bitcount):
         return bitstring[:bitcount]
     else:
         #It's two's complement =>
-        #take abs(num), add one, get the bit representation of that
+        #take abs(num), sub one, get the bit representation of that
         #  and then invert all bits in the resulting array. BAM.
-        inverted = bitify(abs(num) + 1, bitcount)
+        inverted = bitify(abs(num) - 1, bitcount)
         result = ""
         for bit in inverted:
             if bit == "0":
