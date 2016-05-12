@@ -245,8 +245,8 @@ class MachineLine:
 
     #Returns a label the line wants to have expanded, or None
     #  if it is not waiting to expand any.
-    def getLabelArgument():
-        return labelArgument if labelArgument != "" else None
+    def getLabelArgument(self):
+        return self.labelArgument if self.labelArgument != "" else None
         
 
     #Attempt to fill out the instruction based on previous line
