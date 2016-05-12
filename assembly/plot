@@ -1,5 +1,3 @@
-include drawaxis
-
 # GR usage (incomplete)
 # GR 0 tmp
 # GR 1 tmp2
@@ -14,13 +12,16 @@ load$ 1,1
 load$ 2,0
 load$ 3,0
 
-load$ 0,20
+# Draw axis
+load 0,&graphOriginX
+load 1,&graphOriginY
+load$ 2,&drawdone
+jmp$ 0,&drawaxis
+
+drawdone:load$ 0,20
 store 0,&y
 
-
 load$ 5,0
-
-
 
 load$ 6,0
 while 6<$300
@@ -123,6 +124,9 @@ gr6backup:sli 0
 gr7backup:sli 0
 
 
+graphOriginX: sli 32
+graphOriginY: sli 448 # 480-32
+
 data: sli 0
 sli 0
 sli 43
@@ -133,3 +137,4 @@ sli 1
 
 
 include eval_function
+include drawaxis

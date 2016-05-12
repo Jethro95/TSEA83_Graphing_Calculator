@@ -1,9 +1,23 @@
 
+# ARGUMENTS:
+# GR0: originX (int)
+# GR1: originY (int)
+# GR2: return address
+# Jump to &drawaxis
+
+# Store arguments
+drawaxis: store 0,&originX
+store 1,&originY
+store 2,&retAddr
+store 3,&oldGr3
+
+# Init
 load$ 0,0
 load$ 1,10
 
 
 # Vertical line top to bottom
+load 1,&originX # Start at proper column
 while 1<$153600
     store 1,&location
     storeb~ 0,&location
@@ -11,47 +25,64 @@ while 1<$153600
 end while
 
 # Horizontal line left to right
-load$ 1,0
+# Calculate desired vertical line
+load 1,&originY
+multf$ 1,20971520 # X-resolution: 320 as real
+store 1,&tmp_da # Start of row value
+load$ 1,0 # Initing loop counter
 while 1<$320
-    # Move to bottom of display
-    add$ 1,150400
+    add 1,&tmp_da # Add offset to proper row
     store 1,&location
     storeb~ 0,&location
-    # Move back up
-    sub$ 1,150400
     add$ 1,1
+    sub 1,&tmp_da # Sub offset: get column index
 end while
 
-# Arrow shape (top), left part
-load$ 1,10
+# Arrow shape (right), both parts
+add 1,&tmp_da # Gr1 is now starting pos
+store 1,&tmp_da
+load 2,&tmp_da #GR2 is a copy of GR1
+load$ 3,0
+while 3<$10
+    # Bottom part
+    store 1,&location
+    storeb~ 0,&location
+    # Top part
+    store 2,&location
+    storeb~ 0,&location
+    # Increment
+    add$ 1,319
+    sub$ 2,321
+    add$ 3,1
+end while
+
+
+# Arrow shape (top), right part
+load 1,&originX
 while 1<$3210
     store 1,&location
     storeb~ 0,&location
     add$ 1,321
 end while
 
-# Arrow shape (top), right part 
-load$ 1,10
+# Arrow shape (top), left part 
+load 1,&originX
 while 1<$3210
     store 1,&location
     storeb~ 0,&location
     add$ 1,319
 end while
 
-# Arrow shape (right), both parts
-load$ 1,147510
-while 1<$153600
-    store 1,&location
-    storeb~ 0,&location
-    if 1<$150400
-        add$ 1,321
-    end if
-    if 1>$150400
-        add$ 1,319
-    end if
-end while
+# Return to caller
+load 3,&oldGr3 # Reload Gr3
+jmp 0,&retAddr
 
-
-#drawaxishere:jmp$ 0,&drawaxishere
+originX: sli 0
+originY: sli 0
+retAddr: sli 0
+oldGr3:  sli 0
 
 location: sli 0
+
+tmp_da: sli 0
+
