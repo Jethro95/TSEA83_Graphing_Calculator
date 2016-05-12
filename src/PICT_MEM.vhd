@@ -13,13 +13,13 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 -- entity
 entity PICT_MEM is
     port (  rst       : in std_logic;
-	        clk		  : in std_logic;
-            we1       : in std_logic;
+            clk		  : in std_logic;
+            wep       : in std_logic;
             web       : in std_logic;
-            data_inb  : in std_logic;
-            data_in1  : in std_logic_vector(7 downto 0);
-            save_at   : in integer range 0 to 1200;
-            save_at_b   : in integer range 0 to 153600;
+            data_in_b  : in std_logic;
+            data_in_p  : in std_logic_vector(7 downto 0);
+            save_at_p   : in integer range 0 to 1200;
+            save_at_b   : in integer range 0 to 153600; -- Also change in cpu store 
             picmem_out : out std_logic_vector(7 downto 0);
             bitmem_out : out std_logic;
             Xpixel   : in unsigned(9 downto 0);         -- Horizontal pixel counter
@@ -47,11 +47,11 @@ begin
     process(clk)
     begin
         if rising_edge(clk) then
-            if (we1 ='1') then
-                pictMem(save_at) <= data_in1;
+            if (wep ='1') then
+                pictMem(save_at_p) <= data_in_p;
             end if;
             if (web ='1') then
-                bitmapMem(save_at_b) <= data_inb;
+                bitmapMem(save_at_b) <= data_in_b;
             end if;
             if Xpixel>320 and Xpixel<640 and Ypixel<480 then
                 picmem_out <= pictMem(to_integer(to_unsigned(40, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3)-40));
