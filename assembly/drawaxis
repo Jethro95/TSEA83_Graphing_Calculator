@@ -11,70 +11,94 @@ store 1,&originY
 store 2,&retAddr
 store 3,&oldGr3
 
+
 # Init
 load$ 0,0
-load$ 1,10
-
 
 # Vertical line top to bottom
-load 1,&originX # Start at proper column
-while 1<$153600
-    store 1,&location
-    storeb~ 0,&location
-    add$ 1,320
-end while
+load 1,&originX
+# If x is in bounds
+if 1>$-1 #&&
+if 1<$320
+   while 1<$153600
+       store 1,&location
+       storeb~ 0,&location
+       add$ 1,320
+   end while
+end if
+end if
 
-# Horizontal line left to right
-# Calculate desired vertical line
+# Horizontal parts
 load 1,&originY
-multf$ 1,20971520 # X-resolution: 320 as real
-store 1,&tmp_da # Start of row value
-load$ 1,0 # Initing loop counter
-while 1<$320
-    add 1,&tmp_da # Add offset to proper row
-    store 1,&location
-    storeb~ 0,&location
-    add$ 1,1
-    sub 1,&tmp_da # Sub offset: get column index
-end while
+# If y is in bounds
+if 1>$-1 #&&
+if 1<$480
+    # Horizontal line left to right
+    # Calculate desired vertical line
+    multf$ 1,20971520 # X-resolution: 320 as real
+    store 1,&tmp_da # Start of row value
+    load$ 1,0 # Initing loop counter
+    while 1<$320
+        add 1,&tmp_da # Add offset to proper row
+        store 1,&location
+        storeb~ 0,&location
+        add$ 1,1
+        sub 1,&tmp_da # Sub offset: get column index
+    end while
 
-# Arrow shape (right), both parts
-add 1,&tmp_da # Gr1 is now starting pos
-store 1,&tmp_da
-load 2,&tmp_da #GR2 is a copy of GR1
-load$ 3,0
-while 3<$10
-    # Bottom part
-    store 1,&location
-    storeb~ 0,&location
-    # Top part
-    store 2,&location
-    storeb~ 0,&location
-    # Increment
-    add$ 1,319
-    sub$ 2,321
-    add$ 3,1
-end while
+    # Arrow shape (right), both parts
+    add 1,&tmp_da # Gr1 is now starting pos
+    store 1,&tmp_da
+    load 2,&tmp_da #GR2 is a copy of GR1
+    load$ 3,0
+    while 3<$10
+        # Bottom part
+        if 1 < $153600 #If inside screen
+            store 1,&location
+            storeb~ 0,&location
+        end if
+        # Top part
+        if 2 > -1 # If inside screen
+            store 2,&location
+            storeb~ 0,&location
+        end if
+        # Increment
+        add$ 1,319
+        sub$ 2,321
+        add$ 3,1
+    end while
+end if
+end if
 
-
-# Arrow shape (top), right part
+# Top arrow
 load 1,&originX
-while 1<$3210
-    store 1,&location
-    storeb~ 0,&location
-    add$ 1,321
-end while
+# If inside bounds
+if 1>$-1 #&&
+if 1<$320
+    # Arrow shape (top), right part
+    while 1<$3210
+    	# Bounds checking not vital.
+	# Some pixel may overflow to the next row, though.
+        store 1,&location
+        storeb~ 0,&location
+        add$ 1,321
+    end while
 
-# Arrow shape (top), left part 
-load 1,&originX
-while 1<$3210
-    store 1,&location
-    storeb~ 0,&location
-    add$ 1,319
-end while
+    # Arrow shape (top), left part 
+    load 1,&originX
+    while 1<$3210
+    	# Bounds checking
+        if 1>$-1
+            store 1,&location
+            storeb~ 0,&location
+        end if
+        add$ 1,319
+    end while
+end if
+end if
 
 # Return to caller
-load 3,&oldGr3 # Reload Gr3
+endDrawAxis:load 3,&oldGr3 # Reload Gr3
 jmp 0,&retAddr
 
 originX: sli 0
