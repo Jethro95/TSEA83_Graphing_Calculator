@@ -14,7 +14,10 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.48.4 r9939"
-   sodipodi:docname="pic_mem.svg">
+   sodipodi:docname="pic_mem.png"
+   inkscape:export-filename="/edu/sille914/tsea83/Rapport/TSEA83_Graphing_Calculator/redovisning/drawings/pic_mem.png"
+   inkscape:export-xdpi="264.08139"
+   inkscape:export-ydpi="264.08139">
   <defs
      id="defs4">
     <marker
@@ -301,6 +304,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
