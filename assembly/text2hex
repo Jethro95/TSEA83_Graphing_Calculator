@@ -8,16 +8,6 @@
 
 #OUTPUT:
 #GR2 : result
-
-#resets program for new calculation loop
-ultrareset: LOAD$ 0,0
-STORE 0,&input
-STORE 0,&heltal
-STORE 0,&shift
-STORE 0,&result
-STORE 0,&opaddr
-STORE 0,&curaddr
-STORE 0,&loopcounter
  
 #resets registers for new input
 reset: LOAD$ 0,0
