@@ -16,8 +16,8 @@ entity PICT_MEM is
             clk		  : in std_logic;
             wep       : in std_logic;
             web       : in std_logic;
-            data_inb  : in std_logic;
-            data_in1  : in std_logic_vector(7 downto 0);
+            data_in_b  : in std_logic;
+            data_in_p  : in std_logic_vector(7 downto 0);
             save_at_p   : in integer range 0 to 1200;
             save_at_b   : in integer range 0 to 153600; -- Also change in cpu store 
             picmem_out : out std_logic_vector(7 downto 0);
@@ -48,10 +48,10 @@ begin
     begin
         if rising_edge(clk) then
             if (wep ='1') then
-                pictMem(save_at_p) <= data_in1;
+                pictMem(save_at_p) <= data_in_p;
             end if;
             if (web ='1') then
-                bitmapMem(save_at_b) <= data_inb;
+                bitmapMem(save_at_b) <= data_in_b;
             end if;
             if Xpixel>320 and Xpixel<640 and Ypixel<480 then
                 picmem_out <= pictMem(to_integer(to_unsigned(40, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3)-40));
