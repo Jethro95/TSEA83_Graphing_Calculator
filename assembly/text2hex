@@ -27,6 +27,7 @@ LOAD$ 3,0
 LOAD$ 4,0
 LOAD$ 5,0
 LOAD$ 6,0
+LOAD$ 7,0
 
 #read input
 start: RC 0,0
@@ -95,12 +96,12 @@ endif
 
 #space -> process input
 if 0 = $47
-    if 5 = $1
+    if 5 = $1   #if negative
         ADD 1,&heltal  #Add whole number to decimal part
         STORE 1,&result
         LOAD$ 1,0
         SUB 1,&result
-        STORE 1,&result
+        #STORE 1,&result
         JMP$ 0,&done
     endif
     

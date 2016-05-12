@@ -6,6 +6,8 @@
 #GR4 : op vector address
 #GR5 : temp register
 
+#JMP$ 0,&test
+
 include text2hex
 
 #if enter, perform calculation and show result
@@ -16,6 +18,7 @@ endif
 #if input is operator
 if 2 > $42
     if 2 < $47
+        #Update op vector
         LOAD$ 4,&op
 	    ADD 4,&loopcounter
         STORE 4,&opaddr
@@ -25,14 +28,15 @@ if 2 > $42
     endif
 endif
 
-#update data stack
-LOAD$ 4,&memstart
+#insert 0 in op vector if not operator
+#skip this if operator
+LOAD$ 4,&op
 ADD 4,&loopcounter
-STORE 4,&curaddr
+STORE 4,&opaddr
 LOAD$ 5,0
-STORE~ 5,&curaddr
+STORE~ 5,&opaddr
 
-#if operator, update op vector
+#update data stack
 isop: LOAD$ 3,&memstart
 ADD 3,&loopcounter
 STORE 3,&curaddr
@@ -52,6 +56,7 @@ JMP$ 0,&reset
 test: load$ 0,&memstart # start of input
 load$ 1,&op
 load 2,&loopcounter
+#load$ 2,3
 load$ 3,&getbackhere
 jmp$ 0,&evaluate
 
