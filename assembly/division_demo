@@ -1,7 +1,7 @@
 # Load data
-load 0,&nämnare
-#load$ 1,196608 # 3 in sfixed (Täljare)
-load 1,&täljare  # 1.5 in sfixed (Täljare)
+load 0,&täljare
+#load$ 1,196608 # 3 in sfixed (nämnare)
+load 1,&nämnare  # 1.5 in sfixed (nämnare)
 load$ 2,&getbackhere
 
 # Run division
@@ -12,12 +12,12 @@ getbackhere: store 2,&result
 
 # Print division
 
-load 0,&nämnare
+load 0,&täljare
 load$ 1,0
-load$ 2,&printtäljare
+load$ 2,&printnämnare
 jmp$ 0,&printnum
 
-printtäljare:load 0,&täljare
+printnämnare:load 0,&nämnare
 load$ 1,10
 load$ 2,&printresult
 jmp$ 0,&printnum
@@ -35,8 +35,8 @@ divisionhere :jmp$0,&divisionhere
 
 
 result: sli 0
-täljare: sli 131072 # 2 fixed point
-nämnare: sli 524288 # 8 fixed point
+nämnare: sli 4294836224 # -2 fixed point
+täljare: sli 524288 # 8 fixed point
 
 include print_num
 include division
