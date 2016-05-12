@@ -3,6 +3,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+\usepackage{tikz}
+\usetikzlibrary{shapes,arrows,calc}
+
 
 % Title Page
 \title{Teknisk rapport\\Grafisk räknare}
@@ -24,8 +27,65 @@ Här kan ett videoprojekt beskriva videoformatet, ett MIDI-projekt redogöra fö
 \section{Hårdvaran}
 Börja med ett översiktligt blockschema, gå vidare till mera detaljerade blockschemor. Vill man rita figurer och blockschemor på datorn så är Inkscape ett bra alternativ. Handritade figurer och blockschemor är acceptabelt, bara de är snygga och väl läsbara, MEN dessa ska då vara inscannade, dvs avfotograferade figurer och blockschemor är INTE godtagbart.
 Beskriv sedan hur de olika blocken fungerar. Tänk på läsbarheten och växla mellan figurer och text. Den här typen av text är ganska "grafisk", då nästan varje mening syftar in i en figur. Var därför noga med att text och figurer stämmer överens.
+\subsection{Översikt}
+TODO
+
+\tikzstyle{block} = [draw, fill=blue!20, rectangle, 
+minimum height=3em, minimum width=6em]
+\tikzstyle{sum} = [draw, fill=blue!20, circle, node distance=1cm]
+\tikzstyle{input} = [coordinate]
+\tikzstyle{output} = [coordinate]
+\tikzstyle{pinstyle} = [pin edge={to-,thin,black}]
+
+\begin{figure}[h!]
+	\centering
+	\begin{tikzpicture}[auto, node distance=2cm,>=latex']
+	
+	
+	
+	\node [block, node distance=3cm] (cpu) {CPU};
+	\node [block, below of=cpu, node distance=2cm] (memory) {Bildminne};
+	\node [output, right of=cpu] (foo) {};
+	
+	
+	\draw [<->] (cpu) -- node[near start]{} (memory);
+	\node [block, above of=cpu] (keyboarddriver) {Tangentbordsmotor};
+	\node [block, node distance=3.5cm, left of=keyboarddriver] (keyboard) {Tangentbord};
+	
+	\draw [<->] (keyboarddriver) -- node {} (cpu);
+	\draw [->] (keyboard) -- node {} (keyboarddriver);
+	
+	\node [block, node distance=2cm, below of=memory] (driver) {VGA-motor};
+	\node [block, right of=driver, node distance=3.5cm] (vga) {Skärm};
+	\draw [->] (memory) -- node {} (driver);
+	\draw [->] (driver) -- node {} (vga);
+	\draw[thick,dotted] ($(keyboarddriver.north west)+(-0.3,0.3)$)  rectangle ($(driver.south east)+(1,-0.3)$) node[pos=0] {FPGA};
+	\end{tikzpicture}
+	\caption{Översiktligt blockschema.}
+\end{figure}
+
+\subsection{CPU}
+
+\subsection{Tangentbordsmotor}
+
+\subsection{Bildminne}
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[width=1\textwidth]{drawings/pic_mem.png}}
+	\caption{Blockschema över bildminnet}
+\end{figure}
+
+Bildminnet är uppdelat i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap. Bitmapminnet innehåller 320x480 bitars blockram för en svartvit representation av alla pixlar på vänstra skärmhalvan. Bildminnet för tiles innehåller 40x30 rader.
+
+Varje del har en write\_enable-signal, en save\_at-signal och en data\_in-signal. När write\_enable ettställs ersätts innehållet på adressen save\_at med data\_in. Bitmapminnet använder endast sista biten i data\_in\_b, medans hela data\_in\_p används.
+
+Xpixel och Ypixel används för att bestämma om picmem\_out eller bitmem\_out ska uppdateras, för att undvika overflow i minnena.
+
+\subsection{VGA-motor}
+
 \section{Slutsatser}
 \section{Referenser}
 \section{VHDL-dokumentation}
 Inte själva VHDL-koden utan en förklaring av den. Typiskt en förklaring av varje process.
+\section{Assembly-dokumentation}
+
 \end{document}          
