@@ -1,3 +1,17 @@
+
+# Argument list:
+# GR0: min X value (real)
+# GR1: max X value (real)
+# GR2: min Y value (real)
+# GR3: max Y value (real)
+# GR4: Pointer to value list
+# GR5: Pointer to type list
+# GR6: Size of lists
+# GR7: Return address
+# Jump to &plot
+
+#==========
+
 # GR usage (incomplete)
 # GR 0 tmp
 # GR 1 tmp2
@@ -7,24 +21,66 @@
 # GR 5 zero, for writing to bitmap
 # GR 6 X-pixel counter
 # GR 7 Unused
+
+# Init arguments
+plot: store 0,&xminVal
+store 1,&xmaxVal
+store 2,&yminVal
+store 3,&ymaxVal
+store 4,&dataPtr
+store 5,&typePtr
+store 6,&listSize
+store 7,&plotRetAddr
+
+# TODO: Special cases for scale parameters
+
+# Calculate origin
+# X
 load$ 0,0
-load$ 1,1
-load$ 2,0
-load$ 3,0
+sub 0,&xminVal # Distance from min to zero
+load 1,&xmaxVal
+sub 1,&xminVal # Total distance
+load$ 2,&divfin
+jmp$ 0,&divide # GR2 := mintozero/totaldistance
+divfin:multf$ 2,320 # Multiply by resolution width
+store 2,&graphOriginX # Bam!
+
+# Y
+# Same as X
+load$ 0,0
+sub 0,&yminVal # Distance from min to zero
+load 1,&ymaxVal
+sub 1,&yminVal # Total distance
+load$ 2,&divfinb
+jmp$ 0,&divide # GR2 := mintozero/totaldistance
+divfinb:multf$ 2,480 # Multiply by resolution width
+store 2,&graphOriginY # Bam!
 
 # Draw axis
-load 0,&graphOriginX
-load 1,&graphOriginY
+originDone: load 0,&graphOriginX
+# actual Y = 480 - originY
+load$ 1,480
+sub 1,&graphOriginY
 load$ 2,&drawdone
 jmp$ 0,&drawaxis
 
-drawdone:load$ 0,20
+# Calculate pixel per value
+drawdone:load 0,&pixelrangeReal
+load 1,&ymaxVal
+subf 1,&yminVal
+load$ 2,&divdone
+jmp$ 0,&divide # pixelrange / valuerange
+divdone:lsr$ 2,16 # To int
+store 2,&pixelsPerValue
+
+load$ 0,0
 store 0,&y
-
+load$ 1,1
+load$ 2,0
+load$ 3,0
 load$ 5,0
-
 load$ 6,0
-while 6<$300
+while 6<$320
         store 0,&gr0backup
         store 1,&gr1backup
         store 2,&gr2backup
@@ -35,30 +91,24 @@ while 6<$300
         store 7,&gr7backup
 
         # Get next y
-        load$ 0,&data
-        load$ 1,&type
-        load$ 2,3
+        load 0,&dataPtr
+        load 1,&typePtr
+        load 2,&listSize
         load 3,&gr6backup
-        load$ 4,65536 #1.
-        load$ 5,20971520 #320.
+	#load$ 3,256
+        load 4,&xminVal
+        load 5,&xmaxVal
         load$ 6,&returnfromeval
         jmp$ 0,&evalFunction
-returnfromeval:store 0,&y
+returnfromeval:store 0,&ytmp2
 
-	# Scale
-	# Calculate pixel per value
-	load 1,&ymaxVal
-	subf 1,&yminVal
-	load 0,&pixelrangeReal
-	load$ 2,&divdone
-	jmp$ 0,&divide # pixelrange / valuerange
-divdone:multf 2,&y
-	# Add min val
-	addf 2,&yminVal
-	# Round to int
-	lsr$ 2,16
-	# Put back
-	store 2,&y
+        # Scale
+	#load 2,&pixelsPerValue
+	store 0,&tst
+        multf 0,&pixelsPerValue
+	add 0,&graphOriginY
+	# Put on Y
+	store 0,&y
 
         load 0,&gr0backup
         load 1,&gr1backup
@@ -68,20 +118,19 @@ divdone:multf 2,&y
         load 5,&gr5backup
         load 6,&gr6backup
         load 7,&gr7backup
-        load$ 7,&here
         jmp$ 0,&xytoaddr
         # &bitmapaddr is now set
 here:   storeb~ 5,&bitmapaddr
         add$ 6,1
 end while
-back:jmp$ 0,&back
-
+# Return to caller
+back:jmp 0,&plotRetAddr
 
 # x,y=>bitmapaddr y*320+x
 xytoaddr:load$ 0,320
     load$ 1,480
     sub 1,&y
-	lsl$ 1,16
+    lsl$ 1,16
     store 1,&ytmp
     multf 0,&ytmp
     lsr$ 1,16
@@ -90,10 +139,10 @@ xytoaddr:load$ 0,320
     load 1,&y
     
     if 1<$480
-        if 1>$0
+        if 1>$-1
             load 1,&gr6backup
             if 1<$320
-                if 1>$0
+                if 1>$-1
                     if 0<$153600
                         store 0,&bitmapaddr
                     end if
@@ -101,17 +150,25 @@ xytoaddr:load$ 0,320
             end if
         end if
     end if
-
-
 jmp$ 0,&here
 
 y:sli 0
 ytmp:sli 0
+ytmp2: sli 0
+tst: sli 0
+pixelsPerValue: sli 0
 bitmapaddr: sli 0
 
-yminVal: sli 0 #Real
-ymaxVal: sli 31457280 #480 as real
-#ymaxVal: sli 125829120 #480 * 4 as real
+# Arguments
+yminVal:  sli 0
+ymaxVal:  sli 0
+xminVal:  sli 0
+xmaxVal:  sli 0
+dataPtr:  sli 0
+typePtr:  sli 0
+listSize: sli 0
+plotRetAddr:  sli 0
+
 pixelrangeReal: sli 31457280 #480 as real
 
 gr0backup:sli 0
@@ -124,16 +181,9 @@ gr6backup:sli 0
 gr7backup:sli 0
 
 
-graphOriginX: sli 32
-graphOriginY: sli 448 # 480-32
-
-data: sli 0
-sli 0
-sli 43
-
-type: sli 2
-sli 2
-sli 1
+# Outside screen by default
+graphOriginX: sli -1
+graphOriginY: sli -1
 
 
 include eval_function

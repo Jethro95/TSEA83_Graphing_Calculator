@@ -1,0 +1,22 @@
+# Test program
+
+load$ 0,-196608
+load$ 1,196608
+load$ 2,-65536
+load$ 3,589824
+load$ 4,&data
+load$ 5,&type
+load$ 6,3
+load$ 7,&yield
+jmp$ 0,&plot
+yield: jmp$ 0,&yield
+
+data: sli 0
+sli 0
+sli 45
+
+type: sli 2
+sli 2
+sli 1
+
+include plot

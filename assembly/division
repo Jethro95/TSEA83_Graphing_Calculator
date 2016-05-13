@@ -43,7 +43,7 @@ load 0,&divisiontäljare
 # Improve precicion
 load$ 2,0 # How many shifts
 while 0<$1073741824
-    if 2=$5
+    if 2=$15
         store 0,&tmp
         load$ 0,1073741825
     else
