@@ -33,7 +33,8 @@ XILINX_INIT = source /sw/xilinx/ise_12.4i/ISE_DS/settings64.sh;
 PART=xc6slx16-3-csg324
 
 
-proj.%: S=main.vhd cpu.vhd PICT_MEM.vhd VGA_MOTOR.vhd KBD_ENC.vhd floatfixlib/math_utility_pkg.vhd floatfixlib/fixed_pkg_c.vhd floatfixlib/float_pkg_c.vhd
+proj.%: S=main.vhd cpu.vhd PICT_MEM.vhd VGA_MOTOR.vhd KBD_ENC.vhd 
+	#floatfixlib/math_utility_pkg.vhd floatfixlib/fixed_pkg_c.vhd floatfixlib/float_pkg_c.vhd
 proj.%: T=main_tb.vhd
 proj.%: U=Nexys3.ucf
 
