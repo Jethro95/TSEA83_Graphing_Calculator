@@ -90,11 +90,11 @@ while 6>$1 #While there are input tokens left
 
        # To solve this, we need to store the second operand in GRx
        # and the first one in program memory.
-       store 4,&tmp # Gr4 -> p_mem
+       store 4,&tmp_rp # Gr4 -> p_mem
        load~ 4,&stackpointer # p_mem (second operande) -> Gr4
 
        #Perform the operation, now with proper ordering
-       subf 4,&tmp
+       subf 4,&tmp_rp
 
     end if
     if 2=$45 # Mult
@@ -116,7 +116,7 @@ while 6>$1 #While there are input tokens left
        load$ 2,&returnfromdivision
        jmp$ 0,&divide
 
-returnfromdivision:store 2,&tmp
+returnfromdivision:store 2,&tmp_rp
        load 0,&gr0backuprp
        load 1,&gr1backuprp
        load 2,&gr2backuprp
@@ -125,7 +125,7 @@ returnfromdivision:store 2,&tmp
        load 5,&gr5backuprp 
        load 6,&gr6backuprp
        load 7,&gr7backuprp
-       load 4,&tmp
+       load 4,&tmp_rp
     end if
 
     # Save Gr4==result at the point in stack on which the second
@@ -187,7 +187,7 @@ sli 0
 stackpointer: sli 0
 
 #Used for some ALU tricks
-tmp: sli 0
+tmp_rp: sli 0
 
 # Input data variables
 nextIsOpLocation: sli 0
@@ -202,4 +202,5 @@ gr4backuprp:sli 0
 gr5backuprp:sli 0
 gr6backuprp:sli 0
 gr7backuprp:sli 0
+
 include division
