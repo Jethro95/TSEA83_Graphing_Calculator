@@ -9,18 +9,9 @@
 # GR6: Size of lists
 # GR7: Return address
 # Jump to &plot
+# Assume all GR's will be modified internally.
 
 #==========
-
-# GR usage (incomplete)
-# GR 0 tmp
-# GR 1 tmp2
-# GR 2 Unused
-# GR 3 Unused
-# GR 4 Unused
-# GR 5 zero, for writing to bitmap
-# GR 6 X-pixel counter
-# GR 7 Unused
 
 # Init arguments
 plot: store 0,&xminVal
@@ -32,7 +23,7 @@ store 5,&typePtr
 store 6,&listSize
 store 7,&plotRetAddr
 
-# TODO: Special cases for scale parameters
+# TODO: Check argument validity
 
 # Calculate origin
 # X
@@ -46,7 +37,7 @@ divfin:multf$ 2,320 # Multiply by resolution width
 store 2,&graphOriginX # Bam!
 
 # Y
-# Same as X
+# Same algorithm as X
 load$ 0,0
 sub 0,&yminVal # Distance from min to zero
 load 1,&ymaxVal
@@ -73,6 +64,7 @@ jmp$ 0,&divide # pixelrange / valuerange
 divdone:lsr$ 2,16 # To int
 store 2,&pixelsPerValue
 
+# Prepare GR's and &y
 load$ 0,0
 store 0,&y
 load$ 1,1
@@ -80,6 +72,8 @@ load$ 2,0
 load$ 3,0
 load$ 5,0
 load$ 6,0
+
+# Calculate Y value for each pixel
 while 6<$320
         store 0,&gr0backup
         store 1,&gr1backup
@@ -95,7 +89,6 @@ while 6<$320
         load 1,&typePtr
         load 2,&listSize
         load 3,&gr6backup
-	#load$ 3,256
         load 4,&xminVal
         load 5,&xmaxVal
         load$ 6,&returnfromeval
@@ -103,12 +96,10 @@ while 6<$320
 returnfromeval:store 0,&ytmp2
 
         # Scale
-	#load 2,&pixelsPerValue
-	store 0,&tst
-        multf 0,&pixelsPerValue
-	add 0,&graphOriginY
-	# Put on Y
-	store 0,&y
+        multf 0,&pixelsPerValue #pixelsPerValue is an int => int result
+        add 0,&graphOriginY
+        # Put on &y
+        store 0,&y
 
         load 0,&gr0backup
         load 1,&gr1backup
@@ -123,9 +114,13 @@ returnfromeval:store 0,&ytmp2
 here:   storeb~ 5,&bitmapaddr
         add$ 6,1
 end while
+
 # Return to caller
 back:jmp 0,&plotRetAddr
 
+#==========
+
+# Internal routine:
 # x,y=>bitmapaddr y*320+x
 xytoaddr:load$ 0,320
     load$ 1,480
@@ -152,12 +147,7 @@ xytoaddr:load$ 0,320
     end if
 jmp$ 0,&here
 
-y:sli 0
-ytmp:sli 0
-ytmp2: sli 0
-tst: sli 0
-pixelsPerValue: sli 0
-bitmapaddr: sli 0
+#==========
 
 # Arguments
 yminVal:  sli 0
@@ -169,8 +159,7 @@ typePtr:  sli 0
 listSize: sli 0
 plotRetAddr:  sli 0
 
-pixelrangeReal: sli 31457280 #480 as real
-
+# GR backups
 gr0backup:sli 0
 gr1backup:sli 0
 gr2backup:sli 0
@@ -180,10 +169,20 @@ gr5backup:sli 0
 gr6backup:sli 0
 gr7backup:sli 0
 
+# Other vars
+y:sli 0
+ytmp:sli 0
+ytmp2: sli 0
+pixelsPerValue: sli 0
+bitmapaddr: sli 0
 
+# Graph origin
 # Outside screen by default
 graphOriginX: sli -1
 graphOriginY: sli -1
+
+# Constants
+pixelrangeReal: sli 31457280 #480 as real
 
 
 include eval_function
