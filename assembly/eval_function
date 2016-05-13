@@ -59,16 +59,16 @@ load 0,&valueEnd
 subf 0,&valueStart
 
 # ValuePerPixel
-asl$ 1,16 # Convert pixelrange to real
+lsl$ 1,16 # Convert pixelrange to real
 load$ 2,&endDiv
-jmp$ 0,&divide # GR2 := pixelrange/valuerange
+jmp$ 0,&divide # GR2 := GR0 / GR1
 endDiv: store 2,&tmp_ef # Store result at tmp_ef
 load 1,&tmp_ef # Load result to GR1
 
 # Calculate value gain from movement from x=0
 # Store it at GR1
 load 0,&pixelCurrent
-asl$ 0,16 # Convert GR0==pixelcurrent to real
+lsl$ 0,16 # Convert GR0==pixelcurrent to real
 store 0,&tmp_ef # Store it at tmp
 multf 1,&tmp_ef # Multiply pixel with value per pixel
 
