@@ -5,20 +5,12 @@
 #GR3 : dot shift amount
 #GR4 : final result
 #GR5 : isnegative
+#GR6 : tmp
+#GR7 : tmp
 
 #OUTPUT:
 #GR2 : result
 
-#resets program for new calculation loop
-ultrareset: LOAD$ 0,0
-STORE 0,&input
-STORE 0,&heltal
-STORE 0,&shift
-STORE 0,&result
-STORE 0,&opaddr
-STORE 0,&curaddr
-STORE 0,&loopcounter
- 
 #resets registers for new input
 reset: LOAD$ 0,0
 LOAD$ 1,0
@@ -41,6 +33,26 @@ if 0 = $255
 endif
 
 if 0 = $42  # '='
+    LOAD$ 6,0
+    LOAD$ 7,0
+    while 7 < $40
+        ADD 6,&row
+        ADD$ 7,1    
+    endwhile
+    ADD 6,&col
+    STORE 6,&tileaddr
+    if 6 > $1199
+        LOAD$ 6,40
+        STORE 6,&tileaddr
+    endif
+    STOREP~ 0,&tileaddr
+    #row++, col=0
+    LOAD 6,&row
+    ADD$ 6,1
+    STORE 6,&row
+    LOAD$ 6,0
+    STORE 6,&col
+
     STORE 0,&result
 	JMP$ 0,&enter
 endif
@@ -48,6 +60,26 @@ endif
 #input is operator
 if 0 > $42
     if 0 < $47
+        LOAD$ 6,0
+        LOAD$ 7,0
+        while 7 < $40
+            ADD 6,&row
+            ADD$ 7,1    
+        endwhile
+        ADD 6,&col
+        STORE 6,&tileaddr
+        if 6 > $1199
+            LOAD$ 6,40
+            STORE 6,&tileaddr
+        endif
+        STOREP~ 0,&tileaddr
+        #row++, col=0
+        LOAD 6,&row
+        ADD$ 6,1
+        STORE 6,&row
+        LOAD$ 6,0
+        STORE 6,&col            
+
         STORE 0,&result
 	    JMP$ 0,&enter
     endif
@@ -55,17 +87,64 @@ endif
 
 #use the 'N' modifier to make input negative (e.g. input 'N5' will save '-5' to memory)
 if 0 = $23  #Input = 'N' (negative)
+    LOAD$ 6,0
+    LOAD$ 7,0
+    while 7 < $40
+        ADD 6,&row
+        ADD$ 7,1    
+    endwhile
+    ADD 6,&col
+    STORE 6,&tileaddr
+    if 6 > $1199
+        LOAD$ 6,40
+        STORE 6,&tileaddr
+    endif
+    STOREP~ 0,&tileaddr
+    #col++
+    LOAD 6,&col
+    ADD$ 6,1
+    STORE 6,&col    
+
     LOAD$ 5,1
     JMP$ 0,&start
 endif
 
 #dot input
 if 0 = $41
+    LOAD$ 6,0
+    LOAD$ 7,0
+    while 7 < $40
+        ADD 6,&row
+        ADD$ 7,1    
+    endwhile
+    ADD 6,&col
+    STORE 6,&tileaddr
+    if 6 > $1199
+        LOAD$ 6,40
+        STORE 6,&tileaddr
+    endif
+    STOREP~ 0,&tileaddr
+    #col++
+    LOAD 6,&col
+    ADD$ 6,1
+    STORE 6,&col
+
     JMP$ 0,&dotfirst
+endif
+
+if 0 = $27  #Input = 'R' (clear)
+    load$ 7,&clearreset
+    JMP$ 0,&clear
 endif
 
 #space -> process input
 if 0 = $47
+    #row++, col=0
+    LOAD 6,&row
+    ADD$ 6,1
+    STORE 6,&row
+    LOAD$ 6,0
+    STORE 6,&col
     if 5 = $1
         STORE 1,&result
         LOAD$ 1,0
@@ -75,11 +154,30 @@ if 0 = $47
 endif
 
 if 0 < $16		#If numerical
+    LOAD$ 6,0
+    LOAD$ 7,0
+    while 7 < $40
+        ADD 6,&row
+        ADD$ 7,1    
+    endwhile
+    ADD 6,&col
+    STORE 6,&tileaddr
+    if 6 > $1199
+        LOAD$ 6,40
+        STORE 6,&tileaddr
+    endif
+    STOREP~ 0,&tileaddr
+    #col++
+    LOAD 6,&col
+    ADD$ 6,1
+    STORE 6,&col
+
     LSL$ 0,16
 	STORE 0,&input
     LSL$ 1,4
     ADD 1,&input
 endif
+
 JMP$ 0,&start
 
 #___DOT___
@@ -96,6 +194,12 @@ endif
 
 #space -> process input
 if 0 = $47
+    #row++, col=0
+    LOAD 6,&row
+    ADD$ 6,1
+    STORE 6,&row
+    LOAD$ 6,0
+    STORE 6,&col
     if 5 = $1   #if negative
         ADD 1,&heltal  #Add whole number to decimal part
         STORE 1,&result
@@ -110,6 +214,24 @@ if 0 = $47
 endif
 
 if 0 < $16		#If numerical
+    LOAD$ 6,0
+    LOAD$ 7,0
+    while 7 < $40
+        ADD 6,&row
+        ADD$ 7,1    
+    endwhile
+    ADD 6,&col
+    STORE 6,&tileaddr
+    if 6 > $1199
+        LOAD$ 6,40
+        STORE 6,&tileaddr
+    endif
+    STOREP~ 0,&tileaddr
+    #col++
+    LOAD 6,&col
+    ADD$ 6,1
+    STORE 6,&col
+
     LSL 0,&shift
 	STORE 0,&input
     ADD 1,&input
