@@ -11,13 +11,12 @@ LOAD$ 1,0
 LOAD$ 2,47
 LOAD$ 3,0
 
+STORE 1,&lc
 while 1 < $1200
     STOREP~ 2,&lc
     ADD$ 1,1
     STORE 1,&lc
 endwhile
-
-#STORE 3,&tileaddr   #tileaddr in 'calc'
 
 JMP 0,&retAddr
 

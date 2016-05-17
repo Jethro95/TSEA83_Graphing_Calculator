@@ -10,6 +10,8 @@
 #reset after clear
 clearreset: LOAD$ 0,0
 STORE 0,&tileaddr
+STORE 0,&row
+STORE 0,&col
 LOAD$ 0,40
 STORE 0,&startat
 
@@ -22,7 +24,6 @@ STORE 0,&result
 STORE 0,&opaddr
 STORE 0,&curaddr
 STORE 0,&loopcounter
-
 
 include text2hex
 
@@ -44,7 +45,8 @@ if 2 > $42
     endif
 endif
 
-LOAD$ 5,0   #if input is operand
+#if input is operand
+LOAD$ 5,0   
 
 isop: STORE~ 5,&opaddr
 
@@ -57,28 +59,11 @@ LOAD 1,&loopcounter
 ADD$ 1,1
 STORE 1,&loopcounter
 
-#display input
-#30 rows, 40 columns
-#save number to GR0, tileaddr to GR1, return address to GR2 for print_num
-#GR0 is already number
-#LOAD 1,&tileaddr
-#if 1 = $1200
-#    
-#endif
-#LOAD$ 2,&continue
-#JMP$ 0,&printnum
-
-#TODO: print input
-
-#continue here
-#continue: ADD$ 1,40
-#STORE 1,&tileaddr
 continue: JMP$ 0,&reset     #accept new input
 
 #======================
 #   TESTS
 #======================
-
 
 test: load$ 0,&memstart # start of input
 load$ 1,&op
@@ -101,6 +86,8 @@ ADD$ 1,40
 STORE 1,&tileaddr
 JMP$ 0,&ultrareset
 
+row: SLI 0
+col: SLI 0
 opaddr: SLI 0
 curaddr: SLI 0
 loopcounter: SLI 0
