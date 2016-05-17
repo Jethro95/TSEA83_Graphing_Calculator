@@ -5,6 +5,13 @@
 #GR3 : current address
 #GR4 : op vector address
 #GR5 : temp register
+#GR6 : tileaddr
+
+#reset after clear
+clearreset: LOAD$ 0,0
+STORE 0,&tileaddr
+LOAD$ 0,40
+STORE 0,&startat
 
 #resets program for new calculation loop
 ultrareset: LOAD$ 0,0
@@ -16,6 +23,7 @@ STORE 0,&opaddr
 STORE 0,&curaddr
 STORE 0,&loopcounter
 
+
 include text2hex
 
 #if enter, perform calculation and show result
@@ -23,29 +31,25 @@ if 2 = $42
     JMP$ 0,&test
 endif
 
+#Update op vector
+LOAD$ 4,&op
+ADD 4,&loopcounter
+STORE 4,&opaddr
+
 #if input is operator
 if 2 > $42
     if 2 < $47
-        #Update op vector
-        LOAD$ 4,&op
-	    ADD 4,&loopcounter
-        STORE 4,&opaddr
         LOAD$ 5,1
-        STORE~ 5,&opaddr
         JMP$ 0,&isop
     endif
 endif
 
-#insert 0 in op vector if not operator
-#skip this if operator
-LOAD$ 4,&op
-ADD 4,&loopcounter
-STORE 4,&opaddr
-LOAD$ 5,0
-STORE~ 5,&opaddr
+LOAD$ 5,0   #if input is operand
+
+isop: STORE~ 5,&opaddr
 
 #update data stack
-isop: LOAD$ 3,&memstart
+LOAD$ 3,&memstart
 ADD 3,&loopcounter
 STORE 3,&curaddr
 STORE~ 2,&curaddr
@@ -58,6 +62,9 @@ STORE 1,&loopcounter
 #save number to GR0, tileaddr to GR1, return address to GR2 for print_num
 #GR0 is already number
 #LOAD 1,&tileaddr
+#if 1 = $1200
+#    
+#endif
 #LOAD$ 2,&continue
 #JMP$ 0,&printnum
 
@@ -86,6 +93,7 @@ jmp$ 0,&printnum
 
 include reverse_polish
 include print_num
+include clear
 
 #update tileaddr
 end: LOAD 1,&tileaddr 

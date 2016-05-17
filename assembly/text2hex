@@ -5,6 +5,8 @@
 #GR3 : dot shift amount
 #GR4 : final result
 #GR5 : isnegative
+#GR6 : row
+#GR7 : col
 
 #OUTPUT:
 #GR2 : result
@@ -54,6 +56,11 @@ if 0 = $41
     JMP$ 0,&dotfirst
 endif
 
+if 0 = $27  #Input = 'R' (clear)
+    load$ 7,&clearreset
+    JMP$ 0,&clear
+endif
+
 #space -> process input
 if 0 = $47
     if 5 = $1
@@ -70,6 +77,7 @@ if 0 < $16		#If numerical
     LSL$ 1,4
     ADD 1,&input
 endif
+
 JMP$ 0,&start
 
 #___DOT___
