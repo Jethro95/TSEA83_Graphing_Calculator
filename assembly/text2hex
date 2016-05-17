@@ -3,7 +3,7 @@
 #GR1 : result
 #GR2 : temp shift register
 #GR3 : dot shift amount
-#GR4 : final result
+#GR4 : isparams
 #GR5 : isnegative
 #GR6 : tmp
 #GR7 : tmp
@@ -106,6 +106,30 @@ if 0 = $23  #Input = 'N' (negative)
     STORE 6,&col    
 
     LOAD$ 5,1
+    JMP$ 0,&start
+endif
+
+#use the 'P' modifier to input plot parameters
+if 0 = $25  #Input = 'P'
+    LOAD$ 6,0
+    LOAD$ 7,0
+    while 7 < $40
+        ADD 6,&row
+        ADD$ 7,1    
+    endwhile
+    ADD 6,&col
+    STORE 6,&tileaddr
+    if 6 > $1199
+        LOAD$ 6,40
+        STORE 6,&tileaddr
+    endif
+    STOREP~ 0,&tileaddr
+    #col++
+    LOAD 6,&col
+    ADD$ 6,1
+    STORE 6,&col    
+
+    LOAD$ 4,1
     JMP$ 0,&start
 endif
 
@@ -243,7 +267,31 @@ JMP$ 0,&dot
 done: STORE 1,&result
 enter: LOAD 2,&result
 
+if 4 = $1
+    LOAD 4,&paramcount
+    ADD$ 4,1
+    if 4 = $1
+        STORE 2,&xmin
+    endif
+    if 4 = $2
+        STORE 2,&xmax
+    endif
+    if 4 = $3
+        STORE 2,&ymin
+    endif
+    if 4 = $4
+        STORE 2,&ymax
+    endif
+    STORE 4,&paramcount
+    LOAD$ 4,1
+endif
+
 #Empty rows for variables
+paramcount: SLI 0
+xmin: SLI 0
+xmax: SLI 0
+ymin: SLI 0
+ymax: SLI 0
 input: SLI 0
 heltal: SLI 0
 shift: SLI 0

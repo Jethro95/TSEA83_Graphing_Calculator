@@ -12,6 +12,11 @@ clearreset: LOAD$ 0,0
 STORE 0,&tileaddr
 STORE 0,&row
 STORE 0,&col
+STORE 0,&paramcount
+STORE 0,&xmin
+STORE 0,&xmax
+STORE 0,&ymin
+STORE 0,&ymax
 LOAD$ 0,40
 STORE 0,&startat
 
