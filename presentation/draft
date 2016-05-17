@@ -1,0 +1,42 @@
+Presentera oss
+
+Nämn i stora drag att det är en grafräknare
+Gå in under huven: prata om hårdvaran
+	"Konstruktionen består av CPU, vgamotor, och tangentmotor"
+		Visa översiktlig bild
+		Förklara hur de pratar med varandra
+		Prata om CPU:
+			Liknelser till Olle Roos
+			32 bitar
+			Visa översiktlig bild (Jämförelse med olle-roos-bild?)
+			Diskutera fixed-point tal i samarbete med ALU:n
+			
+		"Som ni ser finns en bildutgång på bussen"
+		Prata om VGA_MOTOR:
+			"För att kunna rita grafen på ena halvan och sköta konsol på andra så..."
+			Prata om uppdelning
+			Prata om hur man kommunicerar med motorn
+			Implementationsdetaljer...
+		Prata om tangentbordsmotor:
+			"För att sköta input/output..."
+			Implementationsdetaljer...
+			Hur man kommuncierar med motorn
+		
+Prata om microkod, script
+	Snabb slide på instruktionsuppsättning
+	Förklara moder, och detta med argument-på-nästa-rad
+	Nämn sillescript och dess funktionalitet. Snabb slide med exempelkod.
+
+Prata om själv programmet: räknaren
+	Bilder för alla punkter nedan...
+	Hur input formateras, reversed polish
+		Exempelräkning av enkelt tal
+	Funktioner, plottning
+	Omskalning av graf
+
+Sammanfatta
+	ish: "Så sammanfattningsvis: vi har nu presenterat vår revolutionerande grafräknare som jobbar på en generell dator.
+			Vi är övertygade om att denna konstruktion kan hjälpa er alla att effektivare utföra era beräkningsjobb."
+
+Tacks så mycket
+Frågor
