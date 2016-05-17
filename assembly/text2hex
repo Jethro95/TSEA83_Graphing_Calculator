@@ -124,13 +124,16 @@ if 0 = $25  #Input = 'P'
         STORE 6,&tileaddr
     endif
     STOREP~ 0,&tileaddr
-    #col++
-    LOAD 6,&col
+    #row++, col=0
+    LOAD 6,&row
     ADD$ 6,1
-    STORE 6,&col    
+    STORE 6,&row
+    LOAD$ 6,0
+    STORE 6,&col   
 
     LOAD$ 4,1
-    JMP$ 0,&start
+    STORE 4,&paraminput
+    JMP$ 0,&reset
 endif
 
 #dot input
@@ -267,6 +270,7 @@ JMP$ 0,&dot
 done: STORE 1,&result
 enter: LOAD 2,&result
 
+LOAD 4,&paraminput
 if 4 = $1
     LOAD 4,&paramcount
     ADD$ 4,1
@@ -281,12 +285,44 @@ if 4 = $1
     endif
     if 4 = $4
         STORE 2,&ymax
+
+        #Print 'OK'
+        LOAD$ 6,0
+        LOAD$ 7,0
+        while 7 < $40
+            ADD 6,&row
+            ADD$ 7,1    
+        endwhile
+        ADD 6,&col
+        STORE 6,&tileaddr
+        if 6 > $1199
+            LOAD$ 6,40
+            STORE 6,&tileaddr
+        endif
+        LOAD$ 0,24  #'O'
+        STOREP~ 0,&tileaddr
+        LOAD 6,&tileaddr
+        ADD$ 6,1
+        STORE 6,&tileaddr
+        LOAD$ 0,20  #'K'
+        STOREP~ 0,&tileaddr
+        #row++, col=0
+        LOAD 6,&row
+        ADD$ 6,1
+        STORE 6,&row
+        LOAD$ 6,0
+        STORE 6,&col
+        
+        JMP$ 0,&ultrareset
     endif
     STORE 4,&paramcount
     LOAD$ 4,1
+    STORE 4,&paraminput
+    JMP$ 0,&reset
 endif
 
 #Empty rows for variables
+paraminput: SLI 0
 paramcount: SLI 0
 xmin: SLI 0
 xmax: SLI 0

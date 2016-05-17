@@ -29,6 +29,8 @@ STORE 0,&result
 STORE 0,&opaddr
 STORE 0,&curaddr
 STORE 0,&loopcounter
+STORE 0,&paramcount
+STORE 0,&paraminput
 
 include text2hex
 
