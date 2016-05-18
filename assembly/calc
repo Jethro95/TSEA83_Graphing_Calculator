@@ -5,8 +5,35 @@
 #GR3 : current address
 #GR4 : op vector address
 #GR5 : temp register
+#GR6 : tileaddr
 
-#JMP$ 0,&test
+#reset after clear
+clearreset: LOAD$ 0,0
+STORE 0,&tileaddr
+STORE 0,&row
+STORE 0,&col
+STORE 0,&paramcount
+STORE 0,&xmin
+STORE 0,&xmax
+STORE 0,&ymin
+STORE 0,&ymax
+LOAD$ 0,40
+STORE 0,&startat
+
+include reset_bitmap
+
+#resets program for new calculation loop
+ultrareset: LOAD$ 0,0
+STORE 0,&input
+STORE 0,&heltal
+STORE 0,&shift
+STORE 0,&result
+STORE 0,&opaddr
+STORE 0,&curaddr
+STORE 0,&loopcounter
+STORE 0,&paramcount
+STORE 0,&paraminput
+STORE 0,&isfunc
 
 include text2hex
 
@@ -15,29 +42,34 @@ if 2 = $42
     JMP$ 0,&test
 endif
 
+#Update op vector
+LOAD$ 4,&op
+ADD 4,&loopcounter
+STORE 4,&opaddr
+
+#if input is 'X'
+if 2 = $33
+    LOAD$ 5,1
+    STORE 5,&isfunc
+    LOAD$ 5,2
+    JMP$ 0,&isop
+endif
+
 #if input is operator
 if 2 > $42
     if 2 < $47
-        #Update op vector
-        LOAD$ 4,&op
-	    ADD 4,&loopcounter
-        STORE 4,&opaddr
         LOAD$ 5,1
-        STORE~ 5,&opaddr
         JMP$ 0,&isop
     endif
 endif
 
-#insert 0 in op vector if not operator
-#skip this if operator
-LOAD$ 4,&op
-ADD 4,&loopcounter
-STORE 4,&opaddr
-LOAD$ 5,0
-STORE~ 5,&opaddr
+#if input is operand
+LOAD$ 5,0   
+
+isop: STORE~ 5,&opaddr
 
 #update data stack
-isop: LOAD$ 3,&memstart
+LOAD$ 3,&memstart
 ADD 3,&loopcounter
 STORE 3,&curaddr
 STORE~ 2,&curaddr
@@ -45,34 +77,54 @@ LOAD 1,&loopcounter
 ADD$ 1,1
 STORE 1,&loopcounter
 
-#accept new input
-JMP$ 0,&reset
+continue: JMP$ 0,&reset     #accept new input
 
 #======================
 #   TESTS
 #======================
 
+test: LOAD 5,&isfunc
+if 5 = $1
+    load 0,&xmin
+    load 1,&xmax
+    load 2,&ymin
+    load 3,&ymax
+    load$ 4,&memstart
+    load$ 5,&op
+    load 6,&loopcounter
+    load$ 7,&ultrareset
+    JMP$ 0,&plot
+endif
 
-test: load$ 0,&memstart # start of input
+load$ 0,&memstart # start of input
 load$ 1,&op
 load 2,&loopcounter
-#load$ 2,3
 load$ 3,&getbackhere
 jmp$ 0,&evaluate
 
-getbackhere: load$ 1,10 # We want the number to be displayed at tileaddr 10-18
+getbackhere: LOAD 1,&tileaddr # We want the number to be displayed at tileaddr
 # GR0 is already result
 load$ 2,&end
 jmp$ 0,&printnum
 
-include reverse_polish
+#include reverse_polish
 include print_num
+include clear
+include plot
 
-end: JMP$ 0,&ultrareset
+#update tileaddr
+end: LOAD 1,&tileaddr 
+ADD$ 1,40
+STORE 1,&tileaddr
+JMP$ 0,&ultrareset
 
+isfunc: SLI 0
+row: SLI 0
+col: SLI 0
 opaddr: SLI 0
 curaddr: SLI 0
 loopcounter: SLI 0
+tileaddr: SLI 0
 memstart: sli 0
 sli 0
 sli 0

@@ -20,7 +20,7 @@
 #sli 1
 
 include reverse_polish
-include division
+#include division
 
 # GR Usage:
 # GR0: pointer to value vector

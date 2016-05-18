@@ -1,8 +1,8 @@
 # Test program
 
-load$ 0,-196608
+load$ 0,0
 load$ 1,196608
-load$ 2,-65536
+load$ 2,0
 load$ 3,589824
 load$ 4,&data
 load$ 5,&type
