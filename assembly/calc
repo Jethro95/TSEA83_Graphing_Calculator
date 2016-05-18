@@ -44,6 +44,12 @@ LOAD$ 4,&op
 ADD 4,&loopcounter
 STORE 4,&opaddr
 
+#if input is 'X'
+if 2 = $33
+    LOAD$ 5,2
+    JMP$ 0,&isop
+endif
+
 #if input is operator
 if 2 > $42
     if 2 < $47
