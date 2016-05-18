@@ -125,32 +125,7 @@ opaddr: SLI 0
 curaddr: SLI 0
 loopcounter: SLI 0
 tileaddr: SLI 0
-data: sli 0
-sli 0
-sli 45
-type: sli 2
-sli 2
-sli 1
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-memstart: SLI 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
-sli 0
+memstart: sli 0
 sli 0
 sli 0
 sli 0
