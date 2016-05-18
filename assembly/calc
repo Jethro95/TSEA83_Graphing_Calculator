@@ -20,6 +20,8 @@ STORE 0,&ymax
 LOAD$ 0,40
 STORE 0,&startat
 
+include reset_bitmap
+
 #resets program for new calculation loop
 ultrareset: LOAD$ 0,0
 STORE 0,&input
@@ -31,6 +33,7 @@ STORE 0,&curaddr
 STORE 0,&loopcounter
 STORE 0,&paramcount
 STORE 0,&paraminput
+STORE 0,&isfunc
 
 include text2hex
 
@@ -46,6 +49,8 @@ STORE 4,&opaddr
 
 #if input is 'X'
 if 2 = $33
+    LOAD$ 5,1
+    STORE 5,&isfunc
     LOAD$ 5,2
     JMP$ 0,&isop
 endif
@@ -78,7 +83,20 @@ continue: JMP$ 0,&reset     #accept new input
 #   TESTS
 #======================
 
-test: load$ 0,&memstart # start of input
+test: LOAD 5,&isfunc
+if 5 = $1
+    load 0,&xmin
+    load 1,&xmax
+    load 2,&ymin
+    load 3,&ymax
+    load$ 4,&memstart
+    load$ 5,&op
+    load 6,&loopcounter
+    load$ 7,&ultrareset
+    JMP$ 0,&plot
+endif
+
+load$ 0,&memstart # start of input
 load$ 1,&op
 load 2,&loopcounter
 load$ 3,&getbackhere
@@ -89,9 +107,10 @@ getbackhere: LOAD 1,&tileaddr # We want the number to be displayed at tileaddr
 load$ 2,&end
 jmp$ 0,&printnum
 
-include reverse_polish
+#include reverse_polish
 include print_num
 include clear
+include plot
 
 #update tileaddr
 end: LOAD 1,&tileaddr 
@@ -99,13 +118,39 @@ ADD$ 1,40
 STORE 1,&tileaddr
 JMP$ 0,&ultrareset
 
+isfunc: SLI 0
 row: SLI 0
 col: SLI 0
 opaddr: SLI 0
 curaddr: SLI 0
 loopcounter: SLI 0
 tileaddr: SLI 0
+data: sli 0
+sli 0
+sli 45
+type: sli 2
+sli 2
+sli 1
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
 memstart: SLI 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
+sli 0
 sli 0
 sli 0
 sli 0

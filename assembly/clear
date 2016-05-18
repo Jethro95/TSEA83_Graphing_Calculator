@@ -6,7 +6,7 @@
 #GR2 : x2F (space)
 #GR3 : 0
 
-clear: STORE 7,&retAddr
+clear: STORE 7,&ret_Addr
 LOAD$ 1,0
 LOAD$ 2,47
 LOAD$ 3,0
@@ -18,7 +18,7 @@ while 1 < $1200
     STORE 1,&lc
 endwhile
 
-JMP 0,&retAddr
+JMP 0,&ret_Addr
 
 lc: SLI 0   #loopcounter
-retAddr: SLI 0
+ret_Addr: SLI 0

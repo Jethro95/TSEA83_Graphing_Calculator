@@ -85,8 +85,7 @@ if 0 > $42
     endif
 endif
 
-#input is 'X'
-if 0 = $33
+if 0 = $33		#If 'X'
     LOAD$ 6,0
     LOAD$ 7,0
     while 7 < $40
@@ -103,11 +102,13 @@ if 0 = $33
     #col++
     LOAD 6,&col
     ADD$ 6,1
-    STORE 6,&col            
+    STORE 6,&col
 
-    STORE 0,&result
-    JMP$ 0,&enter
+	STORE 0,&input
+    LOAD 1,&input
+    JMP$ 0,&start
 endif
+
 
 #use the 'N' modifier to make input negative (e.g. input 'N5' will save '-5' to memory)
 if 0 = $23  #Input = 'N' (negative)
