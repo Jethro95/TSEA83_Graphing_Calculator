@@ -1,0 +1,106 @@
+
+-SLIDE 1
+
+Hej!
+
+Kan vi börja? Ja.
+
+Vi går under det ädla namnet Grupp 35, och har tillsammans konstruerat en grafritande miniräknare, med en generell datormaskin under huven.
+
+<Bara säga våra namn snabbt; "Jag är X">
+
+-SLIDE 2
+
+Vad ni kommer få se när vi går vidare till demonstrationen är en tudelad skärm: ena halvan med en graf, och den andra med en konsol.
+
+Användaren kan mata in matte på konsol-delen, och få ut annan matte på antingen konsoldelen eller grafdelen beroende på vad de väljer att göra.
+
+Det kan se ut så här <hänvisa till bild>
+
+Vi kommer in på större detaljer allt eftersom, men detta är i stora drag vad vi har framför oss.
+
+Låt oss börja nerifrån med hårdvarudelen.
+
+-SLIDE 3
+
+Vi kan bryta ner konstruktionen i tre distinkta moduler. En CPU, en tangentbordsmotor, och en VGA-motor. Som förväntat så sköter CPU:n parsning av maskinkod och beräkningar, tangentbordsmotorn läser tecken via USB, och VGA-motorn kan ge oss skärmutmatning baserat på givet minne.
+
+CPU:n sitter i "mitten", som ni ser på bilden, läser från tangentbordsmotorn, och skriver till VGA-motorn. Dessa två kommunicerar i sin tur med extern hårdvara: tangentbord och skärm.
+
+-SLIDE 4
+
+...
+
+-SLIDE 9
+
+Den generella CPU:n kan programmeras i maskinkod. Det finns support för 27 instruktioner, 3 olika moder, 8 genella register, och 5 flaggor med respektive branch-if instruktioner: Carry, Extra Carry, Negative, Zero, och Overflow.
+
+-SLIDE 10
+
+Jag vill påminna om att vårt program-slash-data-minne har en ordbredd på 32 bitar. En instruktion skrivs i detta minne och de individuella segmenten tolkas på följande sätt:
+
+(obs: tillhörande bild)
+På de fem första placeras instruktionens bitrepresentation.
+Därefter anges vilket av de 8 generella registerna som ska användas.
+Vilket mod som instruktionen körs med, 2 bitar.
+Och slutligen address fältet, som tar upp resten av ordbredden: 22 bitar.
+
+-SLIDE 11
+
+Vidare om moderna: vår maskin har support för tre olika: direkt, omedelbar, och indirekt. 
+
+Omedelbart mod fungerar lite annorlunda: istället för att läsa från addressfältet så tas raden efter instruktionen i huvudminnet och används som literal till instruktionen. 
+
+Detta är främst för att korrekt kunna skriva in fixed-point-tal; när de 16 lägsta bitarna äts upp av decimaldelen skulle endast 6 bitar kvarstå för heltalsdelen om addressfältet användes vid omedelbar addressering. På det här sättet kan vi fullt ut utnyttja alla 16 bitarna undanlagda för heltalsdelen.
+
+Notera att ett mod saknas för koden 11. Detta mod har odefinierad funktion, och har utlämnats då det ansågs överflödigt för den funktionalitet som vi ämnar datorn att utföra.
+
+Men ingen gillar att skriva i maskinkod, så vi utvecklade...
+
+-SLIDE 12
+
+Sillescrip två komma noll.
+
+En något mer avancerad korskompilator än snittet, skrivet i Python 2. Förutom att översätta instruktionsnamn och tal till binärform så får vi även hjälpsamma konstruktioner som labels, if-satser, while-satser, och möjlighet att binda ihop filer med include.
+
+Lite exempelkod ses i högra delen av skärmen, och det är i detta språket som vi skrivit ihop programmet som körs på datorn.
+
+-SLIDE 13
+
+Här ligger naturligtvis mycket av köttet i det ni senare kommer få se. Med X rader maskinkod så är det relativt mycket, men det finns också många arbetsuppgfiter som ska skötas.
+
+Koden parsar inputen från tangentbordsmotorn, beräknar uttryck, och ritar upp grafer när tillsagd. Det finns support för de fyra räkningssätten. Dock är det värt att notera att division inte är implementerat i hårdvara, utan körs som maskinkod.
+
+-SLIDE 14
+
+För att förenkla parsning så läser vi inmatning på ett format under namnet Reverse Polish. Indata pushas i tur och ordning till en stack tills man finner en operator. Då poppas de två översta värderna, läggs ihop, eller vad man nu gör, och resultatet pushas till stacken. Repetera tills endast ett element kvarstår.
+
+I simplare termer: Man skriver, oftast, två operander följt av en operator.
+
+Fördelen med detta är att man kan skriva alla de uttryck som man kan skriva med vanliga paranteser, men man slipper rekursion vid evalueringen.
+
+I praktiken, i vårt fall, så separerar man operander slash operatorer med ett mellanslag, och enter påbörjar evaluering. N trycks ner innan en negativ operand för att inte orsaka förvirring tillsammans med minus-operatorn.
+
+-SLIDE 15
+
+Men man kan inte bara evaluera enkla uttryck
+
+Om du har med ett "X" som en operator kommer uttrycket att tolkas som en funktion, och dess tillhörande graf kommer ritas upp på vänsta delen av skärmen vid evaluering.
+
+Detta görs genom att byta X:et mot varje pixels reella X-värde i tur och ordning, ta lite hänsyn till skalning, och sedan rita in motsvarande pixel.
+
+Naturligtvis kan ni skala om grafen. Detta görs genom att skriva TODO
+
+-SLIDE 16
+
+Vi vill tacka er för att ni varit en så beundrandsvärd publik, och hoppas att vår presentation har varit av intresse.
+
+Tack så mycket.
+
+<förhoppningsvis en applåd?>
+
+-SLIDE 17
+
+Om ni nu haft några funderingar under presentationen skulle vi vilja använda den kvarvarande tiden till en frågestund. Någon?
+
+<Frågor>
