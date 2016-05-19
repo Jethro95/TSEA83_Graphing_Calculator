@@ -17,6 +17,7 @@ store 0,&divisiontäljare
 store 1,&divisionnämnare
 load$ 3,0
 if 1=$0
+    load$ 2,0
     jmp 0,&divisionreturnaddr
 end if
 #Get abs of täljare
