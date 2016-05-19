@@ -66,6 +66,49 @@ minimum height=3em, minimum width=6em]
 
 \subsection{CPU}
 
+CPU:n är av relativt enkel design, ej pipelinad. Huvudminnet, och de allra flesta register inklusive de generella, är 32 bitar långa.
+
+\subsubsection{mPC}
+
+
+
+\subsubsection{AR/ALU}
+
+I processen titulerad AR finns koden som utgör enhetens ALU.
+
+Här modifieras ackumulatorregistret, AR, (32 bitar), och de fem flaggorna. En rad olika operationer kan utföras på positiv klockflank beroende på kuden hos ALU-signalen; de fem första bitarna i microminnesinstruktionen som för tillfället körs.
+
+Vid matematiska operationer tolkas AR och bussens värde som ett signerat två-komplementstal, det vill säga att de kan båda anta negativa värden.
+
+AR:s värde kan senare läggas på bussen via att ange koden \texttt{0101} i microkoden. Den kan dock ej skrivas till direkt.
+
+Nedan följer en tabell över alla ALU-operationer: deras koder, funktion, och modifierade flaggor.
+
+\begin{tabular}{llc}
+\textbf{Kod} & \textbf{Funktion} & \textbf{Flaggor påverkade}\\
+\hline
+\texttt{00000} & <Ingenting> & \\
+\texttt{00001} & AR := BUS &  \\
+\texttt{00010} & AR := BUS' & \\
+\texttt{00011} & AR := 0 & \\
+\texttt{00100} & AR := AR+BUS & \texttt{X C V N Z}\\
+\texttt{00101} & AR := AR-BUS & \texttt{X C V N Z} \\
+\texttt{00110} & AR := AR \textsc{and} BUS & \texttt{{ } C V N Z}\\
+\texttt{00111} & AR := \textit{signed\_to\_real}(AR) & \\
+\texttt{01000} & AR := \textit{real\_to\_signed}(AR) & \\
+\texttt{01001} & AR := AR \textsc{asr} BUS & \texttt{X C V N Z}\\
+\texttt{01010} & AR := AR \textsc{asl} BUS & \texttt{X C V N Z}\\
+\texttt{01011} & AR := AR+BUS (fixed point) & \texttt{X C V N Z} \\
+\texttt{01100} & AR := AR-BUS (fixed point) & \texttt{X C V N Z} \\
+\texttt{01101} & AR := AR*BUS (fixed point) &  \\
+\texttt{01110} & \texttt{<Undefined>} & \\
+\texttt{01111} & AR := AR \textsc{lsr} BUS & \texttt{X C { } N Z}\\
+\texttt{10000} & AR := AR \textsc{lsl} BUS & \texttt{X C { } N Z}\\
+\texttt{Others} & \texttt{<Undefined>} &
+\end{tabular}
+
+
+
 \subsection{Tangentbordsmotor}
 
 \subsection{Bildminne}
