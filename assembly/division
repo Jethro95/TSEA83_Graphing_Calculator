@@ -16,73 +16,75 @@ divide:store 2,&divisionreturnaddr
 store 0,&divisiontäljare
 store 1,&divisionnämnare
 load$ 3,0
-
-#Get abs of täljare
-if 0<$0
-    load$ 4,0
-    sub 4,&divisiontäljare
-    store 4,&divisiontäljare
-    load 0,&divisiontäljare
-    load$ 3,1
-end if
-
-#Get abs of nämnare
-if 1<$0
-    load$ 4,0
-    sub 4,&divisionnämnare
-    store 4,&divisionnämnare
-    load 0,&divisionnämnare
-    if 3=$1
-        load$ 3,0
-    else
+if 1!$0
+    #Get abs of täljare
+    if 0<$0
+        load$ 4,0
+        sub 4,&divisiontäljare
+        store 4,&divisiontäljare
+        load 0,&divisiontäljare
         load$ 3,1
     end if
-end if
-load 0,&divisiontäljare
 
-# Improve precicion
-load$ 2,0 # How many shifts
-while 0<$1073741824
-    if 2=$15
-        store 0,&tmp
-            load$ 0,1073741825
-    else
-        lsl$ 0,1
-	    add$ 2,1
+    #Get abs of nämnare
+    if 1<$0
+        load$ 4,0
+        sub 4,&divisionnämnare
+        store 4,&divisionnämnare
+        load 0,&divisionnämnare
+        if 3=$1
+	    load$ 3,0
+        else
+	    load$ 3,1
+        end if
     end if
-end while
-if 2=$15
-    load 0,&tmp
+    load 0,&divisiontäljare
+
+    # Improve precicion
+    load$ 2,0 # How many shifts
+    while 0<$1073741824
+        if 2=$15
+	    store 0,&tmp
+	        load$ 0,1073741825
+        else
+	    lsl$ 0,1
+	        add$ 2,1
+        end if
+    end while
+    if 2=$15
+        load 0,&tmp
+    end if
+    store 2,&divisionshifted
+
+
+    load$ 2,0
+
+    load$ 1,0
+
+    while 0>$0
+        sub 0,&divisionnämnare
+        add$ 2,65536
+        load$ 1,1
+
+    end while
+
+    if 1=$1
+        sub$ 2,65536
+    end if
+    lsr 2,&divisionshifted
+
+
+    # Is negative, invert
+    if 3=$1
+        store 2,&divisionnämnare # Actually result, but stealing addr
+        load$ 4,0
+        sub 4,&divisionnämnare
+        store 4,&divisionnämnare
+        load 2,&divisionnämnare
+    end if
+else
+    load$ 2,0
 end if
-store 2,&divisionshifted
-
-
-load$ 2,0
-
-load$ 1,0
-while 0>$0
-    sub 0,&divisionnämnare
-    add$ 2,65536
-    load$ 1,1
-
-end while
-
-if 1=$1
-    sub$ 2,65536
-end if
-lsr 2,&divisionshifted
-
-
-# Is negative, invert
-if 3=$1
-    store 2,&divisionnämnare # Actually result, but stealing addr
-    load$ 4,0
-    sub 4,&divisionnämnare
-    store 4,&divisionnämnare
-    load 2,&divisionnämnare
-end if
-
-
 
 jmp 0,&divisionreturnaddr
 
