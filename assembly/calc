@@ -13,14 +13,29 @@ STORE 0,&tileaddr
 STORE 0,&row
 STORE 0,&col
 STORE 0,&paramcount
+LOAD$ 0,4294311936    #-10
 STORE 0,&xmin
-STORE 0,&xmax
 STORE 0,&ymin
+LOAD$ 0,655360    #10
+STORE 0,&xmax
 STORE 0,&ymax
 LOAD$ 0,40
 STORE 0,&startat
 
-include reset_bitmap
+store 0,&gr0backupbitmap
+store 1,&gr1backupbitmap
+
+load$ 0,153599
+load$ 1,1
+
+while 0!$0
+    store 0,&bitmapaddrreset
+    storeb~ 1,&bitmapaddrreset
+    sub$ 0,1
+end while
+
+load 0,&gr0backupbitmap
+load 1,&gr0backupbitmap
 
 #resets program for new calculation loop
 ultrareset: LOAD$ 0,0
@@ -107,17 +122,31 @@ getbackhere: LOAD 1,&tileaddr # We want the number to be displayed at tileaddr
 load$ 2,&end
 jmp$ 0,&printnum
 
-#include reverse_polish
-include print_num
-include clear
-include plot
-
 #update tileaddr
 end: LOAD 1,&tileaddr 
 ADD$ 1,40
 STORE 1,&tileaddr
 JMP$ 0,&ultrareset
 
+#include reverse_polish
+include print_num
+include clear
+include plot
+include new_tile_pos
+
+paraminput: SLI 0
+paramcount: SLI 0
+input: SLI 0
+heltal: SLI 0
+shift: SLI 0
+result: SLI 0
+xmin: SLI 4294311936    #-10
+xmax: SLI 655360    #10
+ymin: SLI 4294311936
+ymax: SLI 655360
+bitmapaddrreset: sli 0
+gr0backupbitmap: sli 0
+gr1backupbitmap: sli 0
 isfunc: SLI 0
 row: SLI 0
 col: SLI 0

@@ -33,19 +33,18 @@ if 0 = $255
 endif
 
 if 0 = $42  # '='
-    LOAD$ 6,0
-    LOAD$ 7,0
-    while 7 < $40
-        ADD 6,&row
-        ADD$ 7,1    
-    endwhile
-    ADD 6,&col
-    STORE 6,&tileaddr
-    if 6 > $1199
-        LOAD$ 6,40
-        STORE 6,&tileaddr
-    endif
-    STOREP~ 0,&tileaddr
+
+    #row++, col=20
+    LOAD 6,&row
+    ADD$ 6,1
+    STORE 6,&row
+    LOAD$ 6,20
+    STORE 6,&col
+
+    LOAD$ 6,&continue1
+    JMP$ 0,&newtileAddr
+    continue1: STOREP~ 0,&tileaddr
+
     #row++, col=0
     LOAD 6,&row
     ADD$ 6,1
@@ -60,24 +59,12 @@ endif
 #input is operator
 if 0 > $42
     if 0 < $47
-        LOAD$ 6,0
-        LOAD$ 7,0
-        while 7 < $40
-            ADD 6,&row
-            ADD$ 7,1    
-        endwhile
-        ADD 6,&col
-        STORE 6,&tileaddr
-        if 6 > $1199
-            LOAD$ 6,40
-            STORE 6,&tileaddr
-        endif
-        STOREP~ 0,&tileaddr
-        #row++, col=0
-        LOAD 6,&row
-        ADD$ 6,1
-        STORE 6,&row
-        LOAD$ 6,0
+        LOAD$ 6,&continue2
+        JMP$ 0,&newtileAddr
+        continue2: STOREP~ 0,&tileaddr
+        #col+2
+        LOAD 6,&col
+        ADD$ 6,2
         STORE 6,&col            
 
         STORE 0,&result
@@ -86,19 +73,9 @@ if 0 > $42
 endif
 
 if 0 = $33		#If 'X'
-    LOAD$ 6,0
-    LOAD$ 7,0
-    while 7 < $40
-        ADD 6,&row
-        ADD$ 7,1    
-    endwhile
-    ADD 6,&col
-    STORE 6,&tileaddr
-    if 6 > $1199
-        LOAD$ 6,40
-        STORE 6,&tileaddr
-    endif
-    STOREP~ 0,&tileaddr
+    LOAD$ 6,&continue3
+    JMP$ 0,&newtileAddr
+    continue3: STOREP~ 0,&tileaddr
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -112,19 +89,9 @@ endif
 
 #use the 'N' modifier to make input negative (e.g. input 'N5' will save '-5' to memory)
 if 0 = $23  #Input = 'N' (negative)
-    LOAD$ 6,0
-    LOAD$ 7,0
-    while 7 < $40
-        ADD 6,&row
-        ADD$ 7,1    
-    endwhile
-    ADD 6,&col
-    STORE 6,&tileaddr
-    if 6 > $1199
-        LOAD$ 6,40
-        STORE 6,&tileaddr
-    endif
-    STOREP~ 0,&tileaddr
+    LOAD$ 6,&continue4
+    JMP$ 0,&newtileAddr
+    continue4: STOREP~ 0,&tileaddr
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -136,24 +103,12 @@ endif
 
 #use the 'P' modifier to input plot parameters
 if 0 = $25  #Input = 'P'
-    LOAD$ 6,0
-    LOAD$ 7,0
-    while 7 < $40
-        ADD 6,&row
-        ADD$ 7,1    
-    endwhile
-    ADD 6,&col
-    STORE 6,&tileaddr
-    if 6 > $1199
-        LOAD$ 6,40
-        STORE 6,&tileaddr
-    endif
-    STOREP~ 0,&tileaddr
-    #row++, col=0
-    LOAD 6,&row
-    ADD$ 6,1
-    STORE 6,&row
-    LOAD$ 6,0
+    LOAD$ 6,&continue5
+    JMP$ 0,&newtileAddr
+    continue5: STOREP~ 0,&tileaddr
+    #col+2
+    LOAD 6,&col
+    ADD$ 6,2
     STORE 6,&col   
 
     LOAD$ 4,1
@@ -163,19 +118,9 @@ endif
 
 #dot input
 if 0 = $41
-    LOAD$ 6,0
-    LOAD$ 7,0
-    while 7 < $40
-        ADD 6,&row
-        ADD$ 7,1    
-    endwhile
-    ADD 6,&col
-    STORE 6,&tileaddr
-    if 6 > $1199
-        LOAD$ 6,40
-        STORE 6,&tileaddr
-    endif
-    STOREP~ 0,&tileaddr
+    LOAD$ 6,&continue6
+    JMP$ 0,&newtileAddr
+    continue6: STOREP~ 0,&tileaddr
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -191,12 +136,11 @@ endif
 
 #space -> process input
 if 0 = $47
-    #row++, col=0
-    LOAD 6,&row
-    ADD$ 6,1
-    STORE 6,&row
-    LOAD$ 6,0
+    #col+2
+    LOAD 6,&col
+    ADD$ 6,2
     STORE 6,&col
+
     if 5 = $1
         STORE 1,&result
         LOAD$ 1,0
@@ -206,19 +150,9 @@ if 0 = $47
 endif
 
 if 0 < $16		#If numerical
-    LOAD$ 6,0
-    LOAD$ 7,0
-    while 7 < $40
-        ADD 6,&row
-        ADD$ 7,1    
-    endwhile
-    ADD 6,&col
-    STORE 6,&tileaddr
-    if 6 > $1199
-        LOAD$ 6,40
-        STORE 6,&tileaddr
-    endif
-    STOREP~ 0,&tileaddr
+    LOAD$ 6,&continue7
+    JMP$ 0,&newtileAddr
+    continue7: STOREP~ 0,&tileaddr
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -246,11 +180,9 @@ endif
 
 #space -> process input
 if 0 = $47
-    #row++, col=0
-    LOAD 6,&row
-    ADD$ 6,1
-    STORE 6,&row
-    LOAD$ 6,0
+    #col+2
+    LOAD 6,&col
+    ADD$ 6,2
     STORE 6,&col
     if 5 = $1   #if negative
         ADD 1,&heltal  #Add whole number to decimal part
@@ -266,19 +198,9 @@ if 0 = $47
 endif
 
 if 0 < $16		#If numerical
-    LOAD$ 6,0
-    LOAD$ 7,0
-    while 7 < $40
-        ADD 6,&row
-        ADD$ 7,1    
-    endwhile
-    ADD 6,&col
-    STORE 6,&tileaddr
-    if 6 > $1199
-        LOAD$ 6,40
-        STORE 6,&tileaddr
-    endif
-    STOREP~ 0,&tileaddr
+    LOAD$ 6,&continue8
+    JMP$ 0,&newtileAddr
+    continue8: STOREP~ 0,&tileaddr
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -311,49 +233,50 @@ if 4 = $1
     if 4 = $4
         STORE 2,&ymax
 
-        #Print 'OK'
-        LOAD$ 6,0
-        LOAD$ 7,0
-        while 7 < $40
-            ADD 6,&row
-            ADD$ 7,1    
-        endwhile
-        ADD 6,&col
-        STORE 6,&tileaddr
-        if 6 > $1199
-            LOAD$ 6,40
-            STORE 6,&tileaddr
-        endif
-        LOAD$ 0,24  #'O'
+        #row++, col=20
+        LOAD 6,&row
+        ADD$ 6,1
+        STORE 6,&row
+        LOAD$ 6,20
+        STORE 6,&col
+
+        LOAD$ 6,&continue9
+        JMP$ 0,&newtileAddr
+        continue9: LOAD$ 0,24  #'O'
         STOREP~ 0,&tileaddr
         LOAD 6,&tileaddr
         ADD$ 6,1
         STORE 6,&tileaddr
         LOAD$ 0,20  #'K'
         STOREP~ 0,&tileaddr
+
         #row++, col=0
         LOAD 6,&row
         ADD$ 6,1
         STORE 6,&row
         LOAD$ 6,0
         STORE 6,&col
+
+        store 0,&gr0backupbitmap
+        store 1,&gr1backupbitmap
+
+        load$ 0,153599
+        load$ 1,1
+
+        while 0!$0
+            store 0,&bitmapaddrreset
+            storeb~ 1,&bitmapaddrreset
+            sub$ 0,1
+        end while
+
+        load 0,&gr0backupbitmap
+        load 1,&gr0backupbitmap
         
         JMP$ 0,&ultrareset
     endif
+
     STORE 4,&paramcount
     LOAD$ 4,1
     STORE 4,&paraminput
     JMP$ 0,&reset
 endif
-
-#Empty rows for variables
-paraminput: SLI 0
-paramcount: SLI 0
-xmin: SLI 0
-xmax: SLI 0
-ymin: SLI 0
-ymax: SLI 0
-input: SLI 0
-heltal: SLI 0
-shift: SLI 0
-result: SLI 0
