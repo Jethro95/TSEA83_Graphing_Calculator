@@ -70,7 +70,24 @@ CPU:n är av relativt enkel design, ej pipelinad. Huvudminnet, och de allra fles
 
 \subsubsection{mPC}
 
+Microprogramräknaren. Microninstruktioner har fyra bitar att modifiera räknaren med, vilket sker på positiv klockflank. Koderna gör som följer:
 
+\begin{tabular}{llc}
+\textbf{Kod} & \textbf{Funktion} \\
+\hline
+\texttt{0001} & mPC := ADR \\
+\texttt{0010} & mPC := K2(<Given mod>) \\
+\texttt{0011} & mPC := K1(<Given Instruktion>) \\
+\texttt{1000} & mPC := ADR if flag\_X == \texttt{1} else mPC++ \\
+\texttt{1000} & mPC := ADR if flag\_N == \texttt{1} else mPC++ \\
+\texttt{1000} & mPC := ADR if flag\_Z == \texttt{1} else mPC++ \\
+\texttt{1000} & mPC := ADR if flag\_C == \texttt{1} else mPC++ \\
+\texttt{1000} & mPC := ADR if flag\_V == \texttt{1} else mPC++ \\
+\texttt{Others} & mPC++
+\end{tabular}
+
+\noindent
+K2 och K1 är minnen som binder en given mods eller instruktions binärrepresentation till raden i microminnet som har hand om dess del i hämtfasen eller exekveringsfasen, respektive.
 
 \subsubsection{AR/ALU}
 
