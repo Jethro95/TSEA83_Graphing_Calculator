@@ -71,6 +71,7 @@ CPU:n är av relativt enkel design, ej pipelinad. Huvudminnet, och de allra fles
 \subsubsection{mPC}
 
 Microprogramräknaren. Microninstruktioner har fyra bitar att modifiera räknaren med, vilket sker på positiv klockflank. Koderna gör som följer:
+\\
 
 \begin{tabular}{llc}
 \textbf{Kod} & \textbf{Funktion} \\
@@ -79,15 +80,60 @@ Microprogramräknaren. Microninstruktioner har fyra bitar att modifiera räknare
 \texttt{0010} & mPC := K2(<Given mod>) \\
 \texttt{0011} & mPC := K1(<Given Instruktion>) \\
 \texttt{1000} & mPC := ADR if flag\_X == \texttt{1} else mPC++ \\
-\texttt{1000} & mPC := ADR if flag\_N == \texttt{1} else mPC++ \\
-\texttt{1000} & mPC := ADR if flag\_Z == \texttt{1} else mPC++ \\
-\texttt{1000} & mPC := ADR if flag\_C == \texttt{1} else mPC++ \\
-\texttt{1000} & mPC := ADR if flag\_V == \texttt{1} else mPC++ \\
+\texttt{1001} & mPC := ADR if flag\_N == \texttt{1} else mPC++ \\
+\texttt{1010} & mPC := ADR if flag\_Z == \texttt{1} else mPC++ \\
+\texttt{1011} & mPC := ADR if flag\_C == \texttt{1} else mPC++ \\
+\texttt{1100} & mPC := ADR if flag\_V == \texttt{1} else mPC++ \\
 \texttt{Others} & mPC++
 \end{tabular}
+\\
 
 \noindent
 K2 och K1 är minnen som binder en given mods eller instruktions binärrepresentation till raden i microminnet som har hand om dess del i hämtfasen eller exekveringsfasen, respektive.
+
+\subsubsection{IR}
+
+Instruktionsregistret, 32 bitar, som håller i en kopia av instruktionen från huvudminnet som körs för tillfället. Den kan vidare delas upp i OP, GRx, MM, och IR\_ADR som är den instrukionens instruktionskod, GRx-argument, valt mod, samt address-argument respektive.
+
+Man kan i microkoden skriva och läsa till och från IR genom att ange busskoden \texttt{0001} i från-buss respektive till-bus fältet. Att skriva till IR påverkar inte huvudminnet, och därmed inte den egentliga programkoden.
+
+\subsubsection{PC}
+
+Programräknaren, då den som håller koll på instruktion i p\_mem som ska exkaveras. Registret är 22 bitar långt, då detta är fullt tillräckligt för alla rimligt stora program, samt att addressfältet hos en instruktion inte har plats för större tal på sin addressdel: de sista 22 bitarna.
+
+PCsig, bit nummer 18 i microinstruktionen, kan påverka PC. Ett värde på 0 håller PC oförändrad, medan ett värde på 1 inkrementerar den.
+
+PC kan skrivas till via bussen. En från-buss-signal på \texttt{0011} skriver de 22 lägsta bitarna av DATA\_BUS till PC. Den kan även läsas ifrån genom att ange samma busskod på till-buss delen i microminnet.
+
+\subsubsection{ASR}
+
+Addressregistret. Används i microprocessorn för att peka ut addressen till raden som ska passera som argument. Detta sätts i hämtfasen och beror på vilket mod den dåvarande instruktionen körs med.
+
+Liksom PC är registret av samma anledning 22 bitar långt.
+
+ASR kan läses från och skrivas till via busskoden \texttt{0100}.
+
+\subsubsection{GRx}
+
+De åtta generella registrena: GR0 till och med GR7.
+
+Dessa register är 32 bitar långa och används för att främst hålla i temporära värden åt användaren.
+
+Vektorn g\_reg håller i de åtta registrena, och ett av de väljs genom den titulära signalen GRx. Denna är bitar 26 till och med 24 hos programinstruktionen som körs för tillfället.
+
+Att skriva eller läsa till det valda generella registret görs via busskuden \texttt{1000}. Det är den utvalda av de åtta som då interageras med. 
+
+\subsubsection{p\_mem}
+
+Vårt medium till programminnet, 32 bitar långt. Då programminne och dataminne är delat så syftas här på det delade minnet. Genom att skriva eller läsa härifrån via busskoden \texttt{0010} så kan huvudminnet läsas eller modifieras. Raden i minnet som opereras på utpekas ASR, som sätts automatiskt i hämtfasen.
+
+Det är värt att notera att programminnet initialt sätts till konstanten u\_mem\_c, där då programkod skrivs in.
+
+\subsubsection{pict\_mem}
+
+Vårt medium till bildminnet i VGA-motorn.
+
+Silas, TODO.
 
 \subsubsection{AR/ALU}
 
@@ -100,11 +146,12 @@ Vid matematiska operationer tolkas AR och bussens värde som ett signerat två-k
 AR:s värde kan senare läggas på bussen via att ange koden \texttt{0101} i microkoden. Den kan dock ej skrivas till direkt.
 
 Nedan följer en tabell över alla ALU-operationer: deras koder, funktion, och modifierade flaggor.
+\\
 
 \begin{tabular}{llc}
 \textbf{Kod} & \textbf{Funktion} & \textbf{Flaggor påverkade}\\
 \hline
-\texttt{00000} & <Ingenting> & \\
+\texttt{00000} & \texttt{<Ingenting>} & \\
 \texttt{00001} & AR := BUS &  \\
 \texttt{00010} & AR := BUS' & \\
 \texttt{00011} & AR := 0 & \\
@@ -123,7 +170,7 @@ Nedan följer en tabell över alla ALU-operationer: deras koder, funktion, och m
 \texttt{10000} & AR := AR \textsc{lsl} BUS & \texttt{X C { } N Z}\\
 \texttt{Others} & \texttt{<Undefined>} &
 \end{tabular}
-
+\\
 
 
 \subsection{Tangentbordsmotor}
