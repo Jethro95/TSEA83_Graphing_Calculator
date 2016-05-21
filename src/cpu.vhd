@@ -346,7 +346,6 @@ signal K1_mem : K1_mem_t := K1_mem_c;
 signal OP       : unsigned(4 downto 0);     -- Operation
 signal MM       : unsigned(1 downto 0);     -- Memory mode
 signal GRx      : unsigned(2 downto 0);     -- Control signal for GR mux
-signal IR_ADR   : unsigned(21 downto 0);    -- IR address field
 
 -- General registers
 type gr_t is array (0 to 7) of unsigned(31 downto 0);
@@ -622,7 +621,6 @@ begin
     OP      <= IR(31 downto 27);
     GRx     <= IR(26 downto 24);
     MM      <= IR(23 downto 22);
-    IR_ADR  <= IR(21 downto 0);
 
     -- Read and split uM
     uM      <= u_mem(to_integer(uPC));
