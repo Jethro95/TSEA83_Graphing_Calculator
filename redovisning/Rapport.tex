@@ -319,9 +319,9 @@ Include följs av ett filnamn, och kopierar innehållet av den filen till filen 
 
 För att faktiskt kompilera en Sillescript-fil så kan följande konsolkommando användas (då man sitter i projektets \texttt{sillescript2}-mapp):\\
 
-\begin{lstlisting}[frame=single]
+\begin{Verbatim}[frame=single]
 python compiler.py filename
-\end{lstlisting}
+\end{Verbatim}
 
 \noindent
 Detta skriver ut kompilerad output i konsolen, som sedan är ämnat att kopieras in i \texttt{cpu.vhd}-filen, på rätt plats. 
@@ -330,9 +330,9 @@ Pythonscriptet \texttt{compileAndLoad.py} kan dock göra detta åt dig; den komp
 
 Notera att detta är i allra högsta grad specialanpassad för detta projekt, så omstrukturering av mappar, eller större ändringar i \texttt{cpu.vhd} kan få scriptet att sluta funka. Körs via:\\
 
-\begin{lstlisting}[frame=single]
+\begin{Verbatim}[frame=single]
 python compileAndLoad.py filename
-\end{lstlisting}
+\end{Verbatim}
 
 \noindent
 Scriptet sätter även en begränsning för när PM ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när \texttt{ASR} sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
