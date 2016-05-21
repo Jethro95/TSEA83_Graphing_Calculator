@@ -1,4 +1,4 @@
-# Save Täljare to gr0, täljare to gr1 and return addr to gr2 before running. Result will be in gr2
+# Save Täljare to gr0, nämnare to gr1 and return addr to gr2 before running. Result will be in gr2
 
 
 # GR usage
