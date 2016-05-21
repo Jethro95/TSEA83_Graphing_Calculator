@@ -227,6 +227,10 @@ Använd de här tabellerna för ''subrutiner''\\
 
 
 \subsection{Hjälpmedel}
+\subsubsection{compiler.py}
+
+\subsubsection{compileAndLoad.py}
+Kör kompilatorn och ersätter programminnet i cpu.vhd med det nya programmet. Sätter även en begränsning för när PM ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när ASR sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
 
 \subsection{''Subrutiner''}
 \begin{figure}[h!]
