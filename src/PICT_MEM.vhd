@@ -43,19 +43,21 @@ architecture Behavioral of PICT_MEM is
 
 
 begin
-    --bitmapAddr <= to_integer(Ypixel*to_unsigned(320,10)+Xpixel);
     process(clk)
     begin
         if rising_edge(clk) then
+            -- Write input to its memory. 
+            -- Note that we is newer reset. We will continue writing this data until reboot or a new save_at/data_in comes in.
             if (wep ='1') then
                 pictMem(save_at_p) <= data_in_p;
             end if;
             if (web ='1') then
                 bitmapMem(save_at_b) <= data_in_b;
             end if;
-            if Xpixel>320 and Xpixel<640 and Ypixel<480 then
+
+            if Xpixel>320 and Xpixel<640 and Ypixel<480 then -- We are in the tilememory half of the display. Load the tile for our current pixel
                 picmem_out <= pictMem(to_integer(to_unsigned(40, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3)-40));
-            elsif Xpixel<320 and Ypixel<480 then
+            elsif Xpixel<320 and Ypixel<480 then -- This is the bitmap half. Load the pixel value for the current pixel
                 bitmem_out <= bitmapMem(to_integer(Ypixel*to_unsigned(320,10)+Xpixel));
             end if;
 
