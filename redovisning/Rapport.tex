@@ -28,7 +28,6 @@ Här kan ett videoprojekt beskriva videoformatet, ett MIDI-projekt redogöra fö
 Börja med ett översiktligt blockschema, gå vidare till mera detaljerade blockschemor. Vill man rita figurer och blockschemor på datorn så är Inkscape ett bra alternativ. Handritade figurer och blockschemor är acceptabelt, bara de är snygga och väl läsbara, MEN dessa ska då vara inscannade, dvs avfotograferade figurer och blockschemor är INTE godtagbart.
 Beskriv sedan hur de olika blocken fungerar. Tänk på läsbarheten och växla mellan figurer och text. Den här typen av text är ganska "grafisk", då nästan varje mening syftar in i en figur. Var därför noga med att text och figurer stämmer överens.
 \subsection{Översikt}
-TODO
 
 \tikzstyle{block} = [draw, fill=blue!20, rectangle, 
 minimum height=3em, minimum width=6em]
@@ -66,7 +65,7 @@ minimum height=3em, minimum width=6em]
 
 \subsection{CPU}
 
-CPU:n är av relativt enkel design, ej pipelinad. Huvudminnet, och de allra flesta register inklusive de generella, är 32 bitar långa.
+CPU:n är baserad på icke-pipelinade Björn Lindskogs-datorn. Huvudminnet, och de allra flesta register inklusive de generella, är 32 bitar långa.
 
 \subsubsection{mPC}
 
@@ -89,17 +88,17 @@ Microprogramräknaren. Microninstruktioner har fyra bitar att modifiera räknare
 \\
 
 \noindent
-K2 och K1 är minnen som binder en given mods eller instruktions binärrepresentation till raden i microminnet som har hand om dess del i hämtfasen eller exekveringsfasen, respektive.
+K2 och K1 är minnen som binder en given mods eller instruktions binärrepresentation till raden i microminnet som har hand om dess del i hämtfasen respektive exekveringsfasen.
 
 \subsubsection{IR}
 
-Instruktionsregistret, 32 bitar, som håller i en kopia av instruktionen från huvudminnet som körs för tillfället. Den kan vidare delas upp i OP, GRx, MM, och IR\_ADR som är den instrukionens instruktionskod, GRx-argument, valt mod, samt address-argument respektive.
+Instruktionsregistret, 32 bitar, håller i en kopia av instruktionen från huvudminnet som körs för tillfället. Den kan vidare delas upp i OP, GRx, MM, och IR\_ADR som är den instrukionens instruktionskod, GRx-argument, valt mod, samt address-argument.
 
 Man kan i microkoden skriva och läsa till och från IR genom att ange busskoden \texttt{0001} i från-buss respektive till-bus fältet. Att skriva till IR påverkar inte huvudminnet, och därmed inte den egentliga programkoden.
 
 \subsubsection{PC}
 
-Programräknaren, då den som håller koll på instruktion i p\_mem som ska exkaveras. Registret är 22 bitar långt, då detta är fullt tillräckligt för alla rimligt stora program, samt att addressfältet hos en instruktion inte har plats för större tal på sin addressdel: de sista 22 bitarna.
+Programräknaren, håller koll på instruktion i p\_mem som ska exkaveras. Registret är 22 bitar långt, då detta är fullt tillräckligt för alla rimligt stora program, samt att addressfältet hos en instruktion inte har plats för större tal på sin addressdel: de sista 22 bitarna.
 
 PCsig, bit nummer 18 i microinstruktionen, kan påverka PC. Ett värde på 0 håller PC oförändrad, medan ett värde på 1 inkrementerar den.
 
@@ -107,7 +106,7 @@ PC kan skrivas till via bussen. En från-buss-signal på \texttt{0011} skriver d
 
 \subsubsection{ASR}
 
-Addressregistret. Används i microprocessorn för att peka ut addressen till raden som ska passera som argument. Detta sätts i hämtfasen och beror på vilket mod den dåvarande instruktionen körs med.
+Addressregistret används i microprocessorn för att peka ut addressen till raden som ska passera som argument. Detta sätts i hämtfasen och beror på vilket mod den dåvarande instruktionen körs med.
 
 Liksom PC är registret av samma anledning 22 bitar långt.
 
@@ -119,15 +118,15 @@ De åtta generella registrena: GR0 till och med GR7.
 
 Dessa register är 32 bitar långa och används för att främst hålla i temporära värden åt användaren.
 
-Vektorn g\_reg håller i de åtta registrena, och ett av de väljs genom den titulära signalen GRx. Denna är bitar 26 till och med 24 hos programinstruktionen som körs för tillfället.
+Vektorn g\_reg håller i de åtta registren, och ett av de väljs genom signalen GRx. Denna är bitar 26 till och med 24 hos programinstruktionen som körs för tillfället.
 
-Att skriva eller läsa till det valda generella registret görs via busskuden \texttt{1000}. Det är den utvalda av de åtta som då interageras med. 
+Att skriva eller läsa till det valda generella registret görs via busskuden \texttt{1000}. Det är den som valts i GRx som då interageras med. 
 
 \subsubsection{p\_mem}
 
-Vårt medium till programminnet, 32 bitar långt. Då programminne och dataminne är delat så syftas här på det delade minnet. Genom att skriva eller läsa härifrån via busskoden \texttt{0010} så kan huvudminnet läsas eller modifieras. Raden i minnet som opereras på utpekas ASR, som sätts automatiskt i hämtfasen.
+Vårt programminne, 32 bitar långt. Då programminne och dataminne är samma minne så syftas här på det delade minnet. Genom att skriva eller läsa härifrån via busskoden \texttt{0010} så kan huvudminnet läsas eller modifieras. Raden i minnet som opereras på utpekas ASR, som sätts automatiskt i hämtfasen.
 
-Det är värt att notera att programminnet initialt sätts till konstanten u\_mem\_c, där då programkod skrivs in.
+Det är värt att notera att programminnet initialt sätts till konstanten p\_mem\_c, där då programkod skrivs in.
 
 \subsubsection{pict\_mem}
 
@@ -139,11 +138,11 @@ Silas, TODO.
 
 I processen titulerad AR finns koden som utgör enhetens ALU.
 
-Här modifieras ackumulatorregistret, AR, (32 bitar), och de fem flaggorna. En rad olika operationer kan utföras på positiv klockflank beroende på kuden hos ALU-signalen; de fem första bitarna i microminnesinstruktionen som för tillfället körs.
+Här modifieras ackumulatorregistret, AR, (32 bitar), och de fem flaggorna. En rad olika operationer kan utföras på positiv klockflank beroende på koden hos ALU-signalen; de fem första bitarna i mikrominnesinstruktionen som för tillfället körs.
 
-Vid matematiska operationer tolkas AR och bussens värde som ett signerat två-komplementstal, det vill säga att de kan båda anta negativa värden.
+Vid matematiska operationer tolkas AR och bussens värde som ett signerat tvåkomplementstal.
 
-AR:s värde kan senare läggas på bussen via att ange koden \texttt{0101} i microkoden. Den kan dock ej skrivas till direkt.
+AR:s värde kan senare läggas på bussen genom att ange koden \texttt{0101} i mikrokoden. Den kan dock ej skrivas till direkt.
 
 Nedan följer en tabell över alla ALU-operationer: deras koder, funktion, och modifierade flaggor.
 \\
@@ -171,6 +170,8 @@ Nedan följer en tabell över alla ALU-operationer: deras koder, funktion, och m
 \texttt{Others} & \texttt{<Undefined>} &
 \end{tabular}
 \\
+
+TODO: Hälfen av det här gör ju identiska saker eller används aldrig (antingen i assembly eller inte ens i mikrokod)
 
 
 \subsection{Tangentbordsmotor}
