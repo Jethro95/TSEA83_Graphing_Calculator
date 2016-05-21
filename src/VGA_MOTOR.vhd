@@ -8,18 +8,18 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 
 -- entity
 entity VGA_MOTOR is
-    port ( clk	  : in std_logic;
+    port ( clk	  : in std_logic;                           -- clock signal
     	 addr     : out unsigned(12 downto 0);
-    	 rst      : in std_logic;
-    	 vgaRed   : out std_logic_vector(2 downto 0);
-    	 vgaGreen : out std_logic_vector(2 downto 0);
-    	 vgaBlue  : out std_logic_vector(2 downto 1);
-    	 Hsync    : out std_logic;
-    	 Vsync    : out std_logic;
-         picmem_in      : in std_logic_vector(7 downto 0);      -- data
-         bitmem_in      : in std_logic;      -- data
-         Xpixel   : buffer unsigned(9 downto 0);         -- Horizontal pixel counter
-         Ypixel   : buffer unsigned(9 downto 0)
+    	 rst      : in std_logic;                           -- reset signal
+    	 vgaRed   : out std_logic_vector(2 downto 0);       -- VGA Red
+    	 vgaGreen : out std_logic_vector(2 downto 0);       -- VGA Green
+    	 vgaBlue  : out std_logic_vector(2 downto 1);       -- VGA Blue
+    	 Hsync    : out std_logic;                          -- Horizontal sync signal for VGA output
+    	 Vsync    : out std_logic;                          -- Vertical sync signal for VGA output
+         picmem_in      : in std_logic_vector(7 downto 0);  -- Tile number for (Xpixel,Ypixel) when on the rights side of the display
+         bitmem_in      : in std_logic;                     -- Pixel value for (Xpixel,Ypixel) when on the left side of the display
+         Xpixel   : buffer unsigned(9 downto 0);            -- Horizontal pixel counter
+         Ypixel   : buffer unsigned(9 downto 0)             -- Vertical pixel counter
          );
 end VGA_MOTOR;
 
