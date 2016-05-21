@@ -128,11 +128,9 @@ Vårt programminne, 32 bitar långt. Då programminne och dataminne är samma mi
 
 Det är värt att notera att programminnet initialt sätts till konstanten p\_mem\_c, där då programkod skrivs in.
 
-\subsubsection{pict\_mem}
+\subsubsection{save\_at\_p/save\_at\_b/data\_out\_picmem/data\_out\_bitmap}
 
-Vårt medium till bildminnet i VGA-motorn.
-
-Silas, TODO.
+Signaler för att skriva till bild och bitmapminne. Via busskoden \texttt{0111} skickas de sista 8 bitarna i \texttt{DATA\_BUS} via \texttt{data\_out\_picmem} och \texttt{ASR} till \texttt{save\_at\_p}. Via busskoden \texttt{0110} skickas den sista biten i \texttt{DATA\_BUS} via \texttt{data\_out\_bitmap} och \texttt{ASR} till \texttt{save\_at\_b}. Samtidigt aktiveras en (aktivt hög) write-enable-signal, \texttt{web} vid skrivning till bitmapminnet och \texttt{wep} vid skrivning till bildminnet. Dessa nollställs inte, utan används bara för att undvika odefinierade signaler innan första skrivningen.
 
 \subsubsection{AR/ALU}
 
