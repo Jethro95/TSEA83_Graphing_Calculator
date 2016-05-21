@@ -12,19 +12,18 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 
 -- entity
 entity PICT_MEM is
-    port (  rst       : in std_logic;
-            clk		  : in std_logic;
-            wep       : in std_logic;
-            web       : in std_logic;
-            data_in_b  : in std_logic;
-            data_in_p  : in std_logic_vector(7 downto 0);
-            save_at_p   : in integer range 0 to 1200;
-            save_at_b   : in integer range 0 to 153600; -- Also change in cpu store 
-            picmem_out : out std_logic_vector(7 downto 0);
-            bitmem_out : out std_logic;
-            Xpixel   : in unsigned(9 downto 0);         -- Horizontal pixel counter
-            Ypixel   : in unsigned(9 downto 0));
-
+    port (  rst       : in std_logic;                       -- reset signal
+            clk		  : in std_logic;                       -- clock signal
+            wep       : in std_logic;                       -- write enable for picMem
+            web       : in std_logic;                       -- write enable for bitmapMem
+            data_in_b  : in std_logic;                      -- data in to bitmapMem
+            data_in_p  : in std_logic_vector(7 downto 0);   -- data in to picMem
+            save_at_p   : in integer range 0 to 1200;       -- picMem adress to save data_in_p at
+            save_at_b   : in integer range 0 to 153600;     -- bitmapMem adress to save data_in_b at
+            picmem_out : out std_logic_vector(7 downto 0);  -- Tile number for (Xpixel,Ypixel) when on the rights side of the display
+            bitmem_out : out std_logic;                     -- Pixel value for (Xpixel,Ypixel) when on the left side of the display
+            Xpixel   : in unsigned(9 downto 0);             -- Horizontal pixel counter
+            Ypixel   : in unsigned(9 downto 0));            -- Vertical pixel counter
 end PICT_MEM;
 
 
