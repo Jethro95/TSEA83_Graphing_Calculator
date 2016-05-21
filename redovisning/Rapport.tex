@@ -234,6 +234,10 @@ Använd de här tabellerna för ''subrutiner''\\
 
 
 \subsection{Hjälpmedel}
+\subsubsection{compiler.py}
+
+\subsubsection{compileAndLoad.py}
+Kör kompilatorn och ersätter programminnet i cpu.vhd med det nya programmet. Sätter även en begränsning för när PM ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när ASR sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
 
 \subsubsection{Sillescript}
 
@@ -341,7 +345,7 @@ python compileAndLoad.py filename
 	\caption{Användandet av en ''subrutin''. }
 \end{figure}
 
-En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block (TODO: Är detta sant?).
+En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block (TODO: Är detta sant?). Det finns i de flesta fall demoprogram för subrutiner vid namn subrutinsnamn\_demo.
 
 \subsection{Calc}
 
@@ -368,7 +372,7 @@ Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom 
 \subsubsection{Utritning}
 
 \subsection{IO}
-\subsubsection{Print-num}
+\subsubsection{print\_num}
 \begin{tabular}{ll}
 	\textbf{GRx}    & \textbf{Input}                    \\ \hline
 	\texttt{0}      & Nummer att skriva ut              \\
@@ -382,6 +386,9 @@ Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom 
 \\\\
 \noindent
 Tar in ett fixed point-tal och skriver detta till specificerad adress med eventuellt minustecken framför. Skriver på formen ''0123.4567'' i hexadecimala tal. Tar alltså upp 9 tiles för positiva tal och 10 för negativa. Efter utskrivningen hoppar programmet tillbaka till returadressen från inputen.
+
+\subsubsection{reset\_bitmap}
+Skriver över alla pixlar i bitmapminnet med vitt. Är ingen subrutin, utan inkluderas där den ska användas.
 
 \subsubsection{TODO}
 
