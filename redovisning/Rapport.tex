@@ -200,7 +200,7 @@ TODO: Behövs båda?
 	\caption{Detaljerat blockschema över VGA-motorn}
 \end{figure}
 
-VGA-motorn använder en klockfrekvens på 25Mhz. Denna används för att räkna upp \texttt{Xpixel} och \texttt{Ypixel}. Pixelräknarna används sedan för att generera \texttt{Vsync}, \texttt{Hsync} och \texttt{Blank}.
+VGA-motorn är ansvarig för att ta informationen från bildminnet och översätta detta till giltig VGA-output i form av RGB-signaler och H/V-sync för 640x480 pixlar i 60Hz. Den använder en klockfrekvens på 25Mhz. Denna används för att räkna upp \texttt{Xpixel} och \texttt{Ypixel}. Pixelräknarna används sedan för att generera \texttt{Vsync}, \texttt{Hsync} och \texttt{Blank}.
 
 För varje pixel måste också ett utvärde beräknas. På vänster hälft (\texttt{Xpixel} < 320) av skärmen innehåller \texttt{bitmem\_in} information om ifall pixeln är svart (nolla) eller vit (etta). På höger hälft (\texttt{Xpixel} > 320) innehåller \texttt{picmem\_in} information om vilken tile som ska ritas upp. Se \ref{parag:picmempixel} för hur dessa uppdateras.
 

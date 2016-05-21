@@ -16,7 +16,10 @@
    id="svg3468"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="vga_motor_detail.svg">
+   sodipodi:docname="vga_motor_detail.svg"
+   inkscape:export-filename="/home/silenz/ixtab/edu/sille914/tsea83/Rapport/TSEA83_Graphing_Calculator/redovisning/drawings/vga_motor_detail.png"
+   inkscape:export-xdpi="300"
+   inkscape:export-ydpi="300">
   <defs
      id="defs3470">
     <linearGradient
@@ -643,11 +646,6 @@
          style="font-size:10px"
          id="tspan5833">Xpixel(2..0)</tspan></text>
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 387.85714,354.14792 380,372.71935"
-       id="path7940-9"
-       inkscape:connector-curvature="0" />
-    <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.64260042px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 227.67312,377.64366 -4.63195,13.00851"
        id="path7940-8"
@@ -681,17 +679,6 @@
          x="217.19012"
          y="392.22052"
          style="font-size:7.5px">3</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:7.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="376.07376"
-       y="370.21936"
-       id="text8006"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan8008"
-         x="376.07376"
-         y="370.21936">8</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.64260042px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
        d="m 227.67312,355.92376 -4.63195,13.00851"
