@@ -9,7 +9,6 @@ use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type
 -- entity
 entity VGA_MOTOR is
     port ( clk	  : in std_logic;                           -- clock signal
-    	 addr     : out unsigned(12 downto 0);
     	 rst      : in std_logic;                           -- reset signal
     	 vgaRed   : out std_logic_vector(2 downto 0);       -- VGA Red
     	 vgaGreen : out std_logic_vector(2 downto 0);       -- VGA Green
@@ -1011,11 +1010,6 @@ begin
     -- Tile memory address composite
     --tilecontent <= ;
     tileAddr <= unsigned(picmem_in(7 downto 0)) & Ypixel(3 downto 0) & Xpixel(2 downto 0);
-
-
-    -- Picture memory address composite
-    addr <= to_unsigned(80, 8) * Ypixel(8 downto 4) + Xpixel(9 downto 3);
-
 
     -- VGA generation
     vgaRed(2)   <= tilePixel(7);
