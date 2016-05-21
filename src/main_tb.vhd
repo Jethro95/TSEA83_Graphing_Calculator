@@ -14,18 +14,18 @@ ARCHITECTURE behavior OF main_tb IS
 	-- Component Declaration for the Unit Under Test (UUT)
 	COMPONENT main
 	PORT(
-		clk         : in std_logic;
-    rst         : in std_logic;
-    -- VGA
-    Hsync       : out std_logic;                        -- horizontal sync
-    Vsync       : out std_logic;                        -- vertical sync
-    vgaRed      : out  std_logic_vector(2 downto 0);    -- VGA red
-    vgaGreen    : out std_logic_vector(2 downto 0);     -- VGA green
-    vgaBlue     : out std_logic_vector(2 downto 1);     -- VGA blue
-    -- KB
-    PS2KeyboardClk    : in std_logic;                         -- PS2 clock
-    PS2KeyboardData   : in std_logic                          -- PS2 data                     -- PS2 data
-	);
+		clk           : in std_logic;                           -- clock signal
+        rst             : in std_logic;                         -- reset signal
+        -- VGA
+        Hsync           : out std_logic;                        -- horizontal sync
+        Vsync           : out std_logic;                        -- vertical sync
+        vgaRed          : out  std_logic_vector(2 downto 0);    -- VGA red
+        vgaGreen        : out std_logic_vector(2 downto 0);     -- VGA green
+        vgaBlue         : out std_logic_vector(2 downto 1);     -- VGA blue
+        -- KB
+        PS2KeyboardClk  : in std_logic;                         -- PS2 clock
+        PS2KeyboardData : in std_logic                          -- PS2 data
+    	);
 	END COMPONENT;
 
 	--Inputs
@@ -40,6 +40,8 @@ ARCHITECTURE behavior OF main_tb IS
     signal Clk25  : std_logic;			-- One pulse width 25 MHz signal
 	signal PS2KeyboardClk    : std_logic;                         -- PS2 clock
     signal PS2KeyboardData   : std_logic;
+
+
 	-- Clock period definitions
 	constant clk_period : time := 10 ns;
 
@@ -53,9 +55,10 @@ ARCHITECTURE behavior OF main_tb IS
             vgaRed => vgaRed,
             vgaGreen => vgaGreen,
             vgaBlue => vgaBlue,
-	PS2KeyboardClk => PS2KeyboardClk,
-	PS2KeyboardData => PS2KeyboardData
+        	PS2KeyboardClk => PS2KeyboardClk,
+        	PS2KeyboardData => PS2KeyboardData
 	    );
+
 	    -- Clock process definitions
 	    clk_process :process
 	    begin
@@ -81,38 +84,42 @@ ARCHITECTURE behavior OF main_tb IS
 
         -- 25 MHz clock (one system clock pulse width)
         Clk25 <= '1' when (ClkDiv = 3) else '0';
-    process (clk25)
-        file file_pointer: text is out "write.txt";
-        variable line_el: line;
-    begin
-    if rising_edge(clk25) then
 
-        -- Write the time
-        write(line_el, now); -- write the line.
-        write(line_el, string'(":")); -- write the line.
 
-        -- Write the hsync
-        write(line_el, string'(" "));
-        write(line_el, hsync); -- write the line.
+        -- Write VGA output to file for simulation (see http://ericeastwood.com/blog/8/vga-simulator-getting-started)
+        process (clk25)
+            file file_pointer: text is out "write.txt";
+            variable line_el: line;
+        begin
 
-        -- Write the vsync
-        write(line_el, string'(" "));
-        write(line_el, vsync); -- write the line.
+        if rising_edge(clk25) then
 
-        -- Write the red
-        write(line_el, string'(" "));
-        write(line_el, vgaRed); -- write the line.
+            -- Write the time
+            write(line_el, now); -- write the line.
+            write(line_el, string'(":")); -- write the line.
 
-        -- Write the green
-        write(line_el, string'(" "));
-        write(line_el, vgaGreen); -- write the line.
+            -- Write the hsync
+            write(line_el, string'(" "));
+            write(line_el, hsync); -- write the line.
 
-        -- Write the blue
-        write(line_el, string'(" "));
-        write(line_el, vgaBlue); -- write the line.
+            -- Write the vsync
+            write(line_el, string'(" "));
+            write(line_el, vsync); -- write the line.
 
-        writeline(file_pointer, line_el); -- write the contents into the file.
+            -- Write the red
+            write(line_el, string'(" "));
+            write(line_el, vgaRed); -- write the line.
 
-    end if;
+            -- Write the green
+            write(line_el, string'(" "));
+            write(line_el, vgaGreen); -- write the line.
+
+            -- Write the blue
+            write(line_el, string'(" "));
+            write(line_el, vgaBlue); -- write the line.
+
+            writeline(file_pointer, line_el); -- write the contents into the file.
+
+        end if;
 end process;
     END;
