@@ -1,3 +1,5 @@
+-- Based on http://www.isy.liu.se/edu/kurs/TSEA83/laboration/lab_vga.html
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;            -- basic IEEE library
 use IEEE.NUMERIC_STD.ALL;               -- IEEE library for the unsigned type

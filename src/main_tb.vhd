@@ -1,3 +1,5 @@
+-- Based on http://www.isy.liu.se/edu/kurs/TSEA83/laboration/lab_vga.html and VGA to file part from http://ericeastwood.com/blog/8/vga-simulator-getting-started
+
 LIBRARY ieee;
 USE ieee.std_logic_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
