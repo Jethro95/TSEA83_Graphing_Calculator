@@ -9,6 +9,8 @@
 \usepackage{mdwlist}
 
 \usepackage{multicol}
+\usepackage{fancyvrb}
+
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,calc}
@@ -241,7 +243,7 @@ Förutom att innehålla översättningar av alla instruktionsnamn till deras res
 
 Nedan följer ett utdrag ur koden som används för att byta ut ''X'' i ett funktionsuttryck mot ett visst värde.
 
-\begin{lstlisting}[frame=single]
+\begin{Verbatim}[frame=single]
 # Modify function: Replace X'es
 load$ 0,0 # Loop counter
 while 0 < &inputLength # GR0 < number of input elements
@@ -266,7 +268,7 @@ end while
 
 # Labels this row as inputLength. Start value: 8.
 inputLength: sli 8
-\end{lstlisting}
+\end{Verbatim}
 
 \noindent
 Syntax som bär uppmärksammas:\\
