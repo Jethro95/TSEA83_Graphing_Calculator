@@ -1,34 +1,51 @@
+#Calculates a tile address based on variables 'row' and 'col' from calc
+
+#INPUT REGISTERS:
+#GR6 : return address
+
 newTileAddr: store 6,&retAddr_tilepos
 store 7,&gr7backuptilepos
 
 LOAD$ 6,0
 LOAD$ 7,0
+
+#We have 30 rows x 40 columns
+#The address of the tile at position (row,col) is therefore = row*40 + col
+
+#Multiply row count by 40, save this result to GR6
 while 7 < $40
     ADD 6,&row
     ADD$ 7,1    
 endwhile
 
+#Convert column-index > 40 to new rows
 LOAD 7,&col
 if 7 > $39
     LOAD 7,&row
     ADD$ 7,1
     STORE 7,&row
+
     LOAD 7,&col
     SUB$ 7,40
     STORE 7,&col
 endif
+
+#Add column count to GR6
 ADD 6,&col
 STORE 6,&tileaddr
+
+#If address overflows, clear tilemem and restart at beginning of memory
 if 6 > $1199
     LOAD$ 7,&continueAfterClear
     JMP$ 0,&clear
     continueAfterClear: LOAD$ 6,0
+    
     STORE 6,&tileaddr
     STORE 6,&row
     STORE 6,&col
 endif
-STOREP~ 0,&tileaddr
 
+STOREP~ 0,&tileaddr
 load 7,&gr7backuptilepos
 
 JMP 0,&retAddr_tilepos

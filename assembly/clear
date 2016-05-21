@@ -1,4 +1,6 @@
-#INPUT:
+#Clears the tilemap
+
+#INPUT REGISTERS:
 #GR7 : return address
 
 #REGISTER USAGE:
@@ -10,8 +12,9 @@ clear: STORE 7,&ret_Addr
 LOAD$ 1,0
 LOAD$ 2,47
 LOAD$ 3,0
-
 STORE 1,&lc
+
+#Store scancode for 'space' at all indicies
 while 1 < $1200
     STOREP~ 2,&lc
     ADD$ 1,1

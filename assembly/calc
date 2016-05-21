@@ -1,13 +1,16 @@
-#REGISTER USAGE:
-#GR0 : start address
-#GR1 : length of 'array'
-#GR2 : input (from text2hex)
-#GR3 : current address
-#GR4 : op vector address
-#GR5 : temp register
-#GR6 : tileaddr
+#This is the main program loop that processes input from text2hex and decides what to do with it (e.g. plot a graph, perform a calculation etc.)
 
-#reset after clear
+#INPUT REGISTERS:
+#GR2 : input (from text2hex)
+
+#======================
+#   START OF CODE
+#======================
+
+#____RESET____
+
+#Reset after clear
+#This resets all relevant variables for an apparent restart of the program
 clearreset: LOAD$ 0,0
 STORE 0,&tileaddr
 STORE 0,&row
@@ -22,6 +25,7 @@ STORE 0,&ymax
 LOAD$ 0,40
 STORE 0,&startat
 
+#Reset bitmap
 store 0,&gr0backupbitmap
 store 1,&gr1backupbitmap
 
@@ -37,7 +41,7 @@ end while
 load 0,&gr0backupbitmap
 load 1,&gr0backupbitmap
 
-#resets program for new calculation loop
+#Resets program for new calculation loop
 ultrareset: LOAD$ 0,0
 STORE 0,&input
 STORE 0,&heltal
@@ -50,6 +54,9 @@ STORE 0,&paramcount
 STORE 0,&paraminput
 STORE 0,&isfunc
 
+#____PROCESS INPUT____
+
+#text2hex handles input, stores input scancode in GR2
 include text2hex
 
 #if enter, perform calculation and show result
@@ -57,15 +64,22 @@ if 2 = $42
     JMP$ 0,&test
 endif
 
-#Update op vector
+#Calculate new OP-vector address to modify
 LOAD$ 4,&op
 ADD 4,&loopcounter
 STORE 4,&opaddr
 
+#Update OP-vector:
+#If input is operand (0-F): store '0' to OP-vector
+#If input is operator: store '1' to OP-vector
+#If input is variable (X): store '1' to OP-vector
+
 #if input is 'X'
 if 2 = $33
+    #Store '1' to 'isfunc'
     LOAD$ 5,1
     STORE 5,&isfunc
+
     LOAD$ 5,2
     JMP$ 0,&isop
 endif
@@ -83,23 +97,23 @@ LOAD$ 5,0
 
 isop: STORE~ 5,&opaddr
 
-#update data stack
+#Update data vector
 LOAD$ 3,&memstart
 ADD 3,&loopcounter
 STORE 3,&curaddr
 STORE~ 2,&curaddr
+
+#Update loop counter, which is the length of the OP/data vectors
 LOAD 1,&loopcounter
 ADD$ 1,1
 STORE 1,&loopcounter
 
 continue: JMP$ 0,&reset     #accept new input
 
-#======================
-#   TESTS
-#======================
+#____PERFORM OPERATIONS ON INPUT VECTOR____
 
 test: LOAD 5,&isfunc
-if 5 = $1
+if 5 = $1   #if input is a function
     load 0,&xmin
     load 1,&xmax
     load 2,&ymin
@@ -111,13 +125,15 @@ if 5 = $1
     JMP$ 0,&plot
 endif
 
-load$ 0,&memstart # start of input
+#if not a function, evaluate expression
+load$ 0,&memstart
 load$ 1,&op
 load 2,&loopcounter
 load$ 3,&getbackhere
 jmp$ 0,&evaluate
 
-getbackhere: LOAD 1,&tileaddr # We want the number to be displayed at tileaddr
+#display result
+getbackhere: LOAD 1,&tileaddr
 # GR0 is already result
 load$ 2,&end
 jmp$ 0,&printnum
@@ -128,11 +144,12 @@ ADD$ 1,40
 STORE 1,&tileaddr
 JMP$ 0,&ultrareset
 
-#include reverse_polish
 include print_num
 include clear
 include plot
 include new_tile_pos
+
+#____VARIABLES____
 
 paraminput: SLI 0
 paramcount: SLI 0

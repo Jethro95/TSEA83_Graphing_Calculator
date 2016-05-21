@@ -1,4 +1,6 @@
-#Reserved registers:
+#Handles input of multi-digit numbers
+
+#REGISTER USAGE:
 #GR0 : input
 #GR1 : result
 #GR2 : temp shift register
@@ -8,7 +10,7 @@
 #GR6 : tmp
 #GR7 : tmp
 
-#OUTPUT:
+#OUTPUT REGISTERS:
 #GR2 : result
 
 #resets registers for new input
@@ -21,6 +23,12 @@ LOAD$ 5,0
 LOAD$ 6,0
 LOAD$ 7,0
 
+#======================
+#   START OF CODE
+#======================
+
+#____MAIN INPUT LOOP____
+
 #read input
 start: RC 0,0
 
@@ -32,7 +40,8 @@ if 0 = $255
 	JMP$ 0,&start
 endif
 
-if 0 = $42  # '='
+#If input is '='
+if 0 = $42
 
     #row++, col=20
     LOAD 6,&row
@@ -41,6 +50,7 @@ if 0 = $42  # '='
     LOAD$ 6,20
     STORE 6,&col
 
+    #Update tile address
     LOAD$ 6,&continue1
     JMP$ 0,&newtileAddr
     continue1: STOREP~ 0,&tileaddr
@@ -56,12 +66,14 @@ if 0 = $42  # '='
 	JMP$ 0,&enter
 endif
 
-#input is operator
+#If input is '<+ - * />'
 if 0 > $42
     if 0 < $47
+        #Update tile address
         LOAD$ 6,&continue2
         JMP$ 0,&newtileAddr
         continue2: STOREP~ 0,&tileaddr
+
         #col+2
         LOAD 6,&col
         ADD$ 6,2
@@ -72,10 +84,13 @@ if 0 > $42
     endif
 endif
 
-if 0 = $33		#If 'X'
+#If input is 'X'
+if 0 = $33
+    #Update tile address
     LOAD$ 6,&continue3
     JMP$ 0,&newtileAddr
     continue3: STOREP~ 0,&tileaddr
+
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -86,12 +101,14 @@ if 0 = $33		#If 'X'
     JMP$ 0,&start
 endif
 
-
-#use the 'N' modifier to make input negative (e.g. input 'N5' will save '-5' to memory)
-if 0 = $23  #Input = 'N' (negative)
+#If input is 'N'
+#Use the 'N' modifier to make input negative (e.g. input 'N5' will save '-5' to memory)
+if 0 = $23
+    #Update tile address
     LOAD$ 6,&continue4
     JMP$ 0,&newtileAddr
     continue4: STOREP~ 0,&tileaddr
+
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -101,11 +118,14 @@ if 0 = $23  #Input = 'N' (negative)
     JMP$ 0,&start
 endif
 
-#use the 'P' modifier to input plot parameters
-if 0 = $25  #Input = 'P'
+#If input is 'P'
+#Use the 'P' modifier to input plot parameters
+if 0 = $25
+    #Update tile address
     LOAD$ 6,&continue5
     JMP$ 0,&newtileAddr
     continue5: STOREP~ 0,&tileaddr
+
     #col+2
     LOAD 6,&col
     ADD$ 6,2
@@ -116,48 +136,59 @@ if 0 = $25  #Input = 'P'
     JMP$ 0,&reset
 endif
 
-#dot input
+If input is '.'
 if 0 = $41
+    #Update tile address
     LOAD$ 6,&continue6
     JMP$ 0,&newtileAddr
     continue6: STOREP~ 0,&tileaddr
+
     #col++
     LOAD 6,&col
     ADD$ 6,1
     STORE 6,&col
 
+    #go to special input loop for dot logic
     JMP$ 0,&dotfirst
 endif
 
-if 0 = $27  #Input = 'R' (clear)
+#If input is 'R'
+#Use 'R' to reset the calculator
+if 0 = $27
     load$ 7,&clearreset
     JMP$ 0,&clear
 endif
 
-#space -> process input
+#If input is '<space>'
 if 0 = $47
     #col+2
     LOAD 6,&col
     ADD$ 6,2
     STORE 6,&col
 
+    #If negative
     if 5 = $1
         STORE 1,&result
         LOAD$ 1,0
         SUB 1,&result
     endif
+
     JMP$ 0,&done
 endif
 
-if 0 < $16		#If numerical
+#If input is '<0-F>'
+if 0 < $16
+    #Update tile address
     LOAD$ 6,&continue7
     JMP$ 0,&newtileAddr
     continue7: STOREP~ 0,&tileaddr
+
     #col++
     LOAD 6,&col
     ADD$ 6,1
     STORE 6,&col
 
+    #Add input to current result
     LSL$ 0,16
 	STORE 0,&input
     LSL$ 1,4
@@ -166,9 +197,11 @@ endif
 
 JMP$ 0,&start
 
-#___DOT___
+#____ DOT INPUT LOOP____
 
-#save whole number part, this will be added back in the end
+#This special input loop is used to implement the custom logic to process the fractional
+
+#save integer part, this will be added back in the end
 dotfirst: STORE 1,&heltal
 LOAD$ 1,0
 dot: RC 0,0	#Read input to GR0
@@ -178,18 +211,20 @@ if 0 = $255
 	JMP$ 0,&dot
 endif
 
-#space -> process input
+#If input is '<space>'
 if 0 = $47
     #col+2
     LOAD 6,&col
     ADD$ 6,2
     STORE 6,&col
-    if 5 = $1   #if negative
-        ADD 1,&heltal  #Add whole number to decimal part
+
+    #If negative
+    if 5 = $1   
+        ADD 1,&heltal  #Add integer and fractional parts
         STORE 1,&result
         LOAD$ 1,0
         SUB 1,&result
-        #STORE 1,&result
+        
         JMP$ 0,&done
     endif
     
@@ -197,10 +232,13 @@ if 0 = $47
     JMP$ 0,&done
 endif
 
-if 0 < $16		#If numerical
+#If input is '<0-F>'
+if 0 < $16
+    #Update tile address
     LOAD$ 6,&continue8
     JMP$ 0,&newtileAddr
     continue8: STOREP~ 0,&tileaddr
+
     #col++
     LOAD 6,&col
     ADD$ 6,1
@@ -214,9 +252,11 @@ if 0 < $16		#If numerical
 endif
 JMP$ 0,&dot
 
+#Store the whole input number to GR2
 done: STORE 1,&result
 enter: LOAD 2,&result
 
+#If input is graph parameter
 LOAD 4,&paraminput
 if 4 = $1
     LOAD 4,&paramcount
@@ -240,6 +280,7 @@ if 4 = $1
         LOAD$ 6,20
         STORE 6,&col
 
+        #Print OK
         LOAD$ 6,&continue9
         JMP$ 0,&newtileAddr
         continue9: LOAD$ 0,24  #'O'
@@ -257,6 +298,7 @@ if 4 = $1
         LOAD$ 6,0
         STORE 6,&col
 
+        #Reset bitmap when giving new parameters
         store 0,&gr0backupbitmap
         store 1,&gr1backupbitmap
 
