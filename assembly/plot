@@ -44,7 +44,7 @@ load 1,&ymaxVal
 sub 1,&yminVal # Total distance
 load$ 2,&divfinb
 jmp$ 0,&divide # GR2 := mintozero/totaldistance
-divfinb:multf$ 2,480 # Multiply by resolution width
+divfinb:multf$ 2,480 # Multiply by resolution height
 store 2,&graphOriginY # Bam!
 
 # Draw axis
