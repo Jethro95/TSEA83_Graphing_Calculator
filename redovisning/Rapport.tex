@@ -10,6 +10,8 @@
 
 \usepackage{multicol}
 \usepackage{fancyvrb}
+\usepackage{hyperref}
+
 
 
 \usepackage{tikz}
@@ -337,6 +339,9 @@ python compileAndLoad.py filename
 \noindent
 Scriptet sätter även en begränsning för när PM ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när \texttt{ASR} sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
 
+\subsection{Testbänk}
+Testbänken har förutom att generera en klocka på 100MHz även support för att skriva ut VGA-outputen tillsammans med tidsangivelser till en textfil. Denna kan sedan simuleras i en \href{http://ericeastwood.com/lab/vga-simulator/}{VGA-simulator}.
+
 
 \subsection{''Subrutiner''}
 \begin{figure}[h!]
@@ -344,7 +349,7 @@ Scriptet sätter även en begränsning för när PM ska laddas med information f
 	\caption{Användandet av en ''subrutin''. }
 \end{figure}
 
-En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block (TODO: Är detta sant?). Det finns i de flesta fall demoprogram för subrutiner vid namn subrutinsnamn\_demo.
+En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block (TODO: Är detta sant?). Det finns i de flesta fall demoprogram för subrutiner vid namn \texttt{subrutinsnamn\_demo}.
 
 \subsection{Calc}
 
@@ -393,17 +398,5 @@ Skriver över alla pixlar i bitmapminnet med vitt. Är ingen subrutin, utan inkl
 
 \section{Slutsatser}
 \section{Referenser}
-\section{VHDL-dokumentation}
-\subsection{CPU}
-
-\subsection{Tangentbordsmotor}
-
-\subsection{Bildminne}
-
-\subsection{VGAMotor}
-
-\subsection{Testbenches}
-Inte själva VHDL-koden utan en förklaring av den. Typiskt en förklaring av varje process.
-
 
 \end{document}          
