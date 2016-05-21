@@ -27,19 +27,21 @@ end VGA_MOTOR;
 architecture Behavioral of VGA_MOTOR is
 
 
-    signal ClkDiv : unsigned(1 downto 0);		-- Clock divisor, to generate 25 MHz signal
-    signal Clk25  : std_logic;			-- One pulse width 25 MHz signal
+    signal ClkDiv : unsigned(1 downto 0);           -- Clock divisor, to generate 25 MHz signal
+    signal Clk25  : std_logic;                      -- One pulse width 25 MHz signal
 
-    signal tilePixel : std_logic_vector(7 downto 0);	-- Tile pixel data
-    signal tileAddr  : unsigned(14 downto 0);	-- Tile address
+    signal tilePixel : std_logic_vector(7 downto 0);-- Tile pixel data
+    signal tileAddr  : unsigned(14 downto 0);       -- Tile address
 
-    signal blank : std_logic;                    -- blanking signal
-    signal tilerow : std_logic;
+    signal blank : std_logic;                       -- blanking signal
+    signal tilerow : std_logic;                     -- Internal intermidiate signal used to avoid Xilinx being stupid and distributing our memory
 
     -- Tile memory type
     type ram_t is array (0 to 6143) of std_logic;
 
-signal tileMem : ram_t :=(
+
+
+    signal tileMem : ram_t :=(
         -- 0
         '0','0','0','0','0','0','0','0',
         '0','0','0','0','0','0','0','0',
@@ -896,13 +898,6 @@ begin
 
     -- Horizontal sync
 
-    -- ***********************************
-    -- *                                 *
-    -- *  VHDL for :                     *
-    -- *  Hsync                          *
-    -- *                                 *
-    -- ***********************************
-
     process(Xpixel)
     begin
         if Xpixel>656 and Xpixel <=752 then
@@ -918,12 +913,6 @@ begin
 
     -- Vertical pixel counter
 
-    -- ***********************************
-    -- *                                 *
-    -- *  VHDL for :                     *
-    -- *  Ypixel                         *
-    -- *                                 *
-    -- ***********************************
     process(clk)
     begin
         if rising_edge(clk) then
@@ -942,13 +931,6 @@ begin
 
     -- Vertical sync
 
-    -- ***********************************
-    -- *                                 *
-    -- *  VHDL for :                     *
-    -- *  Vsync                          *
-    -- *                                 *
-    -- ***********************************
-
     process(Ypixel)
     begin
         if Ypixel>490 and Ypixel <=492 then
@@ -960,12 +942,6 @@ begin
 
     -- Video blanking signal
 
-    -- ***********************************
-    -- *                                 *
-    -- *  VHDL for :                     *
-    -- *  Blank                          *
-    -- *                                 *
-    -- ***********************************
     process(Xpixel, Ypixel)
     begin
         if Ypixel >= 480 or Xpixel >= 640 then
@@ -974,12 +950,9 @@ begin
             blank<='0';
         end if;
     end process;
-    --blank <= '1' when Ypixel > 480 and Xpixel > 640 else '0';
 
 
-
-
-    -- Tile memory
+    -- Convert bitmap and tilemem input to a 8-bit pixel
     process(clk)
     begin
         if rising_edge(clk) then
@@ -1002,13 +975,7 @@ begin
         end if;
     end process;
 
-
-    --with tileRow select tilePixel <=
-      --  x"00" when '1',
-      --  x"ff" when others;
-   --tilepixel <= x"00";
-    -- Tile memory address composite
-    --tilecontent <= ;
+    -- Calculate where in tileMem we can find the content for our current pixel
     tileAddr <= unsigned(picmem_in(7 downto 0)) & Ypixel(3 downto 0) & Xpixel(2 downto 0);
 
     -- VGA generation
