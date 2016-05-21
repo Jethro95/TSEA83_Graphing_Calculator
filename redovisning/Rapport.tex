@@ -241,7 +241,7 @@ Använd de här tabellerna för ''subrutiner''\\
 
 Förutom att innehålla översättningar av alla instruktionsnamn till deras respektive binärkod finns även labels, kommentarer, if-satser (med support för else), while-satser, include-statements, och lite annat syntaktiskt socker.
 
-Nedan följer ett utdrag ur koden som används för att byta ut ``X'' i ett funktionsuttryck mot ett visst värde.
+Nedan följer ett utdrag ur koden som används för att byta ut ''X'' i ett funktionsuttryck mot ett visst värde.
 
 \begin{lstlisting}[frame=single]
 # Modify function: Replace X'es
@@ -277,10 +277,10 @@ Syntax som bär uppmärksammas:\\
 \textbf{Syntax} & \textbf{Beskrivning}\\
 \hline
 \# & Kommentar.\\
-: & Labeldefinition. ``Döper'' raden det är skrivet på till labelnamnet som ges innan kolonet.\\
+: & Labeldefinition. ''Döper'' raden det är skrivet på till labelnamnet som ges innan kolonet.\\
 Jämförelser & Vänsterledet avser alltid ett GRx. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan.\\
 \$ & Indikator. Säger att instruktionen skall körs med omedelbart mod. Om tecknet används i en jämförelse så indikerar det att följande värde är en literal.\\
-~  & Indikator. Säger att instruktionen skall körs med indirekt mod.\\
+\~{ }  & Indikator. Säger att instruktionen skall körs med indirekt mod.\\
 \& & Indikator. Säger att det som följer är ett labelnamn. Detta namn översätts under kompilering till en korrekt address.\\
 Ingen indikator & Säger att instruktionen skall körs med direkt mod. Om högerledet i en jämförelse saknar sådant tecken så indikerar det att värdet är en adress, och värdet sparat på adressen ska användas i jämförelsen.\\
 \end{tabular}
@@ -311,7 +311,7 @@ Nedan följer en lista på instruktioner som språket stödjer. Alla tar en mod 
 \end{multicols}
 
 \noindent
-Sli (``\textbf{s}et \textbf{li}ne'') och include är speciella, och har inte samma syntax som resten av instruktionerna; båda tar endast ett argument, och har varken support för moder, labels, eller indikatorer. Detta då de körs i kompileringstid, snarare än som maskinkod.
+Sli (''\textbf{s}et \textbf{li}ne'') och include är speciella, och har inte samma syntax som resten av instruktionerna; båda tar endast ett argument, och har varken support för moder, labels, eller indikatorer. Detta då de körs i kompileringstid, snarare än som maskinkod.
 
 Sli följs av ett värde, och sätter raden som instruktionen befinner sig på till binärrepresentationen av det värdet.
 
