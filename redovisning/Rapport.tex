@@ -274,9 +274,9 @@ Syntax som bär uppmärksammas:\\
 \begin{tabular}{p{2.5cm} p{8.5cm}}
 \textbf{Syntax} & \textbf{Beskrivning}\\
 \hline
-\# & Kommentar.\\
+\texttt{\#} & Kommentar.\\
 : & Labeldefinition. ''Döper'' raden det är skrivet på till labelnamnet som ges innan kolonet.\\
-Jämförelser & Vänsterledet avser alltid ett GRx. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan.\\
+Jämförelser & Vänsterledet avser alltid ett GRx. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan. Finns support för \texttt{=},\texttt{!},\texttt{>} och \texttt{<}.\\
 \$ & Indikator. Säger att instruktionen skall körs med omedelbart mod. Om tecknet används i en jämförelse så indikerar det att följande värde är en literal.\\
 \~{ }  & Indikator. Säger att instruktionen skall körs med indirekt mod.\\
 \& & Indikator. Säger att det som följer är ett labelnamn. Detta namn översätts under kompilering till en korrekt address.\\
