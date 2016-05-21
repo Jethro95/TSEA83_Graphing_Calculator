@@ -3,6 +3,13 @@
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
 
+%For source code boxes
+\usepackage{listings}
+
+\usepackage{mdwlist}
+
+\usepackage{multicol}
+
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,calc}
 
@@ -227,6 +234,106 @@ Använd de här tabellerna för ''subrutiner''\\
 
 
 \subsection{Hjälpmedel}
+
+\subsubsection{Sillescript}
+
+Är ett relativt avancerat korsassembler-språk, vars kompilator är skriven i Python. I detta den stora majoriteten av koden är skriven.
+
+Förutom att innehålla översättningar av alla instruktionsnamn till deras respektive binärkod finns även labels, kommentarer, if-satser (med support för else), while-satser, include-statements, och lite annat syntaktiskt socker.
+
+Nedan följer ett utdrag ur koden som används för att byta ut ``X'' i ett funktionsuttryck mot ett visst värde.
+
+\begin{lstlisting}[frame=single]
+# Modify function: Replace X'es
+load$ 0,0 # Loop counter
+while 0 < &inputLength # GR0 < number of input elements
+      
+      # Put the value &nextInputType is 
+      #   pointing to on GR2.
+      load~ 2,&nextInputType
+
+      if 2=$2 # If value is X
+      	 # Replace the X in the function with proper Xval
+      	 store~ 1,&nextInput
+      end if
+
+      ...
+
+      # Increment loop counter
+      add$ 0,1
+
+      ...
+
+end while
+
+# Labels this row as inputLength. Start value: 8.
+inputLength: sli 8
+\end{lstlisting}
+
+\noindent
+Syntax som bär uppmärksammas:\\
+
+\begin{tabular}{p{2.5cm} p{8.5cm}}
+\textbf{Syntax} & \textbf{Beskrivning}\\
+\hline
+\# & Kommentar.\\
+: & Labeldefinition. ``Döper'' raden det är skrivet på till labelnamnet som ges innan kolonet.\\
+Jämförelser & Vänsterledet avser alltid ett GRx. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan.\\
+\$ & Indikator. Säger att instruktionen skall körs med omedelbart mod. Om tecknet används i en jämförelse så indikerar det att följande värde är en literal.\\
+~  & Indikator. Säger att instruktionen skall körs med indirekt mod.\\
+\& & Indikator. Säger att det som följer är ett labelnamn. Detta namn översätts under kompilering till en korrekt address.\\
+Ingen indikator & Säger att instruktionen skall körs med direkt mod. Om högerledet i en jämförelse saknar sådant tecken så indikerar det att värdet är en adress, och värdet sparat på adressen ska användas i jämförelsen.\\
+\end{tabular}
+
+\noindent
+Nedan följer en lista på instruktioner som språket stödjer. Alla tar en mod (given via indikator), ett GRx (även om det inte används), och en address, literal, eller label.
+
+\begin{multicols}{3}
+\begin{itemize*}
+\item load
+\item store
+\item add
+\item addf
+\item sub
+\item subf
+\item and
+\item asl
+\item asr
+\item jmp
+\item lsr
+\item lsl
+\item storep
+\item rc
+\item storeb
+\item sli
+\item include
+\end{itemize*}
+\end{multicols}
+
+\noindent
+Sli och include är speciella, och har inte samma syntax som resten av instruktionerna; båda tar endast ett argument, och har varken support för moder, labels, eller indikatorer. Detta då de körs i kompileringstid, snarare än som maskinkod.
+
+Sli följs av ett värde, och sätter raden som instruktionen befinner sig på till binärrepresentationen av det värdet.
+
+Include följs av ett filnamn, och kopierar innehållet av den filen till filen som kompileras. En fil kan som mest inkluderas en gång. Flera inklusioner ger varningar och ignoreras.
+
+För att faktiskt kompilera en Sillescript-fil så kan följande konsolkommando användas (då man sitter i projektets sillescript2-mapp):\\
+
+\begin{lstlisting}[frame=single]
+python compiler.py filename
+\end{lstlisting}
+
+\noindent
+Detta skriver ut kompilerad output i konsolen, som sedan är ämnat att kopieras in i cpu.vhd-filen, på rätt plats. 
+
+Pythonscriptet compileAndLoad.py kan dock göra detta åt dig; den kompilerar en fil och skriver sedan in resultatet i cpu.vhd. 
+
+Notera att detta är i allra högsta grad specialanpassad för detta projekt, så omstrukturering av mappar, eller större ändringar i cpu.vhd kan få scriptet att sluta funka. Körs via:\\
+
+\begin{lstlisting}[frame=single]
+python compileAndLoad.py filename
+\end{lstlisting}
+
 
 \subsection{''Subrutiner''}
 \begin{figure}[h!]
