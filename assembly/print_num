@@ -72,7 +72,7 @@ while 0>$1
     add$ 2,1
     store 2,&startat
 
-    # Place a + sign where the decimal point is
+    # Place a . sign where the decimal point is
     if 0=$4
 	    load$ 3,41 # dot tile
         storep~ 3,&startat
