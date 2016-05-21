@@ -355,6 +355,24 @@ En subrutinsliknande struktur används för flera delar av programmet. Detta gö
 
 \subsection{Beräkningar}
 \subsubsection{Reverse polish}
+\begin{tabular}{ll}
+	\textbf{GRx}    & \textbf{Input}               \\ \hline
+	\texttt{0}      & Pekare till lista med värden \\
+	\texttt{1}      & Pekare till lista med typer  \\
+	\texttt{2}      & Storlek på listor            \\
+	\texttt{3}      & Returadress                  \\
+	\texttt{Others} & Används ej till input        \\
+	                &  \\
+	\textbf{GRx}    & \textbf{Output}              \\ \hline
+	\texttt{0}      & Resultat av beräkning        \\
+	\texttt{1}      & Beräkning lyckades
+\end{tabular}
+\\\\
+\noindent
+Listan som pekare GR0 pekar på innehåller alla värden för beräkningen i omvänd polsk notation. Operander kommer att sparas som sin adress i tileminnet, alltså 43=+, 44=-, 45=* och 46=/. För att särskilja operander från vanliga siffror används opvektorn som GR1 pekar på. Om det står 0 så är innehållet på samma index i värdesvektorn en siffra, om det står något annat så tolkas det som en operand. I övrigt följer evalueringen algoritmen från \href{https://en.wikipedia.org/wiki/Reverse_Polish_notation#Postfix_algorithm}{Wikipedia}. Stacken har en maxstorlek på 16 rader, därefter har den odefinierat resultat. 
+
+När beräkningen är slutförd ligger resultatet i GR0 och en nolla i GR1. Ligger det någonting annat i GR1 så har beräkningen gått fel (felaktig input).
+
 \subsubsection{Eval\_fn}
 \subsubsection{Division}
 \begin{tabular}{ll}
@@ -374,6 +392,23 @@ Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom 
 \subsection{Grafer}
 \subsubsection{Axlar}
 \subsubsection{Utritning}
+\begin{tabular}{ll}
+	\textbf{GRx} & \textbf{Input}               \\ \hline
+	\texttt{0}   & Min X                        \\
+	\texttt{1}   & Max X                        \\
+	\texttt{2}   & Min Y                        \\
+	\texttt{3}   & Max Y                        \\
+	\texttt{4}   & Pekare till lista med värden \\
+	\texttt{5}   & Pekare till lista med typer  \\
+	\texttt{6}   & Storlek på listor            \\
+	\texttt{7}   & Returadress                  \\
+	             &  \\
+	\textbf{GRx} & \textbf{Output}              \\ \hline
+	             & Ingen output
+\end{tabular}
+\\\\
+\noindent
+Tar en yta (GR0-3) att rita på och information om funktionen som ska ritas (GR4-6). Beräknar stuff, TODO: Hannes, skriv vad du gör för magi. 
 
 \subsection{IO}
 \subsubsection{print\_num}
