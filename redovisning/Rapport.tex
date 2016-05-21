@@ -311,31 +311,31 @@ Nedan följer en lista på instruktioner som språket stödjer. Alla tar en mod 
 \end{multicols}
 
 \noindent
-Sli och include är speciella, och har inte samma syntax som resten av instruktionerna; båda tar endast ett argument, och har varken support för moder, labels, eller indikatorer. Detta då de körs i kompileringstid, snarare än som maskinkod.
+Sli (``\textbf{s}et \textbf{li}ne'') och include är speciella, och har inte samma syntax som resten av instruktionerna; båda tar endast ett argument, och har varken support för moder, labels, eller indikatorer. Detta då de körs i kompileringstid, snarare än som maskinkod.
 
 Sli följs av ett värde, och sätter raden som instruktionen befinner sig på till binärrepresentationen av det värdet.
 
 Include följs av ett filnamn, och kopierar innehållet av den filen till filen som kompileras. En fil kan som mest inkluderas en gång. Flera inklusioner ger varningar och ignoreras.
 
-För att faktiskt kompilera en Sillescript-fil så kan följande konsolkommando användas (då man sitter i projektets sillescript2-mapp):\\
+För att faktiskt kompilera en Sillescript-fil så kan följande konsolkommando användas (då man sitter i projektets \texttt{sillescript2}-mapp):\\
 
 \begin{lstlisting}[frame=single]
 python compiler.py filename
 \end{lstlisting}
 
 \noindent
-Detta skriver ut kompilerad output i konsolen, som sedan är ämnat att kopieras in i cpu.vhd-filen, på rätt plats. 
+Detta skriver ut kompilerad output i konsolen, som sedan är ämnat att kopieras in i \texttt{cpu.vhd}-filen, på rätt plats. 
 
-Pythonscriptet compileAndLoad.py kan dock göra detta åt dig; den kompilerar en fil och skriver sedan in resultatet i cpu.vhd. 
+Pythonscriptet \texttt{compileAndLoad.py} kan dock göra detta åt dig; den kompilerar en fil och skriver sedan in resultatet i \texttt{cpu.vhd}. 
 
-Notera att detta är i allra högsta grad specialanpassad för detta projekt, så omstrukturering av mappar, eller större ändringar i cpu.vhd kan få scriptet att sluta funka. Körs via:\\
+Notera att detta är i allra högsta grad specialanpassad för detta projekt, så omstrukturering av mappar, eller större ändringar i \texttt{cpu.vhd} kan få scriptet att sluta funka. Körs via:\\
 
 \begin{lstlisting}[frame=single]
 python compileAndLoad.py filename
 \end{lstlisting}
 
 \noindent
-Scriptet sätter även en begränsning för när PM ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när ASR sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
+Scriptet sätter även en begränsning för när PM ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när \texttt{ASR} sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
 
 
 \subsection{''Subrutiner''}
