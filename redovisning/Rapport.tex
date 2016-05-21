@@ -29,9 +29,36 @@
 \begin{abstract}
 \end{abstract}
 \section{Inledning}
-
+Bakgrund, syfte, källor!?
 \section{Apparaten}
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/display_lq.jpg}}
+	\caption{Bild på grunkan \textbf{TODO: Low quality because sshfs is slow. Change to HQ when done}}
+\end{figure}
+Apparaten är en hexadecimal grafräknare med reverse polish-notation.
+
 Börja gärna med en bild på bygget och redgör för hur apparaten används. Detta blir en kombinerad presentation av konstruktionen och användarhandledning. 
+
+\subsection{Beräkningar och inmatning}
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/calculation_lq.jpg}}
+	\caption{Beräkningsexempel \textbf{TODO: Low quality because sshfs is slow. Change to HQ when done}}
+\end{figure}
+En vanlig beräkning genomför genom att man skriver ett uttryck och avslutar med enter. 
+
+Siffror skrivs in med numpad eller sifferraden, tillsammans med knapparna \texttt{A-F}. För att få negativa tal börjar man med ett \texttt{N} innan siffrorna. Decimalen fås med punkt. Avsluta siffor med mellanslag. Notera att endast siffror upp till 32 bitars tvåkomplement stöds, med jämn uppdelning mellan heltalsdelen och decimaldelen. Med andra ord går heltalsdelen från $-8000$ och $+7FFF$, medan decimaldelen går mellan $0000$ och $FFFF$.
+
+Operander matas in via knapparna på numpaden. Efter dessa behövs inget mellanslag.
+
+\subsection{Grafritning}
+En funktion för uppritning matas in likadant som en vanlig beräkning, med undantag för att en eller flera siffror ersätts med \texttt{X}. Som standard kommer den inmatade funktionen ritas mellan $-10$ och $10$ i både X- och Y-led.
+
+Vill man ändra utritningsområdet så görs det genom att man matar in 
+\begin{Verbatim}[frame=single]
+P Xmin Xmax Ymin Ymax
+\end{Verbatim}
+där Xmin, Xmax, Ymin och Ymax skrivs in som vanliga siffror. P räknas som operator och ska alltså inte ha något mellanslag efter sig. När den fjärde siffran matats in så töms grafen och nästa funktion som matas in kommer att ritas på det nya utritningsområdet.
+
 \section{Teori}
 Här kan ett videoprojekt beskriva videoformatet, ett MIDI-projekt redogöra för MIDI-standarden ...
 \subsection{Reverse polish}
