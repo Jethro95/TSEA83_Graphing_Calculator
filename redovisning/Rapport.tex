@@ -242,6 +242,19 @@ En subrutinsliknande struktur används för flera delar av programmet. Detta gö
 \subsubsection{Reverse polish}
 \subsubsection{Eval\_fn}
 \subsubsection{Division}
+\begin{tabular}{ll}
+	\textbf{GRx}    & \textbf{Input}         \\ \hline
+	\texttt{0}      & Täljare                \\
+	\texttt{1}      & Nämnare                \\
+	\texttt{2}      & Returadress            \\
+	\texttt{Others} & Används ej till input  \\
+	                &  \\
+	\textbf{GRx}    & \textbf{Output}        \\ \hline
+	\texttt{2}      & Resultat från division
+\end{tabular}
+\\\\
+\noindent
+Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom att subtrahera nämnaren från täljaren och räkna antalet subtraktioner. Försöker förbättra precisionen genom att skifta täljaren så långt till vänster som möjligt innan beräkningen, men kan ändå ge varierande bra resultat. Kommer ta mycket lång tid att utföra för vissa tal (små nämnare), upp till flera millisekunder. Efter beräkningen laddas resultatet till GR2 och programmet hoppar tillbaka till returadressen från inputen. En division med noll kommer ge noll som resultat.
 
 \subsection{Grafer}
 \subsubsection{Axlar}
