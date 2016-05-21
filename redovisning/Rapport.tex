@@ -130,7 +130,7 @@ K2 och K1 är minnen som binder en given mods eller instruktions binärrepresent
 
 \subsubsection{IR}
 
-Instruktionsregistret, 32 bitar, håller i en kopia av instruktionen från huvudminnet som körs för tillfället. Den kan vidare delas upp i OP, GRx, MM, och IR\_ADR som är den instrukionens instruktionskod, GRx-argument, valt mod, samt address-argument.
+Instruktionsregistret, 32 bitar, håller i en kopia av instruktionen från huvudminnet som körs för tillfället. Den kan vidare delas upp i OP, GRx och MM som är den instrukionens instruktionskod, GRx-argument samt valt mod.
 
 Man kan i microkoden skriva och läsa till och från IR genom att ange busskoden \texttt{0001} i från-buss respektive till-bus fältet. Att skriva till IR påverkar inte huvudminnet, och därmed inte den egentliga programkoden.
 
