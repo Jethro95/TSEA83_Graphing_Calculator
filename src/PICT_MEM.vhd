@@ -1,9 +1,4 @@
---------------------------------------------------------------------------------
--- PICT MEM
--- Anders Nilsson
--- 16-feb-2016
--- Version 1.1
-
+-- Based on http://www.isy.liu.se/edu/kurs/TSEA83/laboration/lab_vga.html
 
 -- library declaration
 library IEEE;
