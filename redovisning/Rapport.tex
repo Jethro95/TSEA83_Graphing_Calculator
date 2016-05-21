@@ -182,16 +182,31 @@ TODO: Hälfen av det här gör ju identiska saker eller används aldrig (antinge
 
 Bildminnet är uppdelat i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap. Bitmapminnet innehåller 320x480 bitars blockram för en svartvit representation av alla pixlar på vänstra skärmhalvan. Bildminnet för tiles innehåller 40x30 rader.
 
-Varje del har en write\_enable-signal, en save\_at-signal och en data\_in-signal. När write\_enable ettställs ersätts innehållet på adressen save\_at med data\_in. Bitmapminnet använder endast sista biten i data\_in\_b, medans hela data\_in\_p används.
+Varje del har en write\_enable-signal, en save\_at-signal och en data\_in-signal. När write\_enable ettställs ersätts innehållet på adressen save\_at med data\_in. Ingen kontroll av att adresserna ligger inom minnet sker, utan det är upp till programmeraren.
 
-Xpixel och Ypixel används för att bestämma om picmem\_out eller bitmem\_out ska uppdateras, för att undvika overflow i minnena.
+\label{parag:picmempixel}
+\texttt{Xpixel} och \texttt{Ypixel} används för att bestämma om \texttt{picmem\_out} eller \texttt{bitmem\_out} ska uppdateras från respektive minne, för att undvika overflow i minnena. Dessa två signaler innehåller alltså värdet för pixeln som ska ritas ut, beroende på vilken hälft av skärmen vi befinner oss i.
 
+\newpage
 \subsection{VGA-motor}
+TODO: Behövs båda?
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=1\textwidth]{drawings/vga_motor.png}}
 	\caption{Översiktligt blockschema över VGA-motorn}
 \end{figure}
 
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[width=1\textwidth]{drawings/vga_motor_detail.png}}
+	\caption{Detaljerat blockschema över VGA-motorn}
+\end{figure}
+
+VGA-motorn använder en klockfrekvens på 25Mhz. Denna används för att räkna upp \texttt{Xpixel} och \texttt{Ypixel}. Pixelräknarna används sedan för att generera \texttt{Vsync}, \texttt{Hsync} och \texttt{Blank}.
+
+För varje pixel måste också ett utvärde beräknas. På vänster hälft (\texttt{Xpixel} < 320) av skärmen innehåller \texttt{bitmem\_in} information om ifall pixeln är svart (nolla) eller vit (etta). På höger hälft (\texttt{Xpixel} > 320) innehåller \texttt{picmem\_in} information om vilken tile som ska ritas upp. Se \ref{parag:picmempixel} för hur dessa uppdateras.
+
+VGA-motorn har ett tileminne, \texttt{tileMem}, som innehåller 48 tecken (A-Ö, 0-9, samt ett par specialtecken) på 8x16 bitar vardera. Med hjälp av \texttt{picmem\_in} som väljer ut en tile, de sista fyra bitarna av \texttt{Xpixel} och de sista tre bitarna av \texttt{Ypixel} pekas en pixel i tileminnet ut. I \texttt{tileMem} är en svart pixel en etta och en vit pixel en nolla. 
+
+En svart pixel fyller alla bitar i \texttt{vgaRed}, \texttt{vgaGreen} och \texttt{vgaBlue} med nollor, medans en vit pixel fyller dem med ettor. Om man ska läsa från \texttt{tileMem} eller \texttt{bitmem\_in} bestäms även här av \texttt{Xpixel}. En blanksignal ger samma resultat som en svart pixel.
 \section{Mjukvara}
 \subsection{Hjälpmedel}
 
