@@ -1,22 +1,20 @@
+-- Based on  http://www.isy.liu.se/edu/kurs/TSEA83/forelasning/OH_vhdl3.pdf
+
 library IEEE;
---library floatfixlib;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
---use floatfixlib.math_utility_pkg.all;
---use floatfixlib.float_pkg.all;
---CPU interface
 entity cpu is
     port(
-        clk             : in std_logic;
-        rst             : in std_logic;
-        wep             : out std_logic;                         -- write enable
-        data_out_picmem : out std_logic_vector(7 downto 0);      -- data in
-        save_at_p         : out integer range 0 to 1200;           -- save data_in1 on adress
-        save_at_b       : out integer range 0 to 153600;
-        kb_data         : in std_logic_vector(7 downto 0);
-    	read_confirm    : out std_logic;
-        web             : out std_logic;
-        data_out_bitmap : out std_logic
+        clk             : in std_logic;                          -- clock signal
+        rst             : in std_logic;                          -- reset signal
+        wep             : out std_logic;                         -- write enable for picMem
+        data_out_picmem : out std_logic_vector(7 downto 0);      -- data out to picMem
+        save_at_p       : out integer range 0 to 1200;           -- picMem adress to save data_out_picmem at
+        save_at_b       : out integer range 0 to 153600;         -- bitmapMem adress to save data_out_bitmap at
+        kb_data         : in std_logic_vector(7 downto 0);       -- Next 
+    	read_confirm    : out std_logic;                         -- tells keyboard encoder that we have read the last input and are ready for the next
+        web             : out std_logic;                         -- write enable for bitmapMem
+        data_out_bitmap : out std_logic                          -- data out to bitmapMem
     );
 end cpu;
 
@@ -90,12 +88,12 @@ constant u_mem_c : u_mem_t :=
         b"00000_0000_0000_0_0001_00000000010000",    -- 60 BPL uPC := 16 (N!=1 means AR is not negative. I.e. AR is positive)
         b"00000_1000_0110_0_0001_00000000000000"   -- 61 STOREB bitmap_mem(A) := GRx
     );
---         b"00000_0000_0000_0_0000_00000000000000", -- Empty for copying
+
 signal u_mem : u_mem_t := u_mem_c;
 
 signal uM       : unsigned(31 downto 0);    -- micro Memory output
 signal uPC      : unsigned(5 downto 0);     -- micro Program Counter
-signal uPCsig   : unsigned(3 downto 0);     -- (TODO: Describe modes)
+signal uPCsig   : unsigned(3 downto 0);     -- code for how uPC is changed. See documentation
 signal uAddr    : unsigned(13 downto 0);    -- micro Address
 signal TB       : unsigned(3 downto 0);     -- To Bus field
 signal FB       : unsigned(3 downto 0);     -- From Bus field
@@ -340,7 +338,7 @@ constant K1_mem_c : K1_mem_t :=
         b"101010",  -- STOREP (u_mem(42))       (10111)
 	    b"111000",  -- RC (u_mem(56))           (11000)
         b"111001",  -- CMP (u_mem(57))          (11001)
-        b"111101"   -- STOREB (u_mem(62))          (11010)
+        b"111101"   -- STOREB (u_mem(62))       (11010)
     );
 signal K1_mem : K1_mem_t := K1_mem_c;
 
@@ -355,7 +353,7 @@ type gr_t is array (0 to 7) of unsigned(31 downto 0);
 constant gr_c : gr_t :=
     (
         x"00000000",
-        x"00000000", --KB test program
+        x"00000000",
         x"00000000",
         x"00000000",
         x"00000000",
@@ -368,7 +366,7 @@ signal g_reg : gr_t := gr_c;
 
 begin
 
-    -- mPC : micro Program Counter
+    -- mPC : micro Program Counter 
     process(clk)
     begin
         if rising_edge(clk) then
@@ -490,11 +488,11 @@ begin
                 save_at_b<=0;
             elsif (FB = "0111") then
                 wep <= '1';
-                data_out_picmem <= std_logic_vector(DATA_BUS(7 downto 0));
+                data_out_picmem <= std_logic_vector(DATA_BUS(7 downto 0)); -- Tileaddr is only 8 bytes long
                 save_at_p <= to_integer(ASR);
             elsif (FB = "0110") then
                 web <= '1';
-                data_out_bitmap <= DATA_BUS(0);
+                data_out_bitmap <= DATA_BUS(0); -- We only have to set one bit
                 save_at_b <= to_integer(ASR);
             end if;
         end if;
@@ -508,7 +506,7 @@ begin
         variable op_arg_2       : signed(32 downto 0);
         variable op_part_result : signed(32 downto 0);
         variable op_result      : signed(31 downto 0);
-	variable op_result_64	: signed(63 downto 0);
+        variable op_result_64	: signed(63 downto 0);
     begin
         if rising_edge(clk) then
             if (rst = '1') then
@@ -520,33 +518,38 @@ begin
                 flag_C <= '0';
 
             --ALU=00000 has no effect
-            elsif (ALU = "00001") then --AR:=bus, AR_f:=bus
+
+            elsif (ALU = "00001") then --AR:=bus
                 AR <= signed(DATA_BUS);
-            elsif (ALU = "00010") then --AR:=bus', AR_f:=bus' (One's complement)
+            elsif (ALU = "00010") then --AR:=bus' (One's complement) UNUSED
                 AR <= not signed(DATA_BUS);
-            elsif (ALU = "00011") then --AR:=0, AR_f:=0
+            elsif (ALU = "00011") then --AR:=0
                 AR <= (others => '0');
-            elsif ((ALU = "00100") or (ALU = "01011") or (ALU = "00101") or (ALU = "01100")) then --AR:=AR+buss (real or int) (ints) || AR:=AR-buss (real or int)
+            elsif ((ALU = "00100") or (ALU = "01011") or (ALU = "00101") or (ALU = "01100")) then --AR:=AR+buss || AR:=AR-buss
                 --In summary, we'll:
                 --  Extend argument size by 1 bit
                 --  Add those together
                 --  Remove MSB: the carry
                 --  The remaining number is the result
+
                 --Resizing args to length 33 and adding them
                 op_arg_1        := signed(AR(31) & AR(31 downto 0));
                 op_arg_2        := signed(DATA_BUS(31) & DATA_BUS(31 downto 0));
+
                 if ((ALU = "00101") or (ALU = "01100")) then --if AR:=AR-buss;
 			        op_arg_2 := -op_arg_2;
                 end if;
                     op_part_result  := op_arg_1 + op_arg_2;
+
                 op_result       := signed(op_part_result(31 downto 0)); --overflow cut off
                 AR <= op_result;
+                
                 --Doing flags
                 flag_X <= flag_C;
                 if (op_result < 0) then flag_N <= '1'; else flag_N <= '0'; end if;
                 if (op_result = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
 
-                    --Is the sum of negative positive, or vice versa?
+                --Is the sum of negative positive, or vice versa? 
                 if ((op_arg_1>0 and op_arg_2>0 and op_result<=0) or
                     (op_arg_1<0 and op_arg_2<0 and op_result>=0)) then
 
@@ -608,20 +611,20 @@ begin
                 AR <= SHIFT_LEFT(signed(AR),to_integer(DATA_BUS));
                 if (AR = 0) then flag_Z <= '1'; else flag_Z <= '0'; end if;
                 flag_N <= AR(31);
-            elsif (ALU = "01101") then --AR:=AR*Buss (floats)
-		op_result_64 := AR * signed(DATA_BUS);
+            elsif (ALU = "01101") then --AR:=AR*Buss (uses center 32 bits of result, so mostly usable for fixed point)
+                op_result_64 := AR * signed(DATA_BUS);
                 AR <= op_result_64(47 downto 16);
-            --elsif (ALU = "01110") then --AR_f:=AR_f/Buss (floats)
-            --    AR_f <= AR_f / float(DATA_BUS);
             end if;
         end if;
     end process;
 
+    -- Split up IR
     OP      <= IR(31 downto 27);
     GRx     <= IR(26 downto 24);
     MM      <= IR(23 downto 22);
     IR_ADR  <= IR(21 downto 0);
 
+    -- Read and split uM
     uM      <= u_mem(to_integer(uPC));
     uAddr   <= uM(13 downto 0);
     uPCsig  <= uM(17 downto 14);
@@ -631,15 +634,17 @@ begin
     ALU     <= uM(31 downto 27);
     PM      <= p_mem(to_integer(ASR)) when ASR <176 else (others => '0');
 
+    -- Keyboard input is automatically confirmed when it's read from
     read_confirm <= '1' when TB = "1001" else '0';
 
+    -- To bus operations
     DATA_BUS <= IR                              when (TB = "0001") else
                 PM                              when (TB = "0010") else
                 "0000000000" & PC               when (TB = "0011") else
                 "0000000000" & ASR              when (TB = "0100") else
                 unsigned(AR)                    when (TB = "0101") else
-                --unsigned(to_slv(AR_f))          when (TB = "0110") else
-                g_reg(to_integer(GRx))          when (TB = "1000") else -- TODO: Is GRx updated yet?
+                g_reg(to_integer(GRx))          when (TB = "1000") else
                 unsigned(x"000000" & kb_data)   when (TB = "1001") else
                 (others => '0');
+
 end Behavioral;
