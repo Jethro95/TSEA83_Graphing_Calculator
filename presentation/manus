@@ -5,7 +5,7 @@ Hej!
 
 Kan vi börja? Ja.
 
-Vi går under det ädla namnet Grupp 35, och har tillsammans konstruerat en grafritande miniräknare, med en generell datormaskin under huven.
+Vi är Grupp 35, och har tillsammans konstruerat en grafritande miniräknare, med en generell datormaskin under huven.
 
 <Bara säga våra namn snabbt; "Jag är X">
 
@@ -25,7 +25,7 @@ Programmet som körs i bakgrunden är en 1100 rader lång radda som parsar input
 
 Maskinen har support för de fyra räknesätten, med addition, subtraktion, och multiplikation implementerat på hårdvarunivå. Division sköts av mjukvara.
 
-Tal hanteras som reella fixed-point tal, med 16 bitar för heltalsdelen, och 16 för decimal-delen.
+Tal är på fixed-point-format, och tal utöver heltal kan därmed representeras.
 
 -SLIDE 4
 
@@ -45,7 +45,7 @@ I konsolen, som vi senare demonstrerar, så skrivs uttryck så här, med tokens 
 
 Förutom att beräkna resultatet av uttryck kan vår räknare också rita ut funktioner.
 
-Om du har med ett "X" som en operator kommer uttrycket att tolkas som en funktion, och dess tillhörande graf kommer ritas upp på vänsta delen av skärmen vid evaluering.
+Om du har med ett "X" som en operand kommer uttrycket att tolkas som en funktion, och dess tillhörande graf kommer ritas upp på vänsta delen av skärmen vid evaluering.
 
 Detta görs genom att byta X:et mot varje pixels reella X-värde i tur och ordning, ta lite hänsyn till skalning, och sedan rita in motsvarande pixel.
 
@@ -69,7 +69,7 @@ Som ni ser är designen mycket lik, med en del fluff bortskuret.
 
 -Slide 9
 
-Så en relativt enkel design, ej pipelinad.
+Så en relativt enkel design, ej pipelinad. Data och programminne delas.
 
 Den är 32-bits-baserad för att bättre kunna representera stora tal. Som omnämnt så har den support för hantering av decimaltal i fixed-point form, vars 16 första bitar tolkas som en heltalsdel, och de sista 16 som en decimaldel.
 
@@ -81,7 +81,7 @@ CPU:n kan programmeras med maskinkod. Det finns support för 27 instruktioner, s
 
 -Slide 11
 
-Data och programminne delas. I minnet delas en instruktion, 32 bitar, upp i följande segment:
+I minnet delas en instruktion, 32 bitar, upp i följande segment:
 
 (obs: tillhörande bild)
 På de fem första placeras instruktionens bitrepresentation.
