@@ -1,6 +1,7 @@
 \documentclass[]{article}
 %Font encoding for swedish
 \usepackage[utf8]{inputenc}
+\usepackage[swedish]{babel}
 \usepackage[T1]{fontenc}
 
 %For source code boxes
@@ -12,10 +13,12 @@
 \usepackage{fancyvrb}
 \usepackage{hyperref}
 
-
+\usepackage{framed}
 
 \usepackage{tikz}
 \usetikzlibrary{shapes,arrows,calc}
+
+\usepackage[titletoc,title]{appendix}
 
 
 % Title Page
@@ -273,7 +276,8 @@ Förutom att innehålla översättningar av alla instruktionsnamn till deras res
 
 Nedan följer ett utdrag ur koden som används för att byta ut ''X'' i ett funktionsuttryck mot ett visst värde.
 
-\begin{Verbatim}[frame=single]
+\begin{oframed}
+\begin{verbatim}
 # Modify function: Replace X'es
 load$ 0,0 # Loop counter
 while 0 < &inputLength # GR0 < number of input elements
@@ -298,7 +302,8 @@ end while
 
 # Labels this row as inputLength. Start value: 8.
 inputLength: sli 8
-\end{Verbatim}
+\end{verbatim}
+\end{oframed}
 
 \noindent
 Syntax som bär uppmärksammas:\\
@@ -379,7 +384,17 @@ Testbänken har förutom att generera en klocka på 100MHz även support för at
 
 En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block (TODO: Är detta sant?). Det finns i de flesta fall demoprogram för subrutiner vid namn \texttt{subrutinsnamn\_demo}.
 
+\subsection{Omvandla inmatning till tal}\label{sec:text2hex}
+För att omvandla en inmatad följd av siffror till ett enda tal i minnet använder vi koden i \texttt{text2hex}. Detta program väntar tills en giltig tangent registreras av tangentbordsmotorn (dvs. instruktionen \texttt{RC} läser in något annat värde än x$FF$) och avgör sedan om inmatningen är en operand (x$0$ - x$F$), operator ($+$, $-$, $*$, $/$, $=$), en särskild modifierare (\textit{P}, \textit{N}, \textit{R}) eller en särskild karaktär såsom \textit{X} eller mellanslag.
+
+För att konstruera ett tal av en sifferföljd skiftas inmatningen ett lämpligt antal steg till vänster (16 steg för ett $4 \times 4$ fixpunktstal) så att inmatningen hamnar på de första fyra bitarna av heltalsdelen. Det tal som redan ligger i minnet skiftas sedan fyra steg till vänster och de två talen adderas. Se bilaga \ref{app:input_example} för ett exempel på denna process. Inmatning av decimaler fungerar på stort sett samma sett, men den nya siffran skiftas istället in till höger om punkten.
+
+Den särskilda modifieraren \textit{N} (\textit{N}egative) kan användas för att ange att inmatningen ska tolkas som ett negativt tal, dvs inmatningsföljden ''\texttt{N5}'' betyder att värdet $-5$ ska sparas.
+
 \subsection{Calc}
+Koden i \texttt{calc} är huvudloopen i programmet, som inte hanterar enskilda inmatade siffror utan behandlar istället de hela tal, operatorer och modifierare som skickas vidare från \texttt{text2hex} (se sektion \ref{sec:text2hex}). Här avgörs det huruvida inmatningen ska läggas på evalueringsstacken (om tecknet är operand, operator, eller variabel \textit{X}), tolkas som en plotparameter (om inmatningen inleds med \textit{P}), eller är en särskild karaktär såsom \textit{R} (som rensar skärmen).
+
+Detta bestäms i \texttt{calc} som sedan går vidare till lämplig 'subrutin' såsom \texttt{evaluate} eller \texttt{plot}. Dessa subrutiner återvänder sedan till \texttt{calc} som återställer relevanta variabler och register för nya inmatningar.
 
 \subsection{Beräkningar}
 \subsubsection{Reverse polish}
@@ -462,4 +477,90 @@ Skriver över alla pixlar i bitmapminnet med vitt. Är ingen subrutin, utan inkl
 \section{Slutsatser}
 \section{Referenser}
 
+\clearpage
+
+\begin{appendices}
+\section{Exempel på inmatning}\label{app:input_example}
+Antag att användaren matar in sifferföljden "\textit{55}". Alltså förväntar sig användaren att talet x$53$ ska sparas i minne. Antag också att varje ny karaktär sparas till GR0, och det slutgiltiga talet ska sparas till GR1.
+
+Vi observerar nu dessa register för att se hur x$53$ sparas.
+\newline
+\newline
+
+Inledningsvis:
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0000.0000 0000 0000 0000
+GR1: 0000 0000 0000 0000.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+Inmatning: GR0 := 5
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0000.0000 0000 0000 0101
+GR1: 0000 0000 0000 0000.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+GR0 skiftas vänster 16 steg
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0101.0000 0000 0000 0000
+GR1: 0000 0000 0000 0000.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+GR1 skiftas vänster 4 steg
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0101.0000 0000 0000 0000
+GR1: 0000 0000 0000 0000.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+GR1 := GR1 + GR0
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0101.0000 0000 0000 0000
+GR1: 0000 0000 0000 0101.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+\newpage
+
+Inmatning: GR0 := 3
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0000.0000 0000 0000 0011
+GR1: 0000 0000 0000 0101.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+GR0 skiftas vänster 16 steg
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0011.0000 0000 0000 0000
+GR1: 0000 0000 0000 0101.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+GR1 skiftas vänster 4 steg
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0011.0000 0000 0000 0000
+GR1: 0000 0000 0101 0000.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+GR1 := GR1 + GR0
+\begin{framed}
+\begin{verbatim}
+GR0: 0000 0000 0000 0011.0000 0000 0000 0000
+GR1: 0000 0000 0101 0011.0000 0000 0000 0000
+\end{verbatim}
+\end{framed}
+
+GR1 innehåller nu bitrepresentatinen av x$53$ för ett $4 \times 4$ fixpunktstal.
+\end{appendices}
 \end{document}          
