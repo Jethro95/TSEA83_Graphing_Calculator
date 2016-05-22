@@ -417,6 +417,32 @@ Listan som pekare GR0 pekar på innehåller alla värden för beräkningen i omv
 När beräkningen är slutförd ligger resultatet i GR0 och en nolla i GR1. Ligger det någonting annat i GR1 så har beräkningen gått fel (felaktig input).
 
 \subsubsection{Eval\_fn}
+
+Byter ut ''X'' i ett uttryck mot nya värden, baserat på vilken pixel i X-led som nu ritas, och räknar sedan ut Y-värdet av funktionen vid den pixelkolumnen.
+
+\begin{tabular}{ll}
+	\textbf{GRx}    & \textbf{Input}               \\ \hline
+	\texttt{0}      & Pekare till lista med värden \\
+	\texttt{1}      & Pekare till lista med typer  \\
+	\texttt{2}      & Storlek på listor            \\
+	\texttt{3}      & Nuvarande X-pixel (heltal)   \\
+	\texttt{4}      & Minsta X-värde på intervall (fixed-point) \\
+	\texttt{5}      & Största X-värde på intervall (fixed-point) \\
+        \texttt{6}      & Returadress                  \\
+        \texttt{Others} & Används ej till input        \\
+                        &                              \\
+	\textbf{GRx}    & \textbf{Output}              \\ \hline
+	\texttt{0}      & Resultat av beräkning: Y-värde (fixed-point) \\
+	\texttt{1}      & 0 om lyckad beräkning, 1 annars
+\end{tabular}
+\\\\
+\noindent
+Värdelista tolkas på samma sätt som i \textit{Reverse polish}. Typlistan är också likadan, förutom skillnaden att en 2:a \textit{inte} tolkas som att en operator befinner sig på samma plats i värdelistan. Iställen tolkas en 2:a som att ett ''X'' finns på den platsen, och i värdelistan sätts då motsvarande X-värde in innan dessa automatiskt matas vidare till \textit{Reverse polish}. Samma stackbegränsningar gäller.
+
+Minsta och största X-värden avser axelvärden efter skalning; om till exempel en graf ska ritas för X-värden mellan $-3.5$ och $8.47$, så anges dessa två värden. Därefter är det bara att ange motsvarande pixel. Rutinen antar att graffönstret är 320 pixlar brett, och given X-pixel förväntas därmed vara på intervallet 0 till 319.
+
+När beräkningen är slutförd ligger resultatet i GR0 och en nolla i GR1. Ligger det någonting annat i GR1 så har beräkningen gått fel (felaktig input).
+
 \subsubsection{Division}
 \begin{tabular}{ll}
 	\textbf{GRx}    & \textbf{Input}         \\ \hline
