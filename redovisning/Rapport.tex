@@ -98,7 +98,7 @@ minimum height=3em, minimum width=6em]
 	
 	\node [block, node distance=2cm, below of=memory] (driver) {VGA-motor};
 	\node [block, right of=driver, node distance=3.5cm] (vga) {Skärm};
-	\draw [->] (memory) -- node {} (driver);
+	\draw [<->] (memory) -- node {} (driver);
 	\draw [->] (driver) -- node {} (vga);
 	\draw[thick,dotted] ($(keyboarddriver.north west)+(-0.3,0.3)$)  rectangle ($(driver.south east)+(1,-0.3)$) node[pos=0] {FPGA};
 	\end{tikzpicture}
