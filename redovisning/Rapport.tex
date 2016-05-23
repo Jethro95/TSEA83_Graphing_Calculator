@@ -459,14 +459,29 @@ När beräkningen är slutförd ligger resultatet i GR0 och en nolla i GR1. Ligg
 Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom att subtrahera nämnaren från täljaren och räkna antalet subtraktioner. Försöker förbättra precisionen genom att skifta täljaren så långt till vänster som möjligt innan beräkningen, men kan ändå ge varierande bra resultat. Kommer ta mycket lång tid att utföra för vissa tal (små nämnare), upp till flera millisekunder. Efter beräkningen laddas resultatet till GR2 och programmet hoppar tillbaka till returadressen från inputen. En division med noll kommer ge noll som resultat.
 
 \subsection{Grafer}
-\subsubsection{Axlar}
-\subsubsection{Utritning}
+
+\subsubsection{DrawAxis}
+\begin{tabular}{ll}
+	\textbf{GRx}    & \textbf{Input}        \\ \hline
+	\texttt{0}      & X-pixel               \\
+	\texttt{1}      & Y-pixel               \\
+	\texttt{2}      & Returadress           \\
+	\texttt{Others} & Används ej till input \\
+	             &  \\
+	\textbf{GRx} & \textbf{Output}              \\ \hline
+	             & Ingen output
+\end{tabular}
+\\\\
+\noindent
+Ritar grafaxlar med origo angivet som pixelkoordinater.
+
+\subsubsection{Utritning: plot}
 \begin{tabular}{ll}
 	\textbf{GRx} & \textbf{Input}               \\ \hline
-	\texttt{0}   & Min X                        \\
-	\texttt{1}   & Max X                        \\
-	\texttt{2}   & Min Y                        \\
-	\texttt{3}   & Max Y                        \\
+	\texttt{0}   & Minsta X-värde på intervall (fixed-point)  \\
+	\texttt{1}   & Största X-värde på intervall (fixed-point) \\
+	\texttt{2}   & Minsta Y-värde på intervall (fixed-point)  \\
+	\texttt{3}   & Största Y-värde på intervall (fixed-point) \\
 	\texttt{4}   & Pekare till lista med värden \\
 	\texttt{5}   & Pekare till lista med typer  \\
 	\texttt{6}   & Storlek på listor            \\
@@ -477,7 +492,11 @@ Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom 
 \end{tabular}
 \\\\
 \noindent
-Tar en yta (GR0-3) att rita på och information om funktionen som ska ritas (GR4-6). Beräknar stuff, TODO: Hannes, skriv vad du gör för magi. 
+Argument följer samma logik som för \textit{Eval\_fn}.
+
+Plot börjar med att beräkna skärmkoordinater för origo, och drawAxis tar sedan hand om den utritningen.
+
+Därefter, för varje pixel i X-led så passeras argument till Eval\_fn, och motsvarande y-värde ritas ut. Detta skalas och översätts till ett pixelvärde baserat på given indata.
 
 \subsection{IO}
 \subsubsection{print\_num}
