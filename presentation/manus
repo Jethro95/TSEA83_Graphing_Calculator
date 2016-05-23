@@ -1,0 +1,120 @@
+
+-SLIDE 1
+
+Hej!
+
+Kan vi börja? Ja.
+
+Vi är Grupp 35, och har tillsammans konstruerat en grafritande miniräknare, med en generell datormaskin under huven.
+
+<Bara säga våra namn snabbt; "Jag är X">
+
+-SLIDE 2
+
+Vad ni kommer få se när vi går vidare till demonstrationen är en tudelad skärm: ena halvan med en graf, och den andra med en konsol.
+
+Användaren kan mata in matte på konsol-delen, och få ut annan matte på antingen konsoldelen eller grafdelen beroende på vad de väljer att göra.
+
+Det kan se ut så här <hänvisa till bild>
+
+Vi kommer in på detaljer allt eftersom, men detta är i stora drag vad vi har framför oss.
+
+-SLIDE 3
+
+Programmet som körs i bakgrunden är en 1100 rader lång radda som parsar input, beräknar uttryck, och allt mitt i mellan.
+
+Maskinen har support för de fyra räknesätten, med addition, subtraktion, och multiplikation implementerat på hårdvarunivå. Division sköts av mjukvara.
+
+Tal är på fixed-point-format, och tal utöver heltal kan därmed representeras.
+
+-SLIDE 4
+
+I och med att programmet är så pass långt så skrev vi det naturligtvis inte direkt i maskinkod. Vi har även producerat en korsassembler, som förutom att översätta instruktionsnamn tills dess respektive binärkod även har hjälpande funktionalitet så som Labsels, if-satser, while-satser, och include.
+
+Till höger ser ni kod för att evaluera mattematiska uttryck med en så kallad reverse-polish-notation.
+
+-Slide 5
+
+Reverse polish är nämligen notationen som används när grafräknaren ges input. Att evaluera traditionella mattematiska uttryck kräver generellt både rekursion, vilket vi saknar support för, och mycket arbete.
+
+RP-notationen tillåter användaren att skriva vilket uttryck som helst, men kan fortfarande enkelt evalueras iterativt med hjälp av en stack.
+
+I konsolen, som vi senare demonstrerar, så skrivs uttryck så här, med tokens separerade av mellanslag. Enter för att säga åt maskinen att evaluera uttrycket. Då minustecknet är reserverat för dess operator, så används 'N' för att denotera negativa operander.
+
+-Slide 6
+
+Förutom att beräkna resultatet av uttryck kan vår räknare också rita ut funktioner.
+
+Om du har med ett "X" som en operand kommer uttrycket att tolkas som en funktion, och dess tillhörande graf kommer ritas upp på vänsta delen av skärmen vid evaluering.
+
+Detta görs genom att byta X:et mot varje pixels reella X-värde i tur och ordning, ta lite hänsyn till skalning, och sedan rita in motsvarande pixel.
+
+Naturligtvis kan ni skala om grafen. Detta görs genom att slå knappen p följt av gränser i x-led och y-led, respektive. Detta ger resultat då nästa funktion ritas ut.
+
+-Slide 7
+
+All denna programkod körs på en generell dator vi byggt från grunden.
+
+Vi kan bryta ner hårdvaran i tre distinkta moduler. En CPU, en tangentbordsmotor, och en VGA-motor. Som förväntat så sköter CPU:n parsning av maskinkod och beräkningar, tangentbordsmotorn läser tecken via USB, och VGA-motorn kan ge oss skärmutmatning baserat på givet minne.
+
+CPU:n sitter i "mitten", som ni ser på bilden, läser från tangentbordsmotorn, och skriver till VGA-motorn. Dessa två kommunicerar i sin tur med extern hårdvara: tangentbord och skärm.
+
+Vi redovisar dessa moduler i tur och ordning, med CPU:n först.
+
+-Slide 8
+
+Här ser ni en jämförelse mellan vår CPU, vänster, och Olle-Roos-datorn, höger.
+
+Som ni ser är designen mycket lik, med en del fluff bortskuret.
+
+-Slide 9
+
+Så en relativt enkel design, ej pipelinad. Data och programminne delas.
+
+Den är 32-bits-baserad för att bättre kunna representera stora tal. Som omnämnt så har den support för hantering av decimaltal i fixed-point form, vars 16 första bitar tolkas som en heltalsdel, och de sista 16 som en decimaldel.
+
+-Slide 10
+
+CPU:n kan programmeras med maskinkod. Det finns support för 27 instruktioner, som kan kallas på med 3 olika moder.
+
+Åtta generella register tillhandahålles, och 5 olika flaggor för alla möjliga typer av hopp.
+
+-Slide 11
+
+I minnet delas en instruktion, 32 bitar, upp i följande segment:
+
+(obs: tillhörande bild)
+På de fem första placeras instruktionens bitrepresentation.
+Därefter anges vilket av de 8 generella registerna som ska användas.
+Vilket mod som instruktionen körs med, 2 bitar.
+Och slutligen address fältet, som tar upp resten av ordbredden: 22 bitar.
+
+-Slide 12
+
+På de två modbitarna kan följande moder anges: Direkt, Omedelbar, och Indirekt. Att ange 11 ger inte något definierat beteende.
+
+Vid omedelbar addressering placeras literalen på raden nedanför istället för i addressdelen av instruktionen, detta för att tillåta användning av större tal som literal; speciellt användbart om de första 16 bitarna är en decimaldel.
+
+-Slide 13
+
+Nästa av de tre hårdvarumodulerna är VGA-motorn, som agerar som ett medium mellan CPU och skärm.
+
+<Silas om VGA-motor>
+
+-Slide 15
+
+<Felix om tangentbordsmotor>
+
+-Slide 16
+
+Vi vill tacka er för att ni varit en så beundrandsvärd publik, och hoppas att vår presentation har varit av intresse.
+
+Tack så mycket.
+
+<förhoppningsvis en applåd?>
+
+-Slide 17
+
+Om ni nu haft några funderingar under presentationen skulle vi vilja använda den kvarvarande tiden till en frågestund. Någon?
+
+<Frågor>
