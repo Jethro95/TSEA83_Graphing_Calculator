@@ -39,7 +39,7 @@ Reverse polish är nämligen notationen som används när grafräknaren ges inpu
 
 RP-notationen tillåter användaren att skriva vilket uttryck som helst, men kan fortfarande enkelt evalueras iterativt med hjälp av en stack.
 
-I konsolen, som vi senare demonstrerar, så skrivs uttryck så här, med tokens separerade av mellanslag. Enter för att säga åt maskinen att evaluera uttrycket. Då minustecknet är reserverat för dess operator, så används 'N' för att denotera negativa operander.
+I konsolen, som vi senare demonstrerar, så skrivs uttryck så här, med tokens separerade av mellanslag. Enter för att säga åt maskinen att evaluera uttrycket. Då minustecknet är reserverat för dess operator, så används 'N' för att göra operander negativa.
 
 -Slide 6
 
