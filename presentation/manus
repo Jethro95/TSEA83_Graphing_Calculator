@@ -99,11 +99,11 @@ Vid omedelbar addressering placeras literalen på raden nedanför istället för
 
 Nästa av de tre hårdvarumodulerna är VGA-motorn på 640x480 pixlar. Vi har delat upp den i två bitar, där den vänstra hälften för grafen är rena pixlar som man kan skriva en nolla (svart) eller etta (vit) till med en assembly-instruktion. Den andra hälften består av 40 tiles per rad, med 30 rader. Varje tile är 8x16 pixlar, även den i svartvitt. Även denna har en egen store-instruktion.
 
--Slide 15
+-Slide 14
 
 <Felix om tangentbordsmotor>
 
--Slide 16
+-Slide 15
 
 Vi vill tacka er för att ni varit en så beundrandsvärd publik, och hoppas att vår presentation har varit av intresse.
 
@@ -111,7 +111,7 @@ Tack så mycket.
 
 <förhoppningsvis en applåd?>
 
--Slide 17
+-Slide 16
 
 Om ni nu haft några funderingar under presentationen skulle vi vilja använda den kvarvarande tiden till en frågestund. Någon?
 
