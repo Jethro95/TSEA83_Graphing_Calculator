@@ -213,6 +213,11 @@ TODO: Hälfen av det här gör ju identiska saker eller används aldrig (antinge
 
 
 \subsection{Tangentbordsmotor}
+Tangentbordsmotorn i \texttt{KBD\_ENC} sköter inmatning från ett tangentbord över PS/2-protokollet. När en tangent trycks ner skickas 11 bitar seriellt över dataingången i tangentbordsmotorn, och klockingången klockas i takt med dessa så att databitarna kan läsas vid negativ flank på klockan. Av de 11 bitarna är den första biten en startbit som alltid är 0. Efter startbiten följer 8 databitar (mest signifikant bit skickas först)  som utgör den aktuella scankoden\footnote{\url{http://www.computer-engineering.org/ps2keyboard/scancodes2.html}}, och till sist en paritetsbit (udda paritet) och en stoppbit som alltid är 1.
+
+När alla 11 bitar har lästs av tangentbordsmotorn går scankoden vidare till en tillståndsmaskin som avgör om \texttt{MAKE} eller \texttt{BREAK} (dvs. om den aktuella tangenten trycks ner eller släpps). Denna process kan endast avgöra tillståndet för en tangent åt gången, och flera knapptryckningar samtidigt stödjs således inte. Scankoden översätts sedan till motsvarande tile i bildminnet.
+
+Om tidigare nämnda tillståndsmaskin bestämde att \texttt{MAKE} har inträffat läggs tilekoden på tangentbordsmotorns datautgång och hålls där för att vid senare tillfälle läsas av CPU:n. Tilekoden hålls på bussen tills tangentbordsmotorn antingen får en återställningssignal från Nexyskortet eller processorn skickar en 1:a över \texttt{read\_confirm}-signalen (denna signal skickas automatiskt av \texttt{RC}-instruktionen). Efter en sådan återställning sätts bussen till värdet x$FF$ som hålls tills en ny tangent registreras. Detta tillvägagångssätt medför att processorn alltid kan läsa av den senaste nedtryckta tangenten med \texttt{RC}.
 
 \subsection{Bildminne}
 \begin{figure}[h!]
@@ -235,11 +240,6 @@ TODO: Behövs båda?
 	\caption{Översiktligt blockschema över VGA-motorn}
 \end{figure}
 
-\begin{figure}[h!]
-	\makebox[\textwidth][c]{\includegraphics[width=1.3\textwidth]{drawings/vga_motor_detail.png}}
-	\caption{Detaljerat blockschema över VGA-motorn}
-\end{figure}
-
 VGA-motorn är ansvarig för att ta informationen från bildminnet och översätta detta till giltig VGA-output i form av RGB-signaler och H/V-sync för 640x480 pixlar i 60Hz. Den använder en klockfrekvens på 25Mhz. Denna används för att räkna upp \texttt{Xpixel} och \texttt{Ypixel}. Pixelräknarna används sedan för att generera \texttt{Vsync}, \texttt{Hsync} och \texttt{Blank}.
 
 För varje pixel måste också ett utvärde beräknas. På vänster hälft (\texttt{Xpixel} < 320) av skärmen innehåller \texttt{bitmem\_in} information om ifall pixeln är svart (nolla) eller vit (etta). På höger hälft (\texttt{Xpixel} > 320) innehåller \texttt{picmem\_in} information om vilken tile som ska ritas upp. Se \ref{parag:picmempixel} för hur dessa uppdateras.
@@ -247,6 +247,11 @@ För varje pixel måste också ett utvärde beräknas. På vänster hälft (\tex
 VGA-motorn har ett tileminne, \texttt{tileMem}, som innehåller 48 tecken (A-Ö, 0-9, samt ett par specialtecken) på 8x16 bitar vardera. Med hjälp av \texttt{picmem\_in} som väljer ut en tile, de sista fyra bitarna av \texttt{Xpixel} och de sista tre bitarna av \texttt{Ypixel} pekas en pixel i tileminnet ut. I \texttt{tileMem} är en svart pixel en etta och en vit pixel en nolla. 
 
 En svart pixel fyller alla bitar i \texttt{vgaRed}, \texttt{vgaGreen} och \texttt{vgaBlue} med nollor, medans en vit pixel fyller dem med ettor. Om man ska läsa från \texttt{tileMem} eller \texttt{bitmem\_in} bestäms även här av \texttt{Xpixel}. En blanksignal ger samma resultat som en svart pixel.
+
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[width=1.3\textwidth]{drawings/vga_motor_detail.png}}
+	\caption{Detaljerat blockschema över VGA-motorn}
+\end{figure}
 
 \newpage
 \section{Mjukvara}
