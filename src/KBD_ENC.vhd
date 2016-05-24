@@ -37,14 +37,8 @@ architecture behavioral of KBD_ENC is
 
   signal ScanCode		: std_logic_vector(7 downto 0);	-- scan code
   signal TileIndex		: std_logic_vector(7 downto 0);	-- tile index
-  
-  type curmov_type is (FORWARD, BACKWARD, NEWLINE);		-- declare cursor movement types
-  signal curMovement : curmov_type;				        -- cursor movement
 	
-  signal curposX		: unsigned(5 downto 0);		-- cursor X position
-  signal curposY		: unsigned(4 downto 0);		-- cursor Y position
-	
-  type wr_type is (STANDBY, WRCHAR, WRCUR);	-- declare state types for write cycle
+  type wr_type is (STANDBY, WRCHAR);	-- declare state types for write cycle
   signal WRstate : wr_type;					-- write cycle state
 
 begin
@@ -225,79 +219,6 @@ begin
             x"2F" when x"29",  -- space
             x"FF" when others;
 						 
-						 
-  -- set cursor movement based on scan code
-  with ScanCode select
-    curMovement <= NEWLINE when x"5A",	        -- enter scancode (5A), so move cursor to next line
-                   BACKWARD when x"66",	        -- backspace scancode (66), so move cursor backward
-                   FORWARD when others;	        -- for all other scancodes, move cursor forward
-
-
-  -- curposX
-  -- update cursor X position based on current cursor position (curposX and curposY) and cursor
-  -- movement (curMovement)
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if rst='1' then
-        curposX <= (others => '0');
-      elsif (WRstate = WRCHAR) then
-        if (curMovement = FORWARD) then
-          if (curposX = 19) then
-            curposX <= (others => '0');
-          else
-            curposX <= curposX + 1;
-          end if;
-        elsif (curMovement = BACKWARD) then
-          if ((curposX = 0) and (curposY >= 0)) then
-            curposX <= to_unsigned(19, curposX'length);
-          else
-            curposX <= curposX - 1;
-          end if;
-        elsif (curMovement = NEWLINE) then
-          curposX <= (others => '0');
-        end if;
-      end if;
-    end if;
-  end process;
-	
-
-  -- curposY
-  -- update cursor Y position based on current cursor position (curposX and curposY) and cursor
-  -- movement (curMovement)
-  process(clk)
-  begin
-    if rising_edge(clk) then
-      if rst='1' then
-        curposY <= (others => '0');
-      elsif (WRstate = WRCHAR) then
-        if (curMovement = FORWARD) then
-          if (curposX = 19) then
-            if (curposY = 14) then
-              curposY <= (others => '0');
-            else
-              curposY <= curposY + 1;
-            end if;
-          end if;
-        elsif (curMovement = BACKWARD) then
-          if (curposX = 0) then
-            if (curposY = 0) then
-              curposY <= to_unsigned(14, curposY'length);
-            else
-              curposY <= curposY - 1;
-            end if;
-          end if;
-        elsif (curMovement = NEWLINE) then
-          if (curposY = 14) then
-            curposY <= (others => '0');
-          else
-            curposY <= curposY + 1;
-          end if;
-        end if;
-      end if;
-    end if;
-  end process;
-
 
   -- write state
   -- every write cycle begins with writing the character tile index at the current
@@ -317,14 +238,13 @@ begin
               WRstate <= STANDBY;
             end if;
           when WRCHAR =>
-            WRstate <= WRCUR;
-          when WRCUR =>
             WRstate <= STANDBY;
         end case;
       end if;
     end if;
   end process;
 
+-- data output is set to be tile index during WRCHAR state, otherwise set as xFF
 process(clk)
   begin
     if rising_edge(clk) then
@@ -335,19 +255,6 @@ process(clk)
       end if;
     end if;
   end process;
-	
-
-  -- we will be enabled ('1') for two consecutive clock cycles during WRCHAR and WRCUR states
-  -- and disabled ('0') otherwise at STANDBY state
-  --we <= '0' when (WRstate = STANDBY) else '1';
-
-
-  -- memory address is a composite of curposY and curposX
-  -- the "to_unsigned(20, 6)" is needed to generate a correct size of the resulting unsigned vector
-    --  addr <= to_unsigned(20, 6)*curposY + curposX;
-
-  
-  -- data output is set to be x"1F" (cursor tile index) during WRCUR state, otherwise set as scan code tile index
 
 end behavioral;
 
