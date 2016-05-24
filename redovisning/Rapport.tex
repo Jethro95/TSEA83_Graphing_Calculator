@@ -224,7 +224,7 @@ Om tidigare nämnda tillståndsmaskin bestämde att \texttt{MAKE} har inträffat
 	\makebox[\textwidth][c]{\includegraphics[width=1\textwidth]{drawings/pic_mem.png}}
 	\caption{Blockschema över bildminnet}
 \end{figure}
-
+\noindent
 Bildminnet är uppdelat i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap. Bitmapminnet innehåller 320x480 bitars blockram för en svartvit representation av alla pixlar på vänstra skärmhalvan. Bildminnet för tiles innehåller 40x30 rader.
 
 Varje del har en write\_enable-signal, en save\_at-signal och en data\_in-signal. När write\_enable ettställs ersätts innehållet på adressen save\_at med data\_in. Ingen kontroll av att adresserna ligger inom minnet sker, utan det är upp till programmeraren.
@@ -240,6 +240,7 @@ TODO: Behövs båda?
 	\caption{Översiktligt blockschema över VGA-motorn}
 \end{figure}
 
+\noindent
 VGA-motorn är ansvarig för att ta informationen från bildminnet och översätta detta till giltig VGA-output i form av RGB-signaler och H/V-sync för 640x480 pixlar i 60Hz. Den använder en klockfrekvens på 25Mhz. Denna används för att räkna upp \texttt{Xpixel} och \texttt{Ypixel}. Pixelräknarna används sedan för att generera \texttt{Vsync}, \texttt{Hsync} och \texttt{Blank}.
 
 För varje pixel måste också ett utvärde beräknas. På vänster hälft (\texttt{Xpixel} < 320) av skärmen innehåller \texttt{bitmem\_in} information om ifall pixeln är svart (nolla) eller vit (etta). På höger hälft (\texttt{Xpixel} > 320) innehåller \texttt{picmem\_in} information om vilken tile som ska ritas upp. Se \ref{parag:picmempixel} för hur dessa uppdateras.
@@ -386,7 +387,7 @@ Testbänken har förutom att generera en klocka på 100MHz även support för at
 	\makebox[\textwidth][c]{\includegraphics[width=0.4\textwidth]{drawings/subroutine.png}}
 	\caption{Användandet av en ''subrutin''. }
 \end{figure}
-
+\noindent
 En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block (TODO: Är detta sant?). Det finns i de flesta fall demoprogram för subrutiner vid namn \texttt{subrutinsnamn\_demo}.
 
 \subsection{Omvandla inmatning till tal}\label{sec:text2hex}
