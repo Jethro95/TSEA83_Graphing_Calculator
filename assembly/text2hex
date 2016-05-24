@@ -136,7 +136,7 @@ if 0 = $25
     JMP$ 0,&reset
 endif
 
-If input is '.'
+#If input is '.'
 if 0 = $41
     #Update tile address
     LOAD$ 6,&continue6
