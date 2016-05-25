@@ -129,45 +129,45 @@ Microprogramräknaren. Microninstruktioner har fyra bitar att modifiera räknare
 \\
 
 \noindent
-K2 och K1 är minnen som binder en given mods eller instruktions binärrepresentation till raden i microminnet som har hand om dess del i hämtfasen respektive exekveringsfasen.
+\texttt{K2} och \texttt{K1} är minnen som binder en given mods eller instruktions binärrepresentation till raden i microminnet som har hand om dess del i hämtfasen respektive exekveringsfasen.
 
 \subsubsection{IR}
 
-Instruktionsregistret, 32 bitar, håller i en kopia av instruktionen från huvudminnet som körs för tillfället. Den kan vidare delas upp i OP, GRx och MM som är den instrukionens instruktionskod, GRx-argument samt valt mod.
+Instruktionsregistret, 32 bitar, håller i en kopia av instruktionen från huvudminnet som körs för tillfället. Den kan vidare delas upp i \texttt{OP}, \texttt{GRx} och \texttt{MM} som är den instrukionens instruktionskod, \texttt{GRx}-argument samt valt mod.
 
-Man kan i microkoden skriva och läsa till och från IR genom att ange busskoden \texttt{0001} i från-buss respektive till-bus fältet. Att skriva till IR påverkar inte huvudminnet, och därmed inte den egentliga programkoden.
+Man kan i microkoden skriva och läsa till och från \texttt{IR} genom att ange busskoden \texttt{0001} i från-buss respektive till-buss fältet. Att skriva till \texttt{IR} påverkar inte huvudminnet, och därmed inte den egentliga programkoden.
 
 \subsubsection{PC}
 
-Programräknaren, håller koll på instruktion i p\_mem som ska exkaveras. Registret är 22 bitar långt, då detta är fullt tillräckligt för alla rimligt stora program, samt att addressfältet hos en instruktion inte har plats för större tal på sin addressdel: de sista 22 bitarna.
+Programräknaren, håller koll på instruktion i \texttt{p\_mem} som ska exkaveras. Registret är 22 bitar långt, då detta är fullt tillräckligt för alla rimligt stora program, samt att addressfältet hos en instruktion inte har plats för större tal på sin addressdel: de sista 22 bitarna.
 
-PCsig, bit nummer 18 i microinstruktionen, kan påverka PC. Ett värde på 0 håller PC oförändrad, medan ett värde på 1 inkrementerar den.
+\texttt{PCsig}, bit nummer 18 i microinstruktionen, kan påverka \texttt{PC}. Ett värde på 0 håller \texttt{PC} oförändrad, medan ett värde på 1 inkrementerar den.
 
-PC kan skrivas till via bussen. En från-buss-signal på \texttt{0011} skriver de 22 lägsta bitarna av DATA\_BUS till PC. Den kan även läsas ifrån genom att ange samma busskod på till-buss delen i microminnet.
+\texttt{PC} kan skrivas till via bussen. En från-buss-signal på \texttt{0011} skriver de 22 lägsta bitarna av \texttt{DATA\_BUS} till \texttt{PC}. Den kan även läsas ifrån genom att ange samma busskod på till-buss delen i microminnet.
 
 \subsubsection{ASR}
 
 Addressregistret används i microprocessorn för att peka ut addressen till raden som ska passera som argument. Detta sätts i hämtfasen och beror på vilket mod den dåvarande instruktionen körs med.
 
-Liksom PC är registret av samma anledning 22 bitar långt.
+Liksom \texttt{PC} är registret av samma anledning 22 bitar långt.
 
-ASR kan läses från och skrivas till via busskoden \texttt{0100}.
+\texttt{ASR} kan läses från och skrivas till via busskoden \texttt{0100}.
 
 \subsubsection{GRx}
 
-De åtta generella registrena: GR0 till och med GR7.
+De åtta generella registrena: \texttt{GR0} till och med \texttt{GR7}.
 
 Dessa register är 32 bitar långa och används för att främst hålla i temporära värden åt användaren.
 
-Vektorn g\_reg håller i de åtta registren, och ett av de väljs genom signalen GRx. Denna är bitar 26 till och med 24 hos programinstruktionen som körs för tillfället.
+Vektorn \texttt{g\_reg} håller i de åtta registren, och ett av de väljs genom signalen \texttt{GRx}. Denna är bitar 26 till och med 24 hos programinstruktionen som körs för tillfället.
 
-Att skriva eller läsa till det valda generella registret görs via busskuden \texttt{1000}. Det är den som valts i GRx som då interageras med. 
+Att skriva eller läsa till det valda generella registret görs via busskuden \texttt{1000}. Det är den som valts i \texttt{GRx} som då interageras med. 
 
 \subsubsection{p\_mem}
 
-Vårt programminne, 32 bitar långt. Då programminne och dataminne är samma minne så syftas här på det delade minnet. Genom att skriva eller läsa härifrån via busskoden \texttt{0010} så kan huvudminnet läsas eller modifieras. Raden i minnet som opereras på utpekas ASR, som sätts automatiskt i hämtfasen.
+Vårt programminne, 32 bitar långt. Då program och data delar på minne så syftas här på det delade minnet. Genom att skriva eller läsa härifrån via busskoden \texttt{0010} så kan huvudminnet läsas eller modifieras. Raden i minnet som opereras på utpekas \texttt{ASR}, som sätts automatiskt i hämtfasen.
 
-Det är värt att notera att programminnet initialt sätts till konstanten p\_mem\_c, där då programkod skrivs in.
+Det är värt att notera att programminnet initialt sätts till konstanten \texttt{p\_mem\_c}, där då programkod skrivs in.
 
 \subsubsection{save\_at\_p/save\_at\_b/data\_out\_picmem/data\_out\_bitmap}
 
@@ -175,42 +175,39 @@ Signaler för att skriva till bild och bitmapminne. Via busskoden \texttt{0111} 
 
 \subsubsection{AR/ALU}
 
-I processen titulerad AR finns koden som utgör enhetens ALU.
+I processen namngiven \texttt{AR} finns koden som utgör enhetens ALU.
 
-Här modifieras ackumulatorregistret, AR, (32 bitar), och de fem flaggorna. En rad olika operationer kan utföras på positiv klockflank beroende på koden hos ALU-signalen; de fem första bitarna i mikrominnesinstruktionen som för tillfället körs.
+Här modifieras ackumulatorregistret, \texttt{AR} (32 bitar), och de fem flaggorna. En rad olika operationer kan utföras på positiv klockflank beroende på koden hos ALU-signalen; de fem första bitarna i mikrominnesinstruktionen som för tillfället körs.
 
-Vid matematiska operationer tolkas AR och bussens värde som ett signerat tvåkomplementstal.
+Vid matematiska operationer tolkas \texttt{AR} och bussens värde som ett signerat tvåkomplementstal.
 
-AR:s värde kan senare läggas på bussen genom att ange koden \texttt{0101} i mikrokoden. Den kan dock ej skrivas till direkt.
+\texttt{AR}:s värde kan senare läggas på bussen genom att ange koden \texttt{0101} i mikrokoden. Den kan dock ej skrivas till direkt.
 
 Nedan följer en tabell över alla ALU-operationer: deras koder, funktion, och modifierade flaggor.
 \\
 
 \begin{tabular}{llc}
-	\textbf{Kod}    & \textbf{Funktion}                                      & \textbf{Flaggor påverkade} \\ \hline
-	\texttt{00000}  & \texttt{<Ingenting>}                                   &  \\
-	\texttt{00001}  & AR := BUS                                              &  \\
-	\texttt{00010}  & AR := BUS'                                             &  \\
-	\texttt{00011}  & AR := 0                                                &  \\
-	\texttt{00100}  & AR := AR+BUS                                           &     \texttt{X C V N Z}     \\
-	\texttt{00101}  & AR := AR-BUS                                           &     \texttt{X C V N Z}     \\
-	\texttt{00110}  & AR := AR \textsc{and} BUS                              &    \texttt{{ } C V N Z}    \\
-	\texttt{00111}  & AR := \textit{signed\_to\_real}(AR) (16 skift vänster) &  \\
-	\texttt{01000}  & AR := \textit{real\_to\_signed}(AR) (16 skift höger)   &  \\
-	\texttt{01001}  & AR := AR \textsc{asr} BUS                              &     \texttt{X C V N Z}     \\
-	\texttt{01010}  & AR := AR \textsc{asl} BUS                              &     \texttt{X C V N Z}     \\
-	\texttt{01011}  & AR := AR+BUS (Ekvivalent med \texttt{00100})           &     \texttt{X C V N Z}     \\
-	\texttt{01100}  & AR := AR-BUS (Ekvivalent med \texttt{00101})           &     \texttt{X C V N Z}     \\
-	\texttt{01101}  & AR := AR*BUS (fixed point)                             &  \\
+	\textbf{Kod}    & \textbf{Funktion}                                                                & \textbf{Flaggor påverkade} \\ \hline
+	\texttt{00000}  & \texttt{<Ingenting>}                                                             &  \\
+	\texttt{00001}  & \texttt{AR} := \texttt{DATA\_BUS}                                                &  \\
+	\texttt{00010}  & \texttt{AR} := \texttt{DATA\_BUS}'                                               &  \\
+	\texttt{00011}  & \texttt{AR} := 0                                                                 &  \\
+	\texttt{00100}  & \texttt{AR} := \texttt{AR}+\texttt{DATA\_BUS}                                    &  \texttt{X C V N Z}     \\
+	\texttt{00101}  & \texttt{AR} := \texttt{AR}-\texttt{DATA\_BUS}                                    &  \texttt{X C V N Z}     \\
+	\texttt{00110}  & \texttt{AR} := \texttt{AR} \textsc{and} \texttt{DATA\_BUS}                       &  \texttt{{ } C V N Z}    \\
+	\texttt{00111}  & \texttt{AR} := signed\_to\_real(\texttt{AR}) (16 skift vänster)                  &  \\
+	\texttt{01000}  & \texttt{AR} := real\_to\_signed(\texttt{AR}) (16 skift höger)                    &  \\
+	\texttt{01001}  & \texttt{AR} := \texttt{AR} \textsc{asr} \texttt{DATA\_BUS}                       &  \texttt{X C V N Z}     \\
+	\texttt{01010}  & \texttt{AR} := \texttt{AR} \textsc{asl} \texttt{DATA\_BUS}                       &  \texttt{X C V N Z}     \\
+	\texttt{01011}  & \texttt{AR} := \texttt{AR}+\texttt{DATA\_BUS} (Ekvivalent med \texttt{00100})    &  \texttt{X C V N Z}     \\
+	\texttt{01100}  & \texttt{AR} := \texttt{AR}-\texttt{DATA\_BUS} (Ekvivalent med \texttt{00101})    &  \texttt{X C V N Z}     \\
+	\texttt{01101}  & \texttt{AR} := \texttt{AR}*\texttt{DATA\_BUS} (fixed point)                      &  \\
 	\texttt{01110}  & \texttt{<Undefined>}                                   &  \\
-	\texttt{01111}  & AR := AR \textsc{lsr} BUS                              &    \texttt{X C { } N Z}    \\
-	\texttt{10000}  & AR := AR \textsc{lsl} BUS                              &    \texttt{X C { } N Z}    \\
+	\texttt{01111}  & \texttt{AR} := \texttt{AR} \textsc{lsr} \texttt{DATA\_BUS}                       &  \texttt{X C { } N Z}    \\
+	\texttt{10000}  & \texttt{AR} := \texttt{AR} \textsc{lsl} \texttt{DATA\_BUS}                       &  \texttt{X C { } N Z}    \\
 	\texttt{Others} & \texttt{<Undefined>}                                   &
 \end{tabular}
 \\
-
-TODO: Hälfen av det här gör ju identiska saker eller används aldrig (antingen i assembly eller inte ens i mikrokod)
-
 
 \subsection{Tangentbordsmotor}
 Tangentbordsmotorn i \texttt{KBD\_ENC} sköter inmatning från ett tangentbord över PS/2-protokollet. När en tangent trycks ner skickas 11 bitar seriellt över dataingången i tangentbordsmotorn, och klockingången klockas i takt med dessa så att databitarna kan läsas vid negativ flank på klockan. Av de 11 bitarna är den första biten en startbit som alltid är 0. Efter startbiten följer 8 databitar (mest signifikant bit skickas först)  som utgör den aktuella scankoden\footnote{\url{http://www.computer-engineering.org/ps2keyboard/scancodes2.html}}, och till sist en paritetsbit (udda paritet) och en stoppbit som alltid är 1.
@@ -321,45 +318,45 @@ Syntax som bär uppmärksammas:\\
 \textbf{Syntax} & \textbf{Beskrivning}\\
 \hline
 \texttt{\#} & Kommentar.\\
-: & Labeldefinition. ''Döper'' raden det är skrivet på till labelnamnet som ges innan kolonet.\\
-Jämförelser & Vänsterledet avser alltid ett GRx. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan. Finns support för \texttt{=},\texttt{!},\texttt{>} och \texttt{<}.\\
-\$ & Indikator. Säger att instruktionen skall körs med omedelbart mod. Om tecknet används i en jämförelse så indikerar det att följande värde är en literal.\\
-\~{ }  & Indikator. Säger att instruktionen skall körs med indirekt mod.\\
-\& & Indikator. Säger att det som följer är ett labelnamn. Detta namn översätts under kompilering till en korrekt address.\\
+\texttt{:} & Labeldefinition. ''Döper'' raden det är skrivet på till labelnamnet som ges innan kolonet.\\
+Jämförelser & Vänsterledet avser alltid ett \texttt{GRx}. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan. Finns support för \texttt{=},\texttt{!},\texttt{>} och \texttt{<}.\\
+\texttt{\$} & Indikator. Säger att instruktionen skall körs med omedelbart mod. Om tecknet används i en jämförelse så indikerar det att följande värde är en literal.\\
+\texttt{\~{ }}  & Indikator. Säger att instruktionen skall körs med indirekt mod.\\
+\texttt{\&} & Indikator. Säger att det som följer är ett labelnamn. Detta namn översätts under kompilering till en korrekt address.\\
 Ingen indikator & Säger att instruktionen skall körs med direkt mod. Om högerledet i en jämförelse saknar sådant tecken så indikerar det att värdet är en adress, och värdet sparat på adressen ska användas i jämförelsen.\\
 \end{tabular}
 
 \noindent
-Nedan följer en lista på instruktioner som språket stödjer. Alla tar en mod (given via indikator), ett GRx (även om det inte används), och en address, literal, eller label.
+Nedan följer en lista på instruktioner som språket stödjer. Alla tar en mod (given via indikator), ett \texttt{GRx} (även om det inte används), och en address, literal, eller label.
 
 \begin{multicols}{3}
 \begin{itemize*}
-\item load
-\item store
-\item add
-\item addf
-\item sub
-\item subf
-\item and
-\item asl
-\item asr
-\item jmp
-\item lsr
-\item lsl
-\item storep
-\item rc
-\item storeb
-\item sli
-\item include
+\item \texttt{load}
+\item \texttt{store}
+\item \texttt{add}
+\item \texttt{addf}
+\item \texttt{sub}
+\item \texttt{subf}
+\item \texttt{and}
+\item \texttt{asl}
+\item \texttt{asr}
+\item \texttt{jmp}
+\item \texttt{lsr}
+\item \texttt{lsl}
+\item \texttt{storep}
+\item \texttt{rc}
+\item \texttt{storeb}
+\item \texttt{sli}
+\item \texttt{include}
 \end{itemize*}
 \end{multicols}
 
 \noindent
-Sli (''\textbf{s}et \textbf{li}ne'') och include är speciella, och har inte samma syntax som resten av instruktionerna; båda tar endast ett argument, och har varken support för moder, labels, eller indikatorer. Detta då de körs i kompileringstid, snarare än som maskinkod.
+\texttt{Sli} (''\textbf{s}et \textbf{li}ne'') och \texttt{include} är speciella, och har inte samma syntax som resten av instruktionerna; båda tar endast ett argument, och har varken support för moder, labels, eller indikatorer. Detta då de körs i kompileringstid, snarare än som maskinkod.
 
-Sli följs av ett värde, och sätter raden som instruktionen befinner sig på till binärrepresentationen av det värdet.
+\texttt{Sli} följs av ett värde, och sätter raden som instruktionen befinner sig på till binärrepresentationen av det värdet.
 
-Include följs av ett filnamn, och kopierar innehållet av den filen till filen som kompileras. En fil kan som mest inkluderas en gång. Flera inklusioner ger varningar och ignoreras.
+\texttt{Include} följs av ett filnamn, och kopierar innehållet av den filen till filen som kompileras. En fil kan som mest inkluderas en gång. Flera inklusioner ger varningar och ignoreras.
 
 För att faktiskt kompilera en Sillescript-fil så kan följande konsolkommando användas (då man sitter i projektets \texttt{sillescript2}-mapp):\\
 
@@ -379,7 +376,7 @@ python compileAndLoad.py filename
 \end{Verbatim}
 
 \noindent
-Scriptet sätter även en begränsning för när PM ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när \texttt{ASR} sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
+Scriptet sätter även en begränsning för när \texttt{PM} ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när \texttt{ASR} sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
 
 \subsection{Testbänk}
 Testbänken har förutom att generera en klocka på 100MHz även support för att skriva ut VGA-outputen tillsammans med tidsangivelser till en textfil. Denna kan sedan simuleras i en \href{http://ericeastwood.com/lab/vga-simulator/}{VGA-simulator}.
@@ -421,9 +418,9 @@ Detta bestäms i \texttt{calc} som sedan går vidare till lämplig 'subrutin' s�
 \end{tabular}
 \\\\
 \noindent
-Listan som pekare GR0 pekar på innehåller alla värden för beräkningen i omvänd polsk notation. Operander kommer att sparas som sin adress i tileminnet, alltså 43=+, 44=-, 45=* och 46=/. För att särskilja operander från vanliga siffror används opvektorn som GR1 pekar på. Om det står 0 så är innehållet på samma index i värdesvektorn en siffra, om det står något annat så tolkas det som en operand. I övrigt följer evalueringen algoritmen från \href{https://en.wikipedia.org/wiki/Reverse_Polish_notation#Postfix_algorithm}{Wikipedia}. Stacken har en maxstorlek på 16 rader, därefter har den odefinierat resultat. 
+Listan som pekare \texttt{GR0} pekar på innehåller alla värden för beräkningen i omvänd polsk notation. Operander kommer att sparas som sin adress i tileminnet, alltså $43=+$, $44=-$, $45=*$ och $46=/$. För att särskilja operander från vanliga siffror används opvektorn som \texttt{GR1} pekar på. Om det står 0 så är innehållet på samma index i värdesvektorn en siffra, om det står något annat så tolkas det som en operand. I övrigt följer evalueringen algoritmen från \href{https://en.wikipedia.org/wiki/Reverse_Polish_notation#Postfix_algorithm}{Wikipedia}. Stacken har en maxstorlek på 16 rader, därefter har den odefinierat resultat. 
 
-När beräkningen är slutförd ligger resultatet i GR0 och en nolla i GR1. Ligger det någonting annat i GR1 så har beräkningen gått fel (felaktig input).
+När beräkningen är slutförd ligger resultatet i \texttt{GR0} och en nolla i \texttt{GR1}. Ligger det någonting annat i \texttt{GR1} så har beräkningen gått fel (felaktig input).
 
 \subsubsection{Eval\_fn}
 
@@ -450,7 +447,7 @@ Värdelista tolkas på samma sätt som i \textit{Reverse polish}. Typlistan är 
 
 Minsta och största X-värden avser axelvärden efter skalning; om till exempel en graf ska ritas för X-värden mellan $-3.5$ och $8.47$, så anges dessa två värden. Därefter är det bara att ange motsvarande pixel. Rutinen antar att graffönstret är 320 pixlar brett, och given X-pixel förväntas därmed vara på intervallet 0 till 319.
 
-När beräkningen är slutförd ligger resultatet i GR0 och en nolla i GR1. Ligger det någonting annat i GR1 så har beräkningen gått fel (felaktig input).
+När beräkningen är slutförd ligger resultatet i GR0 och en nolla i \texttt{GR1}. Ligger det någonting annat i GR1 så har beräkningen gått fel (felaktig input).
 
 \subsubsection{Division}
 \begin{tabular}{ll}
@@ -465,7 +462,7 @@ När beräkningen är slutförd ligger resultatet i GR0 och en nolla i GR1. Ligg
 \end{tabular}
 \\\\
 \noindent
-Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom att subtrahera nämnaren från täljaren och räkna antalet subtraktioner. Försöker förbättra precisionen genom att skifta täljaren så långt till vänster som möjligt innan beräkningen, men kan ändå ge varierande bra resultat. Kommer ta mycket lång tid att utföra för vissa tal (små nämnare), upp till flera millisekunder. Efter beräkningen laddas resultatet till GR2 och programmet hoppar tillbaka till returadressen från inputen. En division med noll kommer ge noll som resultat.
+Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom att subtrahera nämnaren från täljaren och räkna antalet subtraktioner. Försöker förbättra precisionen genom att skifta täljaren så långt till vänster som möjligt innan beräkningen, men kan ändå ge varierande bra resultat. Kommer ta mycket lång tid att utföra för vissa tal (små nämnare), upp till flera millisekunder. Efter beräkningen laddas resultatet till \texttt{GR2} och programmet hoppar tillbaka till returadressen från inputen. En division med noll kommer ge noll som resultat.
 
 \subsection{Grafer}
 
@@ -503,9 +500,9 @@ Ritar grafaxlar med origo angivet som pixelkoordinater.
 \noindent
 Argument följer samma logik som för \textit{Eval\_fn}.
 
-Plot börjar med att beräkna skärmkoordinater för origo, och drawAxis tar sedan hand om den utritningen.
+Plot börjar med att beräkna skärmkoordinater för origo, och \textit{DrawAxis} tar sedan hand om den utritningen.
 
-Därefter, för varje pixel i X-led så passeras argument till Eval\_fn, och motsvarande y-värde ritas ut. Detta skalas och översätts till ett pixelvärde baserat på given indata.
+Därefter, för varje pixel i X-led så passeras argument till \textit{Eval\_fn}, och motsvarande y-värde ritas ut. Detta skalas och översätts till ett pixelvärde baserat på given indata.
 
 \subsection{IO}
 \subsubsection{print\_num}
@@ -535,7 +532,7 @@ Skriver över alla pixlar i bitmapminnet med vitt. Är ingen subrutin, utan inkl
 
 \begin{appendices}
 \section{Exempel på inmatning}\label{app:input_example}
-Antag att användaren matar in sifferföljden "\textit{55}". Alltså förväntar sig användaren att talet x$53$ ska sparas i minne. Antag också att varje ny karaktär sparas till GR0, och det slutgiltiga talet ska sparas till GR1.
+Antag att användaren matar in sifferföljden "\textit{55}". Alltså förväntar sig användaren att talet x$53$ ska sparas i minne. Antag också att varje ny karaktär sparas till \texttt{GR0}, och det slutgiltiga talet ska sparas till \texttt{GR1}.
 
 Vi observerar nu dessa register för att se hur x$53$ sparas.
 \newline
@@ -549,7 +546,7 @@ GR1: 0000 0000 0000 0000.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-Inmatning: GR0 := 5
+Inmatning: \texttt{GR0} := 5
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0000.0000 0000 0000 0101
@@ -557,7 +554,7 @@ GR1: 0000 0000 0000 0000.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-GR0 skiftas vänster 16 steg
+\texttt{GR0} skiftas vänster 16 steg
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0101.0000 0000 0000 0000
@@ -565,7 +562,7 @@ GR1: 0000 0000 0000 0000.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-GR1 skiftas vänster 4 steg
+\texttt{GR1} skiftas vänster 4 steg
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0101.0000 0000 0000 0000
@@ -573,7 +570,7 @@ GR1: 0000 0000 0000 0000.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-GR1 := GR1 + GR0
+\texttt{GR1} := \texttt{GR1} + \texttt{GR0}
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0101.0000 0000 0000 0000
@@ -583,7 +580,7 @@ GR1: 0000 0000 0000 0101.0000 0000 0000 0000
 
 \newpage
 
-Inmatning: GR0 := 3
+Inmatning: \texttt{GR0} := 3
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0000.0000 0000 0000 0011
@@ -591,7 +588,7 @@ GR1: 0000 0000 0000 0101.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-GR0 skiftas vänster 16 steg
+\texttt{GR0} skiftas vänster 16 steg
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0011.0000 0000 0000 0000
@@ -599,7 +596,7 @@ GR1: 0000 0000 0000 0101.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-GR1 skiftas vänster 4 steg
+\texttt{GR1} skiftas vänster 4 steg
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0011.0000 0000 0000 0000
@@ -607,7 +604,7 @@ GR1: 0000 0000 0101 0000.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-GR1 := GR1 + GR0
+\texttt{GR1} := \texttt{GR1} + \texttt{GR0}
 \begin{framed}
 \begin{verbatim}
 GR0: 0000 0000 0000 0011.0000 0000 0000 0000
@@ -615,6 +612,6 @@ GR1: 0000 0000 0101 0011.0000 0000 0000 0000
 \end{verbatim}
 \end{framed}
 
-GR1 innehåller nu bitrepresentatinen av x$53$ för ett $4 \times 4$ fixpunktstal.
+\texttt{GR1} innehåller nu bitrepresentatinen av x$53$ för ett $4 \times 4$ fixpunktstal.
 \end{appendices}
 \end{document}          
