@@ -403,6 +403,8 @@ Detta bestäms i \texttt{calc} som sedan går vidare till lämplig 'subrutin' s�
 
 \subsection{Beräkningar}
 \subsubsection{Reverse polish}
+\label{sec:reversepolish}
+
 \begin{tabular}{ll}
 	\textbf{GRx}    & \textbf{Input}               \\ \hline
 	\texttt{0}      & Pekare till lista med värden \\
@@ -422,6 +424,7 @@ Listan som pekare \texttt{GR0} pekar på innehåller alla värden för beräknin
 När beräkningen är slutförd ligger resultatet i \texttt{GR0} och en nolla i \texttt{GR1}. Ligger det någonting annat i \texttt{GR1} så har beräkningen gått fel (felaktig input).
 
 \subsubsection{Eval\_fn}
+\label{sec:evalfn}
 
 Byter ut ''X'' i ett uttryck mot nya värden, baserat på vilken pixel i X-led som nu ritas, och räknar sedan ut Y-värdet av funktionen vid den pixelkolumnen.
 
@@ -442,7 +445,7 @@ Byter ut ''X'' i ett uttryck mot nya värden, baserat på vilken pixel i X-led s
 \end{tabular}
 \\\\
 \noindent
-Värdelista tolkas på samma sätt som i \textit{Reverse polish}. Typlistan är också likadan, förutom skillnaden att en 2:a \textit{inte} tolkas som att en operator befinner sig på samma plats i värdelistan. Iställen tolkas en 2:a som att ett ''X'' finns på den platsen, och i värdelistan sätts då motsvarande X-värde in innan dessa automatiskt matas vidare till \textit{Reverse polish}. Samma stackbegränsningar gäller.
+Värdelista tolkas på samma sätt som i \texttt{Reverse polish}, se \ref{sec:reversepolish}. Typlistan är också likadan, förutom skillnaden att en 2:a \textit{inte} tolkas som att en operator befinner sig på samma plats i värdelistan. Iställen tolkas en 2:a som att ett ''X'' finns på den platsen, och i värdelistan sätts då motsvarande X-värde in innan dessa automatiskt matas vidare till \texttt{Reverse polish}. Samma stackbegränsningar gäller.
 
 Minsta och största X-värden avser axelvärden efter skalning; om till exempel en graf ska ritas för X-värden mellan $-3.5$ och $8.47$, så anges dessa två värden. Därefter är det bara att ange motsvarande pixel. Rutinen antar att graffönstret är 320 pixlar brett, och given X-pixel förväntas därmed vara på intervallet 0 till 319.
 
@@ -466,6 +469,8 @@ Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom 
 \subsection{Grafer}
 
 \subsubsection{DrawAxis}
+\label{sec:drawaxis}
+
 \begin{tabular}{ll}
 	\textbf{GRx}    & \textbf{Input}        \\ \hline
 	\texttt{0}      & X-pixel               \\
@@ -497,11 +502,11 @@ Ritar grafaxlar med origo angivet som pixelkoordinater.
 \end{tabular}
 \\\\
 \noindent
-Argument följer samma logik som för \textit{Eval\_fn}.
+Argument följer samma logik som för \texttt{Eval\_fn}, se \ref{sec:evalfn}.
 
-Plot börjar med att beräkna skärmkoordinater för origo, och \textit{DrawAxis} tar sedan hand om den utritningen.
+Plot börjar med att beräkna skärmkoordinater för origo, och \texttt{DrawAxis} (\ref{sec:drawaxis}) tar sedan hand om den utritningen.
 
-Därefter, för varje pixel i X-led så passeras argument till \textit{Eval\_fn}, och motsvarande y-värde ritas ut. Detta skalas och översätts till ett pixelvärde baserat på given indata.
+Därefter, för varje pixel i X-led så passeras argument till \texttt{Eval\_fn}, och motsvarande y-värde ritas ut. Detta skalas och översätts till ett pixelvärde baserat på given indata.
 
 \subsection{IO}
 \subsubsection{print\_num}
