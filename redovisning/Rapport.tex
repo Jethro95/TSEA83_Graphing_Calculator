@@ -396,6 +396,9 @@ python compileAndLoad.py filename
 \noindent
 Scriptet sätter även en begränsning för när \texttt{PM} ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när \texttt{ASR} sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
 
+\subsection{Tilemem-generator}
+Pythonapplikation som genererar tiles passande VGA-motorns tileminne utifrån en TrueType-font (\texttt{.ttf}, helst en monospace-font), och en sträng med unicode-tecken. Skrivet för Python3 och kräver bildbiblioteket PIL eller Pillow installerat. Se \texttt{font}-mappen.
+
 \subsection{Testbänk}
 Testbänken har förutom att generera en klocka på 100MHz även support för att skriva ut VGA-outputen tillsammans med tidsangivelser till en textfil. Denna kan sedan simuleras i en VGA-simulator\footnote{\href{http://ericeastwood.com/lab/vga-simulator/}{\url{http://ericeastwood.com/lab/vga-simulator/}}}
 
