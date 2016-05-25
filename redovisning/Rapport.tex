@@ -276,7 +276,7 @@ Använd de här tabellerna för ''subrutiner''\\
 
 \subsubsection{Sillescript}
 
-Är ett relativt avancerat korsassembler-språk, vars kompilator är skriven i Python. I detta den stora majoriteten av koden är skriven.
+Är en relativt avancerat korsassembler-språk, vars kompilator är skriven i Python. I detta den stora majoriteten av koden är skriven.
 
 Förutom att innehålla översättningar av alla instruktionsnamn till deras respektive binärkod finns även labels, kommentarer, if-satser (med support för else), while-satser, include-statements, och lite annat syntaktiskt socker.
 
@@ -319,7 +319,7 @@ Syntax som bär uppmärksammas:\\
 \hline
 \texttt{\#} & Kommentar.\\
 \texttt{:} & Labeldefinition. ''Döper'' raden det är skrivet på till labelnamnet som ges innan kolonet.\\
-Jämförelser & Vänsterledet avser alltid ett \texttt{GRx}. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan. Finns support för \texttt{=},\texttt{!},\texttt{>} och \texttt{<}.\\
+Jämförelser & Vänsterledet avser alltid ett \texttt{GRx}. Siffran indikerar vilken av de 8. Högerledet är mer flexibelt, och kan ändras genom att använda tecknen nedan. Finns support för \texttt{=}, \texttt{!}, \texttt{>}, och \texttt{<}.\\
 \texttt{\$} & Indikator. Säger att instruktionen skall körs med omedelbart mod. Om tecknet används i en jämförelse så indikerar det att följande värde är en literal.\\
 \texttt{\~{ }}  & Indikator. Säger att instruktionen skall körs med indirekt mod.\\
 \texttt{\&} & Indikator. Säger att det som följer är ett labelnamn. Detta namn översätts under kompilering till en korrekt address.\\
@@ -506,7 +506,7 @@ Argument följer samma logik som för \texttt{Eval\_fn}, se \ref{sec:evalfn}.
 
 Plot börjar med att beräkna skärmkoordinater för origo, och \texttt{DrawAxis} (\ref{sec:drawaxis}) tar sedan hand om den utritningen.
 
-Därefter, för varje pixel i X-led så passeras argument till \texttt{Eval\_fn}, och motsvarande y-värde ritas ut. Detta skalas och översätts till ett pixelvärde baserat på given indata.
+Därefter, för varje pixel i X-led så passeras argument till \texttt{Eval\_fn}, och motsvarande y-värde ritas ut. Detta skalas om och översätts till ett pixelvärde baserat på given indata.
 
 \subsection{IO}
 \subsubsection{print\_num}
@@ -525,7 +525,7 @@ Därefter, för varje pixel i X-led så passeras argument till \texttt{Eval\_fn}
 Tar in ett fixed point-tal och skriver detta till specificerad adress med eventuellt minustecken framför. Skriver på formen ''0123.4567'' i hexadecimala tal. Tar alltså upp 9 tiles för positiva tal och 10 för negativa. Efter utskrivningen hoppar programmet tillbaka till returadressen från inputen.
 
 \subsubsection{reset\_bitmap}
-Skriver över alla pixlar i bitmapminnet med vitt. Är ingen subrutin, utan inkluderas där den ska användas.
+Skriver över alla pixlar i bitmapminnet med vitt. Detta är ingen äkta subrutin, utan inkluderas där den ska användas.
 
 \subsubsection{TODO}
 
@@ -536,7 +536,7 @@ Skriver över alla pixlar i bitmapminnet med vitt. Är ingen subrutin, utan inkl
 
 \begin{appendices}
 \section{Exempel på inmatning}\label{app:input_example}
-Antag att användaren matar in sifferföljden "\textit{55}". Alltså förväntar sig användaren att talet x$53$ ska sparas i minne. Antag också att varje ny karaktär sparas till \texttt{GR0}, och det slutgiltiga talet ska sparas till \texttt{GR1}.
+Antag att användaren matar in sifferföljden ''\textit{55}''. Alltså förväntar sig användaren att talet x$53$ ska sparas i minne. Antag också att varje ny karaktär sparas till \texttt{GR0}, och det slutgiltiga talet ska sparas till \texttt{GR1}.
 
 Vi observerar nu dessa register för att se hur x$53$ sparas.
 \newline
