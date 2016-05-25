@@ -27,24 +27,30 @@
 
 % Title Page
 \title{Teknisk rapport\\Grafisk räknare}
-\author{}
+\author{Hannes Haglund hanha265\\Felix Härnström felha431\\Silas Lenz sille914}
 
 
 \begin{document}
 \maketitle
 
-\begin{abstract}
-\end{abstract}
+\newpage
+
 \section{Inledning}
-Bakgrund, syfte, källor!?
+
+Räknare var en av de första användningarna för det vi idag skulle kalla datorer. Modernare miniräknare har ofta funktionalitet både för att beräkna vanliga uttryck, men även funktionsutritning för att ge användaren en djupare förståelse för en funktions beteende.
+
+I detta projekt konstrueras en datormaskin från ''grunden'' i \texttt{vhdl}, som laddas med ett program som tillåter inmatning, utmatning, beräkning av enkla uttryck, och funktionsutritning.
+
+Denna manual ämnas att användas som användarreferens, och som en översikt över implementationen. För närmare detaljer, speciellt då det gäller \texttt{vhdl}-koden, så rekommenderas det att man tittar i källkodsfilerna som innehåller förklarande kommentarer.
+
+Ni finner hårdvaruimplementationen i \texttt{src}-mappen, och mjukvaruimplementationer i \texttt{assembly}-mappen.
+
 \section{Apparaten}
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/display2.png}}
 	\caption{Skärmdump.}
 \end{figure}
 Apparaten är en hexadecimal grafräknare med reverse polish-notation.
-
-Börja gärna med en bild på bygget och redgör för hur apparaten används. Detta blir en kombinerad presentation av konstruktionen och användarhandledning. 
 
 \subsection{Beräkningar och inmatning}
 \begin{figure}[h!]
@@ -310,7 +316,7 @@ end while
 inputLength: sli 8
 \end{verbatim}
 \end{oframed}
-\caption{Exempelkod: ett utdrag ur \texttt{Eval\_fn}, se \ref{sec:evalfn}}
+\caption{Exempelkod: ett utdrag ur \texttt{Eval\_fn}, se \ref{sec:evalfn}.}
 \end{figure}
 
 \newpage
