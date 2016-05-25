@@ -379,8 +379,7 @@ python compileAndLoad.py filename
 Scriptet sätter även en begränsning för när \texttt{PM} ska laddas med information från programminnet. Krävs för att det inte ska gå out of range när \texttt{ASR} sätts till något högre än storleken på \texttt{p\_mem}. Används inte \texttt{compileAndLoad.py} så bör denna begränsning sättas för hand.
 
 \subsection{Testbänk}
-Testbänken har förutom att generera en klocka på 100MHz även support för att skriva ut VGA-outputen tillsammans med tidsangivelser till en textfil. Denna kan sedan simuleras i en \href{http://ericeastwood.com/lab/vga-simulator/}{VGA-simulator}.
-
+Testbänken har förutom att generera en klocka på 100MHz även support för att skriva ut VGA-outputen tillsammans med tidsangivelser till en textfil. Denna kan sedan simuleras i en VGA-simulator\footnote{\href{http://ericeastwood.com/lab/vga-simulator/}{\url{http://ericeastwood.com/lab/vga-simulator/}}}
 
 \subsection{''Subrutiner''}
 \begin{figure}[h!]
@@ -418,7 +417,7 @@ Detta bestäms i \texttt{calc} som sedan går vidare till lämplig 'subrutin' s�
 \end{tabular}
 \\\\
 \noindent
-Listan som pekare \texttt{GR0} pekar på innehåller alla värden för beräkningen i omvänd polsk notation. Operander kommer att sparas som sin adress i tileminnet, alltså $43=+$, $44=-$, $45=*$ och $46=/$. För att särskilja operander från vanliga siffror används opvektorn som \texttt{GR1} pekar på. Om det står 0 så är innehållet på samma index i värdesvektorn en siffra, om det står något annat så tolkas det som en operand. I övrigt följer evalueringen algoritmen från \href{https://en.wikipedia.org/wiki/Reverse_Polish_notation#Postfix_algorithm}{Wikipedia}. Stacken har en maxstorlek på 16 rader, därefter har den odefinierat resultat. 
+Listan som pekare \texttt{GR0} pekar på innehåller alla värden för beräkningen i omvänd polsk notation. Operander kommer att sparas som sin adress i tileminnet, alltså $43=+$, $44=-$, $45=*$ och $46=/$. För att särskilja operander från vanliga siffror används opvektorn som \texttt{GR1} pekar på. Om det står 0 så är innehållet på samma index i värdesvektorn en siffra, om det står något annat så tolkas det som en operand. I övrigt följer evalueringen algoritmen från Wikipedia \footnote{\href{https://en.wikipedia.org/wiki/Reverse_Polish_notation\#Postfix_algorithm}{\url{https://en.wikipedia.org/wiki/Reverse_Polish_notation}}}. Stacken har en maxstorlek på 16 rader, därefter har den odefinierat resultat. 
 
 När beräkningen är slutförd ligger resultatet i \texttt{GR0} och en nolla i \texttt{GR1}. Ligger det någonting annat i \texttt{GR1} så har beräkningen gått fel (felaktig input).
 
