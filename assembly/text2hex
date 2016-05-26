@@ -232,6 +232,13 @@ if 0 = $47
     JMP$ 0,&done
 endif
 
+#If input is 'R'
+#Use 'R' to reset the calculator
+if 0 = $27
+    load$ 7,&clearreset
+    JMP$ 0,&clear
+endif
+
 #If input is '<0-F>'
 if 0 < $16
     #Update tile address
