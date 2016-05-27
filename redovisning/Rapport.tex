@@ -106,7 +106,7 @@ minimum height=3em, minimum width=6em]
 	\node [output, right of=cpu] (foo) {};
 	
 	
-	\draw [<->] (cpu) -- node[near start]{} (memory);
+	\draw [->] (cpu) -- node[near start]{} (memory);
 	\node [block, above of=cpu] (keyboarddriver) {Tangentbordsmotor};
 	\node [block, node distance=3.5cm, left of=keyboarddriver] (keyboard) {Tangentbord};
 	
