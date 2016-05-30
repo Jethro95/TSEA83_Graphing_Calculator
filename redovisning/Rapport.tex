@@ -58,8 +58,8 @@ Apparaten är en hexadecimal grafräknare med reverse polish-notation.
 
 \subsection{Beräkningar och inmatning}
 \begin{figure}[h!]
-	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/calculation_lq.jpg}}
-	\caption{Beräkningsexempel \textbf{TODO: Low quality because sshfs is slow. Change to HQ when done}}
+	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/calculation.jpg}}
+	\caption{Beräkningsexempel}
 \end{figure}
 En vanlig beräkning genomför genom att man skriver ett uttryck och avslutar med enter. 
 
@@ -408,12 +408,12 @@ Testbänken har förutom att generera en klocka på 100MHz även support för at
 	\caption{Användandet av en ''subrutin''. }
 \end{figure}
 
-En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block (TODO: Är detta sant?). Det finns i de flesta fall demoprogram för subrutiner vid namn \texttt{subrutinsnamn\_demo}.
+En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block. Det finns i de flesta fall demoprogram för subrutiner vid namn \texttt{subrutinsnamn\_demo}.
 
 \subsection{Omvandla inmatning till tal}\label{sec:text2hex}
 För att omvandla en inmatad följd av siffror till ett enda tal i minnet använder vi koden i \texttt{text2hex}. Detta program väntar tills en giltig tangent registreras av tangentbordsmotorn (dvs. instruktionen \texttt{RC} läser in något annat värde än x$FF$) och avgör sedan om inmatningen är en operand (x$0$ - x$F$), operator ($+$, $-$, $*$, $/$, $=$), en särskild modifierare (\textit{P}, \textit{N}, \textit{R}) eller en särskild karaktär såsom \textit{X} eller mellanslag.
 
-För att konstruera ett tal av en sifferföljd skiftas inmatningen ett lämpligt antal steg till vänster (16 steg för ett $4 \times 4$ fixpunktstal) så att inmatningen hamnar på de första fyra bitarna av heltalsdelen. Det tal som redan ligger i minnet skiftas sedan fyra steg till vänster och de två talen adderas. Se bilaga \ref{app:input_example} för ett exempel på denna process. Inmatning av decimaler fungerar på stort sett samma sett, men den nya siffran skiftas istället in till höger om punkten.
+För att konstruera ett tal av en sifferföljd skiftas inmatningen ett lämpligt antal steg till vänster (16 steg för ett $4 \times 4$ fixpunktstal) så att inmatningen hamnar på de första fyra bitarna av heltalsdelen. Det tal som redan ligger i minnet skiftas sedan fyra steg till vänster och de två talen adderas. Se bilaga \ref{app:input_example} för ett exempel på denna process. Inmatning av decimaler fungerar på stort sett samma sätt, men den nya siffran skiftas istället in till höger om punkten.
 
 Den särskilda modifieraren \textit{N} (\textit{N}egative) kan användas för att ange att inmatningen ska tolkas som ett negativt tal, dvs inmatningsföljden ''\texttt{N5}'' betyder att värdet $-5$ ska sparas.
 
@@ -575,7 +575,7 @@ Tar in ett fixed point-tal och skriver detta till specificerad adress med eventu
 \subsubsection{reset\_bitmap}
 Skriver över alla pixlar i bitmapminnet med vitt. Detta är ingen äkta subrutin, utan inkluderas där den ska användas.
 
-\subsubsection{TODO}
+
 
 \section{Slutsatser}
 \section{Referenser}
