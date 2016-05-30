@@ -49,6 +49,7 @@ Denna manual ämnas att användas som användarreferens, och som en översikt ö
 
 Ni finner hårdvaruimplementationen i \texttt{src}-mappen, och mjukvaruimplementationer i \texttt{assembly}-mappen.
 
+\newpage
 \section{Apparaten}
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/display2.png}}
@@ -76,15 +77,13 @@ P Xmin Xmax Ymin Ymax
 \end{Verbatim}
 där Xmin, Xmax, Ymin och Ymax skrivs in som vanliga siffror. P räknas som operator och ska alltså inte ha något mellanslag efter sig. När den fjärde siffran matats in så töms grafen och nästa funktion som matas in kommer att ritas på det nya utritningsområdet.
 
+\newpage
 \section{Teori}
-Här kan ett videoprojekt beskriva videoformatet, ett MIDI-projekt redogöra för MIDI-standarden ...
 \subsection{Reverse polish}
 Reverse polish är en notation för aritmetiska uttryck utan parenteser. Även känt som postfixnotation, eftersom operatorn hamnar efter operanderna. Exempelvis skrivs $1+2$ som $1 2 +$. Har man flera operatorer så skrivs operatorn direkt efter andra operanden, exempelvis $1-2+3$ blir $1 2 - 3 +$. Man läser alltså från vänster till höger. När det kommer en operand så appliceras den på de två värdena som kom innan, och resultatet läggs tillbaka på operandens plats. Ett mer avancerat exempel med parenteser är $5 + ((1 + 2) * 4) - 3$ som blir $5 1 2 + 4 * + 3 -$.\footnote{Källa: \href{https://en.wikipedia.org/wiki/Reverse_Polish_notation}{\url{https://en.wikipedia.org/wiki/Reverse_Polish_notation}}}
-\section{Hårdvaran}
-Börja med ett översiktligt blockschema, gå vidare till mera detaljerade blockschemor. Vill man rita figurer och blockschemor på datorn så är Inkscape ett bra alternativ. Handritade figurer och blockschemor är acceptabelt, bara de är snygga och väl läsbara, MEN dessa ska då vara inscannade, dvs avfotograferade figurer och blockschemor är INTE godtagbart.
-Beskriv sedan hur de olika blocken fungerar. Tänk på läsbarheten och växla mellan figurer och text. Den här typen av text är ganska "grafisk", då nästan varje mening syftar in i en figur. Var därför noga med att text och figurer stämmer överens.
 
 \newpage
+\section{Hårdvaran}
 
 \subsection{Översikt}
 
@@ -122,8 +121,7 @@ minimum height=3em, minimum width=6em]
 	\caption{Översiktligt blockschema.}
 \end{figure}
 
-
-\newpage
+Hårdvaran består av en generell CPU, en tangentbordsavkodare som kommunicerar med tangentbordet, ett bildminne som hanterar skärminnehållet, och en VGA-motor som översätter bildminnets innehåll till en VGA-signal.
 
 \subsection{CPU}
 
@@ -233,16 +231,18 @@ Vid matematiska operationer tolkas \texttt{AR} och bussens värde som ett signer
 \end{table}
 
 \subsection{Tangentbordsmotor}
+
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[scale=1]{drawings/kbd_enc.png}}
+	\caption{Övergripande blockschema över tangentbordsmotorn}
+\end{figure}
+\noindent
 Tangentbordsmotorn i \texttt{KBD\_ENC} sköter inmatning från ett tangentbord över PS/2-protokollet. När en tangent trycks ner skickas 11 bitar seriellt över dataingången i tangentbordsmotorn, och klockingången klockas i takt med dessa så att databitarna kan läsas vid negativ flank på klockan. Av de 11 bitarna är den första biten en startbit som alltid är 0. Efter startbiten följer 8 databitar (mest signifikant bit skickas först)  som utgör den aktuella scankoden\footnote{\url{http://www.computer-engineering.org/ps2keyboard/scancodes2.html}}, och till sist en paritetsbit (udda paritet) och en stoppbit som alltid är 1.
 
 När alla 11 bitar har lästs av tangentbordsmotorn går scankoden vidare till en tillståndsmaskin som avgör om \texttt{MAKE} eller \texttt{BREAK} (dvs. om den aktuella tangenten trycks ner eller släpps). Denna process kan endast avgöra tillståndet för en tangent åt gången, och flera knapptryckningar samtidigt stödjs således inte. Scankoden översätts sedan till motsvarande tile i bildminnet.
 
 Om tidigare nämnda tillståndsmaskin bestämde att \texttt{MAKE} har inträffat läggs tilekoden på tangentbordsmotorns datautgång och hålls där för att vid senare tillfälle läsas av CPU:n. Tilekoden hålls på bussen tills tangentbordsmotorn antingen får en återställningssignal från Nexyskortet eller processorn skickar en 1:a över \texttt{read\_confirm}-signalen (denna signal skickas automatiskt av \texttt{RC}-instruktionen). Efter en sådan återställning sätts bussen till värdet x$FF$ som hålls tills en ny tangent registreras. Detta tillvägagångssätt medför att processorn alltid kan läsa av den senaste nedtryckta tangenten med \texttt{RC}.
 
-\begin{figure}[h!]
-	\makebox[\textwidth][c]{\includegraphics[scale=1]{drawings/kbd_enc.png}}
-	\caption{Övergripande blockschema över tangentbordsmotorn}
-\end{figure}
 
 \subsection{Bildminne}
 \begin{figure}[h!]
@@ -250,9 +250,10 @@ Om tidigare nämnda tillståndsmaskin bestämde att \texttt{MAKE} har inträffat
 	\caption{Blockschema över bildminnet}
 \end{figure}
 
+\noindent
 Bildminnet är uppdelat i två kolumner, där ena hälften använder tiles och andra hälften använder en bitmap. Bitmapminnet innehåller 320x480 bitars blockram för en svartvit representation av alla pixlar på vänstra skärmhalvan. Bildminnet för tiles innehåller 40x30 rader.
 
-Varje del har en write\_enable-signal, en save\_at-signal och en data\_in-signal. När write\_enable ettställs ersätts innehållet på adressen save\_at med data\_in. Ingen kontroll av att adresserna ligger inom minnet sker, utan det är upp till programmeraren.
+Varje del har en \texttt{write\_enable}-signal, en \texttt{save\_at}-signal och en \texttt{data\_in}-signal. När \texttt{write\_enable} ettställs ersätts innehållet på adressen \texttt{save\_at} med \texttt{data\_in}. Ingen kontroll av att adresserna ligger inom minnet sker, utan det är upp till programmeraren.
 
 \label{parag:picmempixel}
 \texttt{Xpixel} och \texttt{Ypixel} används för att bestämma om \texttt{picmem\_out} eller \texttt{bitmem\_out} ska uppdateras från respektive minne, för att undvika overflow i minnena. Dessa två signaler innehåller alltså värdet för pixeln som ska ritas ut, beroende på vilken hälft av skärmen vi befinner oss i.
@@ -271,12 +272,7 @@ VGA-motorn har ett tileminne, \texttt{tileMem}, som innehåller 48 tecken (A-Ö,
 
 En svart pixel fyller alla bitar i \texttt{vgaRed}, \texttt{vgaGreen} och \texttt{vgaBlue} med nollor, medans en vit pixel fyller dem med ettor. Om man ska läsa från \texttt{tileMem} eller \texttt{bitmem\_in} bestäms även här av \texttt{Xpixel}. En blanksignal ger samma resultat som en svart pixel.
 
-\newpage
-
-\begin{figure}[h!]
-	\makebox[\textwidth][c]{\includegraphics[width=1.3\textwidth]{drawings/vga_motor_detail.png}}
-	\caption{Detaljerat blockschema över VGA-motorn}
-\end{figure}
+Se Bilaga \ref{app:input_example} för ett mer detaljerat blockschema.
 
 \newpage
 
@@ -402,6 +398,7 @@ Pythonapplikation som genererar tiles passande VGA-motorns tileminne utifrån en
 \subsection{Testbänk}
 Testbänken har förutom att generera en klocka på 100MHz även support för att skriva ut VGA-outputen tillsammans med tidsangivelser till en textfil. Denna kan sedan simuleras i en VGA-simulator\footnote{\href{http://ericeastwood.com/lab/vga-simulator/}{\url{http://ericeastwood.com/lab/vga-simulator/}}}
 
+\newpage
 \subsection{''Subrutiner''}
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=0.4\textwidth]{drawings/subroutine.png}}
@@ -577,9 +574,6 @@ Skriver över alla pixlar i bitmapminnet med vitt. Detta är ingen äkta subruti
 
 
 
-\section{Slutsatser}
-\section{Referenser}
-
 \clearpage
 
 \begin{appendices}
@@ -675,5 +669,13 @@ GR1: 0000 0000 0101 0011.0000 0000 0000 0000
 
 \noindent
 \texttt{GR1} innehåller nu bitrepresentatinen av x$53$ för ett $4 \times 4$ fixpunktstal.
+
+\newpage
+\section{Detaljerat blockschema över VGA-motorn}
+\label{figure:detailed_vga}
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[width=1.3\textwidth]{drawings/vga_motor_detail.png}}
+	\caption{Detaljerat blockschema över VGA-motorn}
+\end{figure}
 \end{appendices}
 \end{document}          
