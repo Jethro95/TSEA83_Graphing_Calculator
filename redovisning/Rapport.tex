@@ -218,14 +218,15 @@ Vid matematiska operationer tolkas \texttt{AR} och bussens värde som ett signer
 \begin{table}[H]
 \centering
 \begin{tabular}{llc}
-	\textbf{Kod}    & \textbf{Funktion}                                                                & \textbf{Flaggor påverkade} \\ \hline
+	\textbf{Kod}    & \textbf{Funktion}                                                                & \textbf{Flaggor påverkade} \\ 
+        \hline
 	\texttt{00000}  & \texttt{<Ingenting>}                                                             &  \\
 	\texttt{00001}  & \texttt{AR} := \texttt{DATA\_BUS}                                                &  \\
 	\texttt{00010}  & \texttt{AR} := \texttt{DATA\_BUS}'                                               &  \\
 	\texttt{00011}  & \texttt{AR} := 0                                                                 &  \\
 	\texttt{00100}  & \texttt{AR} := \texttt{AR}+\texttt{DATA\_BUS}                                    &  \texttt{X C V N Z}     \\
 	\texttt{00101}  & \texttt{AR} := \texttt{AR}-\texttt{DATA\_BUS}                                    &  \texttt{X C V N Z}     \\
-	\texttt{00110}  & \texttt{AR} := \texttt{AR} \textsc{and} \texttt{DATA\_BUS}                       &  \texttt{{ } C V N Z}    \\
+	\texttt{00110}  & \texttt{AR} := \texttt{AR} \textsc{and} \texttt{DATA\_BUS}                       &  \texttt{{ } C V N Z}   \\
 	\texttt{00111}  & \texttt{AR} := signed\_to\_real(\texttt{AR}) (16 skift vänster)                  &  \\
 	\texttt{01000}  & \texttt{AR} := real\_to\_signed(\texttt{AR}) (16 skift höger)                    &  \\
 	\texttt{01001}  & \texttt{AR} := \texttt{AR} \textsc{asr} \texttt{DATA\_BUS}                       &  \texttt{X C V N Z}     \\
@@ -234,8 +235,8 @@ Vid matematiska operationer tolkas \texttt{AR} och bussens värde som ett signer
 	\texttt{01100}  & \texttt{AR} := \texttt{AR}-\texttt{DATA\_BUS} (Ekvivalent med \texttt{00101})    &  \texttt{X C V N Z}     \\
 	\texttt{01101}  & \texttt{AR} := \texttt{AR}*\texttt{DATA\_BUS} (fixed point)                      &  \\
 	\texttt{01110}  & \texttt{<Undefined>}                                   &  \\
-	\texttt{01111}  & \texttt{AR} := \texttt{AR} \textsc{lsr} \texttt{DATA\_BUS}                       &  \texttt{X C { } N Z}    \\
-	\texttt{10000}  & \texttt{AR} := \texttt{AR} \textsc{lsl} \texttt{DATA\_BUS}                       &  \texttt{X C { } N Z}    \\
+	\texttt{01111}  & \texttt{AR} := \texttt{AR} \textsc{lsr} \texttt{DATA\_BUS}                       &  \texttt{X C { } N Z}   \\
+	\texttt{10000}  & \texttt{AR} := \texttt{AR} \textsc{lsl} \texttt{DATA\_BUS}                       &  \texttt{X C { } N Z}   \\
 	\texttt{Others} & \texttt{<Undefined>}                                   &
 \end{tabular}
 \caption{Olika \texttt{ALU}-koder och deras respektive funktionalitet, samt modifierade flaggor.}
@@ -414,18 +415,18 @@ Testbänken har förutom att generera en klocka på 100MHz även support för at
 \newpage
 \subsection{''Subrutiner''}
 \begin{figure}[h!]
-	\makebox[\textwidth][c]{\includegraphics[width=0.4\textwidth]{drawings/subroutine.png}}
+	\makebox[\textwidth][c]{\includegraphics[width=0.39\textwidth]{drawings/subroutine.png}}
 	\caption{Användandet av en ''subrutin''. }
 \end{figure}
 \noindent
 En subrutinsliknande struktur används för flera delar av programmet. Detta görs genom att ladda in input, däribland en returadress, till GR-register. Därefter hoppar den som vill kalla på ''subrutinen'' till ''subrutinens'' label. ''Subrutinen'' använder inputen för att utföra sin uppgift. Om returvärden behövs så sparar den det till ett eller flera förutbestämda GR. Sedan hoppar den till den specificerade returadressen. ''Subrutiner'' tar ingen hänsyn till att spara innehållet i register, utan det är anroparens uppgift att spara undan om det behövs. Dock används inga platser i dataminnet utanför dess egna block. Det finns i de flesta fall demoprogram för subrutiner vid namn \texttt{subrutinsnamn\_demo}.
 
 \subsection{Omvandla inmatning till tal}\label{sec:text2hex}
-För att omvandla en inmatad följd av siffror till ett enda tal i minnet använder vi koden i \texttt{text2hex}. Detta program väntar tills en giltig tangent registreras av tangentbordsmotorn (dvs. instruktionen \texttt{RC} läser in något annat värde än x$FF$) och avgör sedan om inmatningen är en operand (x$0$ - x$F$), operator ($+$, $-$, $*$, $/$, $=$), en särskild modifierare (\textit{P}, \textit{N}, \textit{R}) eller en särskild karaktär såsom \textit{X} eller mellanslag.
+För att omvandla en inmatad följd av siffror till ett enda tal i minnet använder vi koden i \texttt{text2hex}. Detta program väntar tills en giltig tangent registreras av tangentbordsmotorn (dvs. instruktionen \texttt{RC} läser in något annat värde än x$FF$) och avgör sedan om inmatningen är en operand (x$0$ - x$F$), operator ($+$, $-$, $*$, $/$, $=$), en särskild modifierare (\textit{P}, \textit{N}, \textit{R}), eller en särskild karaktär såsom \textit{X} eller mellanslag.
 
-För att konstruera ett tal av en sifferföljd skiftas inmatningen ett lämpligt antal steg till vänster (16 steg för ett $4 \times 4$ fixpunktstal) så att inmatningen hamnar på de första fyra bitarna av heltalsdelen. Det tal som redan ligger i minnet skiftas sedan fyra steg till vänster och de två talen adderas. Se bilaga \ref{app:input_example} för ett exempel på denna process. Inmatning av decimaler fungerar på stort sett samma sätt, men den nya siffran skiftas istället in till höger om punkten.
+För att konstruera ett tal av en sifferföljd skiftas inmatningen ett lämpligt antal steg till vänster (16 steg för ett $4 \times 4$ hexteckens fixpunktstal) så att inmatningen hamnar på de första fyra bitarna av heltalsdelen. Det tal som redan ligger i minnet skiftas sedan fyra steg till vänster och de två talen adderas. Se bilaga \ref{app:input_example} för ett exempel på denna process. Inmatning av decimaler fungerar på stort sett samma sätt, men den nya siffran skiftas istället in till höger om punkten.
 
-Den särskilda modifieraren \textit{N} (\textit{N}egative) kan användas för att ange att inmatningen ska tolkas som ett negativt tal, dvs inmatningsföljden ''\texttt{N5}'' betyder att värdet $-5$ ska sparas.
+Den särskilda modifieraren \textit{N} (\textbf{N}egative) kan användas för att ange att inmatningen ska tolkas som ett negativt tal, dvs inmatningsföljden ''\texttt{N5}'' betyder att värdet $-5$ ska sparas.
 
 \subsection{Calc}
 Koden i \texttt{calc} är huvudloopen i programmet, som inte hanterar enskilda inmatade siffror utan behandlar istället de hela tal, operatorer och modifierare som skickas vidare från \texttt{text2hex} (se sektion \ref{sec:text2hex}). Här avgörs det huruvida inmatningen ska läggas på evalueringsstacken (om tecknet är operand, operator, eller variabel \textit{X}), tolkas som en plotparameter (om inmatningen inleds med \textit{P}), eller är en särskild karaktär såsom \textit{R} (som rensar skärmen).
@@ -489,7 +490,7 @@ Värdelista tolkas på samma sätt som i \texttt{Reverse polish}, se \ref{sec:re
 
 Minsta och största X-värden avser axelvärden efter skalning; om till exempel en graf ska ritas för X-värden mellan $-3.5$ och $8.47$, så anges dessa två värden. Därefter är det bara att ange motsvarande pixel. Rutinen antar att graffönstret är 320 pixlar brett, och given X-pixel förväntas därmed vara på intervallet 0 till 319.
 
-När beräkningen är slutförd ligger resultatet i GR0 och en nolla i \texttt{GR1}. Ligger det någonting annat i GR1 så har beräkningen gått fel (felaktig input).
+När beräkningen är slutförd ligger resultatet i \texttt{GR0} och en nolla i \texttt{GR1}. Ligger det någonting annat i \texttt{GR1} så har beräkningen gått fel (felaktig input).
 
 \subsubsection{Division}
 \begin{table}[H]
@@ -683,7 +684,7 @@ GR1: 0000 0000 0101 0011.0000 0000 0000 0000
 \end{framed}
 
 \noindent
-\texttt{GR1} innehåller nu bitrepresentatinen av x$53$ för ett $4 \times 4$ fixpunktstal.
+\texttt{GR1} innehåller nu bitrepresentatinen av x$53$ för ett $4 \times 4$ hexteckens fixpunktstal.
 
 \newpage
 \section{Detaljerat blockschema över VGA-motorn}
