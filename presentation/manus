@@ -1,5 +1,5 @@
 
--SLIDE 1
+-SLIDE 1 Hannes
 
 Hej!
 
@@ -9,7 +9,7 @@ Vi är Grupp 35, och har tillsammans konstruerat en grafritande miniräknare, me
 
 <Bara säga våra namn snabbt; "Jag är X">
 
--SLIDE 2
+-SLIDE 2 Hannes
 
 Vad ni kommer få se när vi går vidare till demonstrationen är en tudelad skärm: ena halvan med en graf, och den andra med en konsol.
 
@@ -19,7 +19,7 @@ Det kan se ut så här <hänvisa till bild>
 
 Vi kommer in på detaljer allt eftersom, men detta är i stora drag vad vi har framför oss.
 
--SLIDE 3
+-SLIDE 3 Hannes
 
 Programmet som körs i bakgrunden är en 1100 rader lång radda som parsar input, beräknar uttryck, och allt mitt i mellan.
 
@@ -27,21 +27,21 @@ Maskinen har support för de fyra räknesätten, med addition, subtraktion, och 
 
 Tal är på fixed-point-format, och tal utöver heltal kan därmed representeras.
 
--SLIDE 4
+-SLIDE 4 Hannes
 
 I och med att programmet är så pass långt så skrev vi det naturligtvis inte direkt i maskinkod. Vi har även producerat en korsassembler, som förutom att översätta instruktionsnamn tills dess respektive binärkod även har hjälpande funktionalitet så som Labsels, if-satser, while-satser, och include.
 
 Till höger ser ni kod för att evaluera mattematiska uttryck med en så kallad reverse-polish-notation.
 
--Slide 5
+-Slide 5 Felix
 
 Reverse polish är nämligen notationen som används när grafräknaren ges input. Att evaluera traditionella mattematiska uttryck kräver generellt både rekursion, vilket vi saknar support för, och mycket arbete.
 
 RP-notationen tillåter användaren att skriva vilket uttryck som helst, men kan fortfarande enkelt evalueras iterativt med hjälp av en stack.
 
-I konsolen, som vi senare demonstrerar, så skrivs uttryck så här, med tokens separerade av mellanslag. Enter för att säga åt maskinen att evaluera uttrycket. Då minustecknet är reserverat för dess operator, så används 'N' för att denotera negativa operander.
+I konsolen, som vi senare demonstrerar, så skrivs uttryck så här, med tokens separerade av mellanslag. Enter för att säga åt maskinen att evaluera uttrycket. Då minustecknet är reserverat för dess operator, så används 'N' för att göra operander negativa.
 
--Slide 6
+-Slide 6 Felix
 
 Förutom att beräkna resultatet av uttryck kan vår räknare också rita ut funktioner.
 
@@ -51,7 +51,7 @@ Detta görs genom att byta X:et mot varje pixels reella X-värde i tur och ordni
 
 Naturligtvis kan ni skala om grafen. Detta görs genom att slå knappen p följt av gränser i x-led och y-led, respektive. Detta ger resultat då nästa funktion ritas ut.
 
--Slide 7
+-Slide 7 Felix
 
 All denna programkod körs på en generell dator vi byggt från grunden.
 
@@ -61,25 +61,24 @@ CPU:n sitter i "mitten", som ni ser på bilden, läser från tangentbordsmotorn,
 
 Vi redovisar dessa moduler i tur och ordning, med CPU:n först.
 
--Slide 8
+-Slide 8 Hannes
 
-Här ser ni en jämförelse mellan vår CPU, vänster, och Olle-Roos-datorn, höger.
+Här ser ni en jämförelse mellan vår CPU, vänster, och Björn Lindskogs-datorn, höger.
 
 Som ni ser är designen mycket lik, med en del fluff bortskuret.
 
--Slide 9
 
 Så en relativt enkel design, ej pipelinad. Data och programminne delas.
 
-Den är 32-bits-baserad för att bättre kunna representera stora tal. Som omnämnt så har den support för hantering av decimaltal i fixed-point form, vars 16 första bitar tolkas som en heltalsdel, och de sista 16 som en decimaldel.
+Den är 32-bits-baserad för att bättre kunna representera stora tal. Fixed funkar som vanligt, förutom ggr. Som omnämnt så har den support för hantering av decimaltal i fixed-point form, vars 16 första bitar tolkas som en heltalsdel, och de sista 16 som en decimaldel.
 
--Slide 10
+-Slide 10 Silas
 
 CPU:n kan programmeras med maskinkod. Det finns support för 27 instruktioner, som kan kallas på med 3 olika moder.
 
 Åtta generella register tillhandahålles, och 5 olika flaggor för alla möjliga typer av hopp.
 
--Slide 11
+-Slide 11 Silas
 
 I minnet delas en instruktion, 32 bitar, upp i följande segment:
 
@@ -89,23 +88,21 @@ Därefter anges vilket av de 8 generella registerna som ska användas.
 Vilket mod som instruktionen körs med, 2 bitar.
 Och slutligen address fältet, som tar upp resten av ordbredden: 22 bitar.
 
--Slide 12
+-Slide 12 Silas
 
 På de två modbitarna kan följande moder anges: Direkt, Omedelbar, och Indirekt. Att ange 11 ger inte något definierat beteende.
 
 Vid omedelbar addressering placeras literalen på raden nedanför istället för i addressdelen av instruktionen, detta för att tillåta användning av större tal som literal; speciellt användbart om de första 16 bitarna är en decimaldel.
 
--Slide 13
+-Slide 13 Silas
 
-Nästa av de tre hårdvarumodulerna är VGA-motorn, som agerar som ett medium mellan CPU och skärm.
+Nästa av de tre hårdvarumodulerna är VGA-motorn på 640x480 pixlar. Vi har delat upp den i två bitar, där den vänstra hälften för grafen är rena pixlar som man kan skriva en nolla (svart) eller etta (vit) till med en assembly-instruktion. Den andra hälften består av 40 tiles per rad, med 30 rader. Varje tile är 8x16 pixlar, även den i svartvitt. Även denna har en egen store-instruktion.
 
-<Silas om VGA-motor>
-
--Slide 15
+-Slide 14 Felix
 
 <Felix om tangentbordsmotor>
 
--Slide 16
+-Slide 15 Felix
 
 Vi vill tacka er för att ni varit en så beundrandsvärd publik, och hoppas att vår presentation har varit av intresse.
 
@@ -113,7 +110,7 @@ Tack så mycket.
 
 <förhoppningsvis en applåd?>
 
--Slide 17
+-Slide 16 Felix
 
 Om ni nu haft några funderingar under presentationen skulle vi vilja använda den kvarvarande tiden till en frågestund. Någon?
 
