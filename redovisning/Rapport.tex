@@ -52,7 +52,7 @@ Ni finner hårdvaruimplementationen i \texttt{src}-mappen, och mjukvaruimplement
 \newpage
 \section{Apparaten}
 \begin{figure}[h!]
-	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/display2.png}}
+	\makebox[\textwidth][c]{\includegraphics[width=0.75\textwidth]{drawings/display2.png}}
 	\caption{Skärmdump.}
 \end{figure}
 \noindent
@@ -61,7 +61,7 @@ Apparaten är en hexadecimal grafräknare med reverse polish-notation.
 \subsection{Beräkningar och inmatning}
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=0.8\textwidth]{drawings/calculation.jpg}}
-	\caption{Beräkningsexempel}
+	\caption{Beräkningsexempel.}
 \end{figure}
 \noindent
 En vanlig beräkning genomför genom att man skriver ett uttryck och avslutar med enter. 
@@ -135,7 +135,7 @@ Hårdvaran består av en generell CPU, en tangentbordsavkodare som kommunicerar 
 \noindent
 CPU:n är baserad på icke-pipelinade Björn Lindskogs-datorn. Huvudminnet, och de allra flesta register inklusive de generella, är 32 bitar långa.
 
-
+\newpage
 \subsubsection{mPC}
 
 Microprogramräknaren. Microninstruktioner har fyra bitar (''\texttt{SEQ}'') att modifiera räknaren med, vilket sker på positiv klockflank.
@@ -175,6 +175,7 @@ Programräknaren, håller koll på instruktion i \texttt{p\_mem} som ska exkaver
 
 \texttt{PC} kan skrivas till via bussen. En från-buss-signal på \texttt{0011} skriver de 22 lägsta bitarna av \texttt{DATA\_BUS} till \texttt{PC}. Den kan även läsas ifrån genom att ange samma busskod på till-buss delen i microminnet.
 
+\newpage
 \subsubsection{ASR}
 
 Addressregistret används i microprocessorn för att peka ut addressen till raden som ska passera som argument. Detta sätts i hämtfasen och beror på vilket mod den dåvarande instruktionen körs med.
@@ -203,6 +204,7 @@ Det är värt att notera att programminnet initialt sätts till konstanten \text
 
 Signaler för att skriva till bild och bitmapminne. Via busskoden \texttt{0111} skickas de sista 8 bitarna i \texttt{DATA\_BUS} via \texttt{data\_out\_picmem} och \texttt{ASR} till \texttt{save\_at\_p}. Via busskoden \texttt{0110} skickas den sista biten i \texttt{DATA\_BUS} via \texttt{data\_out\_bitmap} och \texttt{ASR} till \texttt{save\_at\_b}. Samtidigt aktiveras en (aktivt hög) write-enable-signal, \texttt{web} vid skrivning till bitmapminnet och \texttt{wep} vid skrivning till bildminnet. Dessa nollställs inte, utan används bara för att undvika odefinierade signaler innan första skrivningen.
 
+\newpage
 \subsubsection{AR/ALU}
 
 I processen namngiven \texttt{AR} finns koden som utgör enhetens ALU.
@@ -239,6 +241,7 @@ Vid matematiska operationer tolkas \texttt{AR} och bussens värde som ett signer
 \caption{Olika \texttt{ALU}-koder och deras respektive funktionalitet, samt modifierade flaggor.}
 \end{table}
 
+\newpage
 \subsection{Tangentbordsmotor}
 
 \begin{figure}[h!]
@@ -252,7 +255,7 @@ När alla 11 bitar har lästs av tangentbordsmotorn går scankoden vidare till e
 
 Om tidigare nämnda tillståndsmaskin bestämde att \texttt{MAKE} har inträffat läggs tilekoden på tangentbordsmotorns datautgång och hålls där för att vid senare tillfälle läsas av CPU:n. Tilekoden hålls på bussen tills tangentbordsmotorn antingen får en återställningssignal från Nexyskortet eller processorn skickar en 1:a över \texttt{read\_confirm}-signalen (denna signal skickas automatiskt av \texttt{RC}-instruktionen). Efter en sådan återställning sätts bussen till värdet x$FF$ som hålls tills en ny tangent registreras. Detta tillvägagångssätt medför att processorn alltid kan läsa av den senaste nedtryckta tangenten med \texttt{RC}.
 
-
+\newpage
 \subsection{Bildminne}
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=1\textwidth]{drawings/pic_mem.png}}
@@ -267,6 +270,7 @@ Varje del har en \texttt{write\_enable}-signal, en \texttt{save\_at}-signal och 
 \label{parag:picmempixel}
 \texttt{Xpixel} och \texttt{Ypixel} används för att bestämma om \texttt{picmem\_out} eller \texttt{bitmem\_out} ska uppdateras från respektive minne, för att undvika overflow i minnena. Dessa två signaler innehåller alltså värdet för pixeln som ska ritas ut, beroende på vilken hälft av skärmen vi befinner oss i.
 
+\newpage
 \subsection{VGA-motor}
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=1\textwidth]{drawings/vga_motor.png}}
@@ -454,6 +458,7 @@ Listan som pekare \texttt{GR0} pekar på innehåller alla värden för beräknin
 
 När beräkningen är slutförd ligger resultatet i \texttt{GR0} och en nolla i \texttt{GR1}. Ligger det någonting annat i \texttt{GR1} så har beräkningen gått fel (felaktig input).
 
+\newpage
 \subsubsection{Eval\_fn}
 \label{sec:evalfn}
 
@@ -505,6 +510,7 @@ När beräkningen är slutförd ligger resultatet i GR0 och en nolla i \texttt{G
 \noindent
 Tar in ett en nämnare och en täljare och utför divisionen. Detta görs genom att subtrahera nämnaren från täljaren och räkna antalet subtraktioner. Försöker förbättra precisionen genom att skifta täljaren så långt till vänster som möjligt innan beräkningen, men kan ändå ge varierande bra resultat. Kommer ta mycket lång tid att utföra för vissa tal (små nämnare), upp till flera millisekunder. Efter beräkningen laddas resultatet till \texttt{GR2} och programmet hoppar tillbaka till returadressen från inputen. En division med noll kommer ge noll som resultat.
 
+\newpage
 \subsection{Grafer}
 
 \subsubsection{DrawAxis}
