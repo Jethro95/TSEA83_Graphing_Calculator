@@ -27,7 +27,7 @@
 
 % Title Page
 \title{Teknisk rapport\\Grafisk räknare}
-\author{Hannes Haglund hanha265\\Felix Härnström felha431\\Silas Lenz sille914}
+\author{Hannes Haglund, hanha265\\Felix Härnström, felha432\\Silas Lenz, sille914}
 
 
 \begin{document}
@@ -247,14 +247,14 @@ Vid matematiska operationer tolkas \texttt{AR} och bussens värde som ett signer
 
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[scale=1]{drawings/kbd_enc.png}}
-	\caption{Övergripande blockschema över tangentbordsmotorn}
+	\caption{Övergripande blockschema över tangentbordsmotorn.}
 \end{figure}
 \noindent
 Tangentbordsmotorn i \texttt{KBD\_ENC} sköter inmatning från ett tangentbord över PS/2-protokollet. När en tangent trycks ner skickas 11 bitar seriellt över dataingången i tangentbordsmotorn, och klockingången klockas i takt med dessa så att databitarna kan läsas vid negativ flank på klockan. Av de 11 bitarna är den första biten en startbit som alltid är 0. Efter startbiten följer 8 databitar (mest signifikant bit skickas först)  som utgör den aktuella scankoden\footnote{\url{http://www.computer-engineering.org/ps2keyboard/scancodes2.html}}, och till sist en paritetsbit (udda paritet) och en stoppbit som alltid är 1.
 
 När alla 11 bitar har lästs av tangentbordsmotorn går scankoden vidare till en tillståndsmaskin som avgör om \texttt{MAKE} eller \texttt{BREAK} (dvs. om den aktuella tangenten trycks ner eller släpps). Denna process kan endast avgöra tillståndet för en tangent åt gången, och flera knapptryckningar samtidigt stödjs således inte. Scankoden översätts sedan till motsvarande tile i bildminnet.
 
-Om tidigare nämnda tillståndsmaskin bestämde att \texttt{MAKE} har inträffat läggs tilekoden på tangentbordsmotorns datautgång och hålls där för att vid senare tillfälle läsas av CPU:n. Tilekoden hålls på bussen tills tangentbordsmotorn antingen får en återställningssignal från Nexyskortet eller processorn skickar en 1:a över \texttt{read\_confirm}-signalen (denna signal skickas automatiskt av \texttt{RC}-instruktionen). Efter en sådan återställning sätts bussen till värdet x$FF$ som hålls tills en ny tangent registreras. Detta tillvägagångssätt medför att processorn alltid kan läsa av den senaste nedtryckta tangenten med \texttt{RC}.
+Om tidigare nämnda tillståndsmaskin bestämde att \texttt{MAKE} har inträffat läggs tilekoden på tangentbordsmotorns datautgång och hålls där för att vid senare tillfälle läsas av CPU:n. Tilekoden hålls på bussen tills tangentbordsmotorn antingen får en återställningssignal från Nexyskortet eller processorn skickar en 1:a över \texttt{read\_confirm}-signalen (denna signal skickas automatiskt av \texttt{RC}-instruktionen). Efter en sådan återställning sätts bussen till värdet x$FF$ som hålls tills en ny tangent registreras. Detta tillvägagångssätt medför att processorn alltid kan läsa av den senaste nedtryckta tangenten med \texttt{RC}. För ett detaljerat blockschema över tangentbordsmotorn, se bilaga \ref{app:detailed_kbd}
 
 \newpage
 \subsection{Bildminne}
@@ -692,6 +692,14 @@ GR1: 0000 0000 0101 0011.0000 0000 0000 0000
 \begin{figure}[h!]
 	\makebox[\textwidth][c]{\includegraphics[width=1.3\textwidth]{drawings/vga_motor_detail.png}}
 	\caption{Detaljerat blockschema över VGA-motorn}
+\end{figure}
+
+\newpage
+\section{Detaljerat blockschema över tangentbordsmotorn}
+\label{app:detailed_kbd}
+\begin{figure}[h!]
+	\makebox[\textwidth][c]{\includegraphics[width=1.3\textwidth]{drawings/kbd_enc_detail.png}}
+	\caption{Detaljerat blockschema över tangentbordsmotorn}
 \end{figure}
 \end{appendices}
 \end{document}          

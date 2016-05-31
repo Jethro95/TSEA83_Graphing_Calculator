@@ -790,6 +790,49 @@
          d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
          transform="scale(-0.6,-0.6)" />
     </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-69-2"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4610-75-9"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
+    <marker
+       inkscape:isstock="true"
+       style="overflow:visible"
+       id="marker4978-8-0"
+       refX="0"
+       refY="0"
+       orient="auto"
+       inkscape:stockid="Arrow1Mend">
+      <path
+         inkscape:connector-curvature="0"
+         transform="matrix(-0.4,0,0,-0.4,-4,0)"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1pt;stroke-opacity:1"
+         d="M 0,0 5,-5 -12.5,0 5,5 0,0 Z"
+         id="path4980-4-4" />
+    </marker>
+    <marker
+       inkscape:stockid="Arrow2Mend"
+       orient="auto"
+       refY="0"
+       refX="0"
+       id="Arrow2Mend-23"
+       style="overflow:visible">
+      <path
+         inkscape:connector-curvature="0"
+         id="path4610-51"
+         style="fill-rule:evenodd;stroke-width:0.625;stroke-linejoin:round"
+         d="M 8.7185878,4.0337352 -2.2072895,0.01601326 8.7185884,-4.0017078 c -1.7454984,2.3720609 -1.7354408,5.6174519 -6e-7,8.035443 z"
+         transform="scale(-0.6,-0.6)" />
+    </marker>
   </defs>
   <sodipodi:namedview
      id="base"
@@ -798,9 +841,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="2"
-     inkscape:cx="-270.25717"
-     inkscape:cy="-82.060767"
+     inkscape:zoom="1.1779756"
+     inkscape:cx="-491.50458"
+     inkscape:cy="-281.68213"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -822,7 +865,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title></dc:title>
+        <dc:title />
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -1628,7 +1671,7 @@
          y="1015.6832"
          x="-117.34219"
          id="tspan5056"
-         sodipodi:role="line"></tspan></text>
+         sodipodi:role="line" /></text>
     <g
        transform="translate(-1009.3335,129.42732)"
        id="g5090"
@@ -1995,8 +2038,8 @@
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300" />
     <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="m -739.15684,829.26062 206.1132,0"
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;marker-end:url(#Arrow2Mend)"
+       d="m -739.15682,829.26062 282.28997,0"
        id="path8358"
        inkscape:connector-curvature="0"
        inkscape:export-xdpi="300"
@@ -2004,16 +2047,16 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="-628.61115"
-       y="1104.2269"
+       x="-509.8172"
+       y="841.89032"
        id="text8360"
        sodipodi:linespacing="125%"
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300"><tspan
          sodipodi:role="line"
          id="tspan8362"
-         x="-628.61115"
-         y="1104.2269">ScanCode</tspan></text>
+         x="-509.8172"
+         y="841.89032">ScanCode</tspan></text>
     <path
        style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend)"
        d="m -728.12874,1058.2515 0,56.0234"
@@ -2267,14 +2310,6 @@
            text-decoration="overline"
            style="text-decoration: overline;text-decoration-line: overline">MAKE</tspan></text>
     </g>
-    <path
-       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend)"
-       d="m -533.5645,828.9561 0,254.0921 -99.32319,0 0,30.2061"
-       id="path10819"
-       inkscape:connector-curvature="0"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300"
-       sodipodi:nodetypes="cccc" />
     <g
        id="g11268"
        transform="translate(-501.14608,-26.065391)"
@@ -2394,7 +2429,8 @@
     <g
        id="g13896"
        inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
+       inkscape:export-ydpi="300"
+       transform="translate(446,84)">
       <rect
          y="810.2215"
          x="-274.72079"
@@ -2418,7 +2454,8 @@
     <g
        id="g13920"
        inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300">
+       inkscape:export-ydpi="300"
+       transform="translate(446,84)">
       <path
          inkscape:connector-curvature="0"
          id="path11759"
@@ -2438,7 +2475,7 @@
     </g>
     <g
        id="g13915"
-       transform="translate(-8,0)"
+       transform="translate(438,84)"
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300">
       <path
@@ -2460,7 +2497,7 @@
     </g>
     <g
        id="g13901"
-       transform="translate(0,-6.045889)"
+       transform="translate(446,77.954111)"
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300">
       <g
@@ -2526,7 +2563,7 @@
     </g>
     <g
        id="g13891"
-       transform="translate(-45.552038,-5.0605621)"
+       transform="translate(400.44796,78.939438)"
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300">
       <path
@@ -2546,5 +2583,48 @@
            id="tspan13889"
            sodipodi:role="line">data</tspan></text>
     </g>
+    <g
+       id="g5290"
+       transform="translate(-68,-31)">
+      <rect
+         transform="matrix(0,1,-1,0,0,0)"
+         style="fill:#000000;fill-opacity:0;stroke:#000000;stroke-width:1.99999976;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+         id="rect4482-64-4-3"
+         width="145.91638"
+         height="110.74893"
+         x="838.67847"
+         y="276.09634" />
+      <text
+         sodipodi:linespacing="125%"
+         id="text5280"
+         y="851.7215"
+         x="-381.42981"
+         style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+         xml:space="preserve"><tspan
+           id="tspan5284"
+           y="851.7215"
+           x="-381.42981"
+           sodipodi:role="line">with ScanCode</tspan><tspan
+           id="tspan5288"
+           y="864.2215"
+           x="-381.42981"
+           sodipodi:role="line">select TileIndex</tspan></text>
+    </g>
+    <path
+       style="fill:none;fill-rule:evenodd;stroke:#000000;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#Arrow2Mend)"
+       d="m -363.2208,954.19688 0,185.32012"
+       id="path5296"
+       inkscape:connector-curvature="0" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:10px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="-360.25003"
+       y="1131.2075"
+       id="text5298"
+       sodipodi:linespacing="125%"><tspan
+         sodipodi:role="line"
+         id="tspan5300"
+         x="-360.25003"
+         y="1131.2075">TileIndex</tspan></text>
   </g>
 </svg>
