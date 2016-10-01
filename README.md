@@ -47,3 +47,4 @@ Fully written in assembly (sillescript2) with source code available [here](https
 ![](https://gitlab.com/silas.lenz/TSEA83_Graphing_Calculator/raw/master/redovisning/drawings/display2.png)
 
 
+Originally developen on [github](https://github.com/Jethro95/TSEA83_Graphing_Calculator).
